@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="回收报价">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>废品回收报价助手</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;padding:20px;color:#333}
+.container{max-width:1100px;margin:0 auto}
+.header{text-align:center;color:#fff;margin-bottom:24px}
+.header h1{font-size:2rem;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header .sub{font-size:.9rem;opacity:.8}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:12px;padding:14px;text-align:center;color:#fff}
+.stat-card .num{font-size:1.6rem;font-weight:700}
+.stat-card .label{font-size:.75rem;opacity:.8;margin-top:2px}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.card-title{font-size:1.15rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
+.card-title .time{font-size:.75rem;color:#999;font-weight:400}
+.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;color:#fff;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2)}
+.btn-success{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.btn-warning{background:linear-gradient(135deg,#f2994a,#f2c94c)}
+.btn-info{background:linear-gradient(135deg,#36d1dc,#5b86e5)}
+.btn-danger{background:linear-gradient(135deg,#eb3349,#f45c43)}
+.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+select,input[type=number],input[type=text]{padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;outline:none;transition:border .2s}
+select:focus,input:focus{border-color:#667eea}
+label{font-size:.85rem;color:#555;margin-bottom:4px;display:block}
+.form-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;flex:1;min-width:120px}
+.result-box{background:linear-gradient(135deg,#667eea15,#764ba215);border-radius:12px;padding:16px;margin-top:12px;text-align:center}
+.result-box .price{font-size:2rem;font-weight:700;color:#667eea}
+.result-box .detail{font-size:.85rem;color:#666;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#f8f9fa;padding:10px 8px;text-align:left;font-weight:600;color:#555;position:sticky;top:0}
+td{padding:8px;border-bottom:1px solid #f0f0f0}
+tr:hover{background:#f8f9ff}
+.up{color:#e74c3c;font-weight:600}
+.down{color:#27ae60;font-weight:600}
+.flat{color:#999}
+.search-box{width:100%;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:12px;font-size:.9rem}
+.table-wrap{max-height:400px;overflow-y:auto;border-radius:8px;border:1px solid #eee}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:600}
+.tag-up{background:#fde8e8;color:#e74c3c}
+.tag-down{background:#e8fde8;color:#27ae60}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px;color:#1a1a2e}
+.modal textarea{width:100%;height:200px;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:.85rem;resize:vertical;font-family:inherit}
+.modal .btn-group{margin-top:14px;justify-content:flex-end}
+.toast{position:fixed;top:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:.9rem;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media(max-width:600px){
+  .header h1{font-size:1.4rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form-row{flex-direction:column}
+  .btn-group{gap:6px}
+  .btn{padding:7px 12px;font-size:.8rem}
+}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(function(reg) {
+    console.log('SW registered', reg.scope);
+  }).catch(function(err) {
+    console.log('SW registration failed', err);
+  });
+}
+</script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>♻️ 废品回收报价助手</h1>
+    <div class="sub">快速查询 · 批量更新 · 本地存储</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="statCats">0</div><div class="label">大类</div></div>
+    <div class="stat-card"><div class="num" id="statItems">0</div><div class="label">品类</div></div>
+    <div class="stat-card"><div class="num" id="statUpdate">-</div><div class="label">最后更新</div></div>
+    <div class="stat-card"><div class="num" id="statCalc">0</div><div class="label">今日查询</div></div>
+  </div>
+
+  <!-- 计算区 -->
+  <div class="card">
+    <div class="card-title">🧮 价格计算</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>大类</label>
+        <select id="selCat" onchange="loadItems()"><option value="">选择大类</option></select>
+      </div>
+      <div class="form-group">
+        <label>品类</label>
+        <select id="selItem"><option value="">选择品类</option></select>
+      </div>
+      <div class="form-group" style="max-width:140px">
+        <label>重量 (公斤)</label>
+        <input type="number" id="inputWeight" placeholder="0" min="0" step="0.1">
+      </div>
+      <div class="form-group" style="max-width:100px">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="calcPrice()">计算</button>
+      </div>
+    </div>
+    <div class="result-box" id="resultBox" style="display:none">
+      <div class="price" id="resultPrice">¥0.00</div>
+      <div class="detail" id="resultDetail"></div>
+    </div>
+  </div>
+
+  <!-- 推荐收货价格 -->
+  <div class="card">
+    <div class="card-title">💰 推荐收货价格 <span class="time" id="recTimeLabel"></span></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:.85rem;font-weight:600;white-space:nowrap">收货比例</span>
+      <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#667eea">
+      <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#667eea;min-width:45px;text-align:right">85%</span>
+    </div>
+    <p style="font-size:.8rem;color:#888;margin-bottom:12px">调节收货价占市场价的百分比，根据利润空间和竞争情况调整</p>
+    <div id="recGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="card">
+    <div class="card-title">⚙️ 价格管理</div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="showSitesModal()">🔍 查询行情</button>
+      <button class="btn btn-primary" onclick="showBatchModal()">📋 更新价格</button>
+      <button class="btn btn-info" onclick="exportCSV()">📥 导出CSV</button>
+      <button class="btn btn-info" onclick="exportExcel()">📥 导出Excel</button>
+      <button class="btn btn-warning" onclick="resetPrices()">🔄 恢复默认</button>
+    </div>
+  </div>
+
+  <!-- 价格总览 -->
+  <div class="card">
+    <div class="card-title">📊 价格总览<span class="time" id="updateTimeLabel"></span></div>
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索品类名称..." oninput="renderTable()">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>上次价格</th><th>涨跌</th><th>操作</th></tr></thead>
+        <tbody id="priceBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 批量更新弹窗 -->
+<div class="modal-overlay" id="batchModal">
+  <div class="modal">
+    <h3>📋 批量更新价格</h3>
+    <p style="font-size:.8rem;color:#888;margin-bottom:10px">粘贴价格表，每行格式：<b>品类名 价格</b>（空格或冒号分隔）</p>
+    <textarea id="batchText" placeholder="例：&#10;1号光亮铜线 36&#10;紫铜 35&#10;黄铜 25&#10;熟铝 14.5"></textarea>
+    <div id="batchPreview" style="margin-top:10px;font-size:.8rem;color:#666"></div>
+    <div class="btn-group">
+      <button class="btn btn-danger btn-sm" onclick="closeBatchModal()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="previewBatch()">预览</button>
+      <button class="btn btn-success btn-sm" onclick="applyBatch()">确认更新</button>
+    </div>
+  </div>
+</div>
+
+<!-- 单个编辑弹窗 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ 修改价格</h3>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>品类</label>
+      <input type="text" id="editName" readonly style="background:#f5f5f5">
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>当前价格 (元/kg)</label>
+      <input type="number" id="editPrice" step="0.01" min="0">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-danger btn-sm" onclick="closeEditModal()">取消</button>
+      <button class="btn btn-success btn-sm" onclick="saveEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 行情网站弹窗 -->
+<div class="modal-overlay" id="sitesModal">
+  <div class="modal">
+    <h3>🔍 查询实时行情</h3>
+    <p style="font-size:.8rem;color:#888;margin-bottom:14px">点击跳转到行情网站，查完价格后回来用「更新价格」粘贴即可</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="https://www.cnal.com/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;text-decoration:none;color:#333;transition:background .2s" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+        <span style="font-size:1.5rem">🔩</span>
+        <div><b>世铝网</b><br><span style="font-size:.8rem;color:#888">铝锭、铝合金、铝型材价格</span></div>
+      </a>
+      <a href="https://www.ccmn.cn/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;text-decoration:none;color:#333;transition:background .2s" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+        <span style="font-size:1.5rem">📈</span>
+        <div><b>长江有色金属网</b><br><span style="font-size:.8rem;color:#888">铜、铝、锌、铅、镍等有色金属</span></div>
+      </a>
+      <a href="https://www.feijiu.com/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;text-decoration:none;color:#333;transition:background .2s" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+        <span style="font-size:1.5rem">♻️</span>
+        <div><b>废品之家</b><br><span style="font-size:.8rem;color:#888">废铜、废铝、废铁、废纸等废料报价</span></div>
+      </a>
+      <a href="https://www.mysteel.com/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8f9fa;border-radius:10px;text-decoration:none;color:#333;transition:background .2s" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+        <span style="font-size:1.5rem">🏗️</span>
+        <div><b>我的钢铁网</b><br><span style="font-size:.8rem;color:#888">废钢、废铁、不锈钢等钢铁类</span></div>
+      </a>
+    </div>
+    <div class="btn-group" style="margin-top:14px;justify-content:flex-end">
+      <button class="btn btn-primary btn-sm" onclick="closeSitesModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== 默认价格数据 ==========
+// 推荐收货价 = 市场参考价（元/kg）
+const REC_PRICES = {
+  "废铜": {
+    "1号光亮铜线": { price: 36, note: "纯度高，按铜价走" },
+    "紫铜": { price: 35, note: "干净无杂质" },
+    "黄铜": { price: 25, note: "H62等常见牌号" },
+    "铜管": { price: 32, note: "空调/水管铜管" },
+    "铜排": { price: 33, note: "电气铜排" },
+    "铜米": { price: 30, note: "加工铜米" },
+    "杂铜": { price: 22, note: "混合铜料" },
+    "铜屑": { price: 20, note: "车床铜屑" }
+  },
+  "废铝": {
+    "铝线": { price: 15, note: "纯铝线" },
+    "熟铝": { price: 14, note: "干净铝材" },
+    "生铝": { price: 10, note: "铸铝件" },
+    "铝合金": { price: 12, note: "6063/6061等" },
+    "铝板": { price: 13, note: "纯铝板" },
+    "铝型材": { price: 13.5, note: "门窗/工业型材" },
+    "铝箔": { price: 8, note: "食品/药用铝箔" },
+    "铝屑": { price: 6, note: "加工铝屑" }
+  },
+  "废铁": {
+    "重废": { price: 2.5, note: "厚度>6mm" },
+    "中废": { price: 2.3, note: "厚度3-6mm" },
+    "轻废": { price: 2.0, note: "薄铁皮" },
+    "钢筋": { price: 2.45, note: "建筑钢筋" },
+    "铸铁": { price: 2.2, note: "生铁铸件" },
+    "铁皮": { price: 1.8, note: "薄铁皮/铁桶" },
+    "铁屑": { price: 1.5, note: "车床铁屑" },
+    "生铁": { price: 2.1, note: "生铁件" }
+  },
+  "废不锈钢": {
+    "316不锈钢": { price: 12, note: "耐酸钢" },
+    "304不锈钢": { price: 8, note: "最常见不锈钢" },
+    "201不锈钢": { price: 4.5, note: "低镍不锈钢" },
+    "不锈钢屑": { price: 6, note: "不锈钢加工屑" },
+    "杂不锈钢": { price: 3.5, note: "混合不锈钢" }
+  },
+  "废纸": {
+    "A4纸": { price: 1.4, note: "白色办公纸" },
+    "报纸": { price: 1.2, note: "废旧报纸" },
+    "纸箱": { price: 1.0, note: "黄板纸箱" },
+    "书本纸": { price: 0.9, note: "废旧书本" },
+    "花纸": { price: 0.7, note: "杂色纸张" },
+    "杂纸": { price: 0.5, note: "混合废纸" }
+  },
+  "废塑料": {
+    "ABS": { price: 6.5, note: "硬塑料壳" },
+    "PP": { price: 4.5, note: "编织袋/塑料桶" },
+    "PE": { price: 3.8, note: "薄膜/管材" },
+    "PVC": { price: 2.5, note: "管材/型材" },
+    "PET": { price: 3.2, note: "饮料瓶" },
+    "杂塑料": { price: 1.5, note: "混合塑料" }
+  },
+  "废玻璃": {
+    "钢化玻璃": { price: 0.35, note: "完整钢化" },
+    "平板玻璃": { price: 0.3, note: "普通平板" },
+    "碎玻璃": { price: 0.2, note: "碎裂玻璃" },
+    "玻璃瓶": { price: 0.15, note: "酒瓶/饮料瓶" }
+  },
+  "废轮胎": {
+    "工程胎": { price: 1.8, note: "大型工程胎" },
+    "钢丝胎": { price: 1.2, note: "汽车钢丝胎" },
+    "尼龙胎": { price: 0.9, note: "尼龙线胎" },
+    "自行车胎": { price: 0.5, note: "电动车/自行车胎" }
+  },
+  "废电池": {
+    "镍氢电池": { price: 12, note: "混合动力电池" },
+    "锂电池": { price: 8, note: "手机/电动车电池" },
+    "铅酸电池": { price: 4.5, note: "汽车/电动车电池" },
+    "干电池": { price: 0.8, note: "普通干电池" }
+  },
+  "其他": {
+    "废电子板": { price: 25, note: "电路板/主板" },
+    "废电机": { price: 5, note: "铜芯电机" },
+    "废电线": { price: 18, note: "铜芯电线" },
+    "废家电": { price: 2.5, note: "旧家电整机" },
+    "杂料": { price: 1.0, note: "混合废料" }
+  }
+};
+
+// 计算用的价格数据（从 REC_PRICES 提取纯数字）
+const DEFAULT_DATA = {};
+for (const [cat, items] of Object.entries(REC_PRICES)) {
+  DEFAULT_DATA[cat] = {};
+  for (const [item, info] of Object.entries(items)) {
+    DEFAULT_DATA[cat][item] = info.price;
+  }
+}
+
+// ========== 状态 ==========
+let priceData = {};     // { category: { item: price } }
+let lastPrices = {};    // 上次价格快照
+let updateTime = null;
+let calcCount = 0;
+let editingItem = null;
+let recRatio = 85;      // 收货比例，默认85%
+
+// ========== 从 prices.json 拉取远程价格 ==========
+async function fetchPrices() {
+  const toastEl = document.getElementById('toast');
+  if (toastEl) {
+    toastEl.textContent = '🔄 同步中...';
+    toastEl.classList.add('show');
+  }
+  try {
+    const resp = await fetch('prices.json?t=' + Date.now());
+    const data = await resp.json();
+    // 将 data.categories 合并到 priceData
+    for (const [cat, items] of Object.entries(data.categories)) {
+      if (!priceData[cat]) priceData[cat] = {};
+      Object.assign(priceData[cat], items);
+    }
+    // 更新 updateTime 为服务器时间
+    updateTime = data.updatedAt || new Date().toLocaleString('zh-CN');
+    document.getElementById('updateTimeLabel').textContent = '更新于 ' + updateTime;
+    if (toastEl) {
+      toastEl.textContent = '✅ 已同步';
+      setTimeout(() => toastEl.classList.remove('show'), 1500);
+    }
+    // 保存到 localStorage
+    save();
+    return true;
+  } catch(e) {
+    if (toastEl) {
+      toastEl.textContent = '使用本地数据';
+      setTimeout(() => toastEl.classList.remove('show'), 1500);
+    }
+    console.log('fetchPrices failed, using local data');
+    return false;
+  }
+}
+
+// ========== 初始化 ==========
+async function init() {
+  const saved = localStorage.getItem('scrap_prices');
+  const savedLast = localStorage.getItem('scrap_last_prices');
+  const savedTime = localStorage.getItem('scrap_update_time');
+  const savedCount = localStorage.getItem('scrap_calc_count');
+
+  if (saved) {
+    priceData = JSON.parse(saved);
+  } else {
+    priceData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+  lastPrices = savedLast ? JSON.parse(savedLast) : {};
+  updateTime = savedTime || null;
+  calcCount = savedCount ? parseInt(savedCount) : 0;
+  recRatio = parseInt(localStorage.getItem('scrap_rec_ratio') || '85');
+  document.getElementById('recRatio').value = recRatio;
+  document.getElementById('recRatioLabel').textContent = recRatio + '%';
+
+  // 从远程拉取价格（失败时使用本地兜底）
+  await fetchPrices();
+
+  renderCatSelect();
+  renderTable();
+  renderRecGrid();
+  updateStats();
+
+  // 每5分钟自动刷新价格
+  setInterval(fetchPrices, 5 * 60 * 1000);
+}
+
+// ========== 推荐收货价 ==========
+function renderRecGrid() {
+  const grid = document.getElementById('recGrid');
+  if (!grid) return;
+  const icons = { '废铜':'🟤', '废铝':'⚪', '废铁':'⚫', '废不锈钢':'🔘', '废纸':'📰', '废塑料':'♻️', '废玻璃':'🪟', '废轮胎':'🛞', '废电池':'🔋', '其他':'📦' };
+  let html = '';
+  for (const [cat, items] of Object.entries(REC_PRICES)) {
+    const cur = priceData[cat] || {};
+    html += `<div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #667eea">
+      <div style="font-weight:700;margin-bottom:8px;font-size:.95rem">${icons[cat]||'📦'} ${cat}</div>`;
+    for (const [item, info] of Object.entries(items)) {
+      const basePrice = cur[item] !== undefined ? cur[item] : info.price;
+      const buyPrice = (basePrice * recRatio / 100).toFixed(2);
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.82rem">
+        <span style="color:#555">${item}</span>
+        <span><b style="color:#667eea">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${basePrice}</span></span>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+  const recTime = document.getElementById('recTimeLabel');
+  if (recTime) recTime.textContent = updateTime ? '更新于 ' + updateTime : '';
+}
+
+function onRatioChange() {
+  const slider = document.getElementById('recRatio');
+  const label = document.getElementById('recRatioLabel');
+  recRatio = parseInt(slider.value);
+  label.textContent = recRatio + '%';
+  localStorage.setItem('scrap_rec_ratio', recRatio.toString());
+  renderRecGrid();
+}
+
+function save() {
+  localStorage.setItem('scrap_prices', JSON.stringify(priceData));
+  localStorage.setItem('scrap_last_prices', JSON.stringify(lastPrices));
+  if (updateTime) localStorage.setItem('scrap_update_time', updateTime);
+  localStorage.setItem('scrap_calc_count', calcCount.toString());
+}
+
+// ========== 统计 ==========
+function updateStats() {
+  const cats = Object.keys(priceData);
+  let items = 0;
+  cats.forEach(c => items += Object.keys(priceData[c]).length);
+  document.getElementById('statCats').textContent = cats.length;
+  document.getElementById('statItems').textContent = items;
+  document.getElementById('statUpdate').textContent = updateTime ? updateTime.slice(5,16) : '未更新';
+  document.getElementById('statCalc').textContent = calcCount;
+  document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + updateTime : '';
+}
+
+// ========== 下拉框 ==========
+function renderCatSelect() {
+  const sel = document.getElementById('selCat');
+  sel.innerHTML = '<option value="">选择大类</option>';
+  Object.keys(priceData).forEach(cat => {
+    sel.innerHTML += `<option value="${cat}">${cat}</option>`;
+  });
+}
+
+function loadItems() {
+  const cat = document.getElementById('selCat').value;
+  const sel = document.getElementById('selItem');
+  sel.innerHTML = '<option value="">选择品类</option>';
+  if (!cat || !priceData[cat]) return;
+  Object.keys(priceData[cat]).forEach(item => {
+    const p = priceData[cat][item];
+    sel.innerHTML += `<option value="${item}">${item} - ${p}元/kg</option>`;
+  });
+}
+
+// ========== 计算 ==========
+function calcPrice() {
+  const cat = document.getElementById('selCat').value;
+  const item = document.getElementById('selItem').value;
+  const weight = parseFloat(document.getElementById('inputWeight').value);
+
+  if (!cat || !item) return toast('请选择品类');
+  if (!weight || weight <= 0) return toast('请输入有效重量');
+
+  const unitPrice = priceData[cat][item];
+  const total = unitPrice * weight;
+
+  document.getElementById('resultPrice').textContent = '¥' + total.toFixed(2);
+  document.getElementById('resultDetail').textContent = `${item} × ${weight}kg × ${unitPrice}元/kg`;
+  document.getElementById('resultBox').style.display = 'block';
+
+  calcCount++;
+  save();
+  updateStats();
+}
+
+// ========== 表格 ==========
+function renderTable() {
+  const keyword = document.getElementById('searchBox').value.toLowerCase();
+  const tbody = document.getElementById('priceBody');
+  let html = '';
+
+  Object.keys(priceData).forEach(cat => {
+    Object.keys(priceData[cat]).forEach(item => {
+      if (keyword && !item.toLowerCase().includes(keyword) && !cat.toLowerCase().includes(keyword)) return;
+      const cur = priceData[cat][item];
+      const last = lastPrices[cat] ? lastPrices[cat][item] : null;
+      let changeHtml = '<span class="flat">-</span>';
+      let tagHtml = '';
+      if (last !== null && last !== undefined && last !== cur) {
+        const pct = ((cur - last) / last * 100).toFixed(1);
+        if (cur > last) {
+          changeHtml = `<span class="up">↑ ${pct}%</span>`;
+          tagHtml = '<span class="tag tag-up">涨</span>';
+        } else {
+          changeHtml = `<span class="down">↓ ${Math.abs(pct)}%</span>`;
+          tagHtml = '<span class="tag tag-down">跌</span>';
+        }
+      }
+      html += `<tr>
+        <td>${cat}</td><td>${item}</td><td><b>${cur}</b></td>
+        <td>${last !== null && last !== undefined ? last : '-'}</td>
+        <td>${changeHtml} ${tagHtml}</td>
+        <td><button class="btn btn-primary btn-sm" onclick="openEdit('${cat}','${item}')">编辑</button></td>
+      </tr>`;
+    });
+  });
+
+  tbody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">无匹配结果</td></tr>';
+}
+
+// ========== 编辑 ==========
+function openEdit(cat, item) {
+  editingItem = { cat, item };
+  document.getElementById('editName').value = cat + ' - ' + item;
+  document.getElementById('editPrice').value = priceData[cat][item];
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+function saveEdit() {
+  if (!editingItem) return;
+  const newPrice = parseFloat(document.getElementById('editPrice').value);
+  if (isNaN(newPrice) || newPrice < 0) return toast('请输入有效价格');
+
+  const { cat, item } = editingItem;
+  if (!lastPrices[cat]) lastPrices[cat] = {};
+  lastPrices[cat][item] = priceData[cat][item];
+  priceData[cat][item] = newPrice;
+
+  save();
+  renderTable();
+  renderRecGrid();
+  loadItems();
+  updateStats();
+  closeEditModal();
+  toast('✅ 价格已更新');
+}
+
+// ========== 批量更新 ==========
+function showBatchModal() {
+  document.getElementById('batchText').value = '';
+  document.getElementById('batchPreview').innerHTML = '';
+  document.getElementById('batchModal').classList.add('show');
+}
+
+function closeBatchModal() {
+  document.getElementById('batchModal').classList.remove('show');
+}
+
+function previewBatch() {
+  const text = document.getElementById('batchText').value.trim();
+  if (!text) return toast('请粘贴价格数据');
+
+  const lines = text.split('\n').filter(l => l.trim());
+  let matched = 0, unmatched = 0;
+  let html = '<b>匹配预览：</b><br>';
+
+  lines.forEach(line => {
+    // 支持：空格、冒号、等号、tab 分隔
+    const m = line.match(/^(.+?)[\s:：=＝\t]+(\d+\.?\d*)/);
+    if (!m) { unmatched++; html += `<span style="color:#e74c3c">❌ ${line}</span><br>`; return; }
+    const name = m[1].trim();
+    const price = parseFloat(m[2]);
+    let found = false;
+    Object.keys(priceData).forEach(cat => {
+      Object.keys(priceData[cat]).forEach(item => {
+        if (item === name || cat + item === name) {
+          matched++;
+          const old = priceData[cat][item];
+          const diff = price - old;
+          const arrow = diff > 0 ? '<span class="up">↑</span>' : diff < 0 ? '<span class="down">↓</span>' : '→';
+          html += `<span style="color:#27ae60">✅ ${name}: ${old} → ${price} ${arrow}</span><br>`;
+          found = true;
+        }
+      });
+    });
+    if (!found) { unmatched++; html += `<span style="color:#f39c12">⚠️ ${name}: ${price} (未找到品类)</span><br>`; }
+  });
+
+  html += `<br><b>匹配 ${matched} 条，未匹配 ${unmatched} 条</b>`;
+  document.getElementById('batchPreview').innerHTML = html;
+}
+
+function applyBatch() {
+  const text = document.getElementById('batchText').value.trim();
+  if (!text) return toast('请粘贴价格数据');
+
+  // 保存当前为 lastPrices
+  Object.keys(priceData).forEach(cat => {
+    if (!lastPrices[cat]) lastPrices[cat] = {};
+    Object.keys(priceData[cat]).forEach(item => {
+      lastPrices[cat][item] = priceData[cat][item];
+    });
+  });
+
+  const lines = text.split('\n').filter(l => l.trim());
+  let count = 0;
+
+  lines.forEach(line => {
+    const m = line.match(/^(.+?)[\s:：=＝\t]+(\d+\.?\d*)/);
+    if (!m) return;
+    const name = m[1].trim();
+    const price = parseFloat(m[2]);
+    Object.keys(priceData).forEach(cat => {
+      Object.keys(priceData[cat]).forEach(item => {
+        if (item === name || cat + item === name) {
+          priceData[cat][item] = price;
+          count++;
+        }
+      });
+    });
+  });
+
+  updateTime = new Date().toLocaleString('zh-CN');
+  save();
+  renderTable();
+  renderRecGrid();
+  updateStats();
+  closeBatchModal();
+  toast(`✅ 成功更新 ${count} 个品类`);
+}
+
+// ========== 恢复默认 ==========
+function resetPrices() {
+  if (!confirm('确定要恢复默认价格吗？当前数据将被覆盖。')) return;
+  // 保存当前为 lastPrices
+  lastPrices = JSON.parse(JSON.stringify(priceData));
+  priceData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  updateTime = new Date().toLocaleString('zh-CN');
+  save();
+  renderCatSelect();
+  renderTable();
+  renderRecGrid();
+  updateStats();
+  toast('✅ 已恢复默认价格');
+}
+
+// ========== 导出CSV ==========
+function exportCSV() {
+  let csv = '\uFEFF大类,品类,当前价格(元/kg),上次价格,涨跌幅\n';
+  Object.keys(priceData).forEach(cat => {
+    Object.keys(priceData[cat]).forEach(item => {
+      const cur = priceData[cat][item];
+      const last = lastPrices[cat] ? lastPrices[cat][item] : null;
+      let pct = '-';
+      if (last !== null && last !== undefined && last !== cur) {
+        pct = ((cur - last) / last * 100).toFixed(1) + '%';
+      }
+      csv += `${cat},${item},${cur},${last !== null && last !== undefined ? last : '-'},${pct}\n`;
+    });
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `废品回收价格_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV已下载');
+}
+
+// ========== 导出Excel ==========
+function exportExcel() {
+  const ratio = recRatio;
+  const rows = [['大类', '品类', '当前价格(元/kg)', '收货价(元/kg)']];
+  Object.keys(priceData).forEach(cat => {
+    Object.keys(priceData[cat]).forEach(item => {
+      const cur = priceData[cat][item];
+      const buyPrice = (cur * ratio / 100).toFixed(2);
+      rows.push([cat, item, cur, parseFloat(buyPrice)]);
+    });
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '废品回收报价');
+  const date = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `废品回收报价_${date}.xlsx`);
+  toast('✅ Excel已下载');
+}
+
+// ========== 行情网站弹窗 ==========
+function showSitesModal() {
+  document.getElementById('sitesModal').classList.add('show');
+}
+function closeSitesModal() {
+  document.getElementById('sitesModal').classList.remove('show');
+}
+
+// ========== 工具 ==========
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// 回车计算
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (document.activeElement.id === 'inputWeight')) calcPrice();
+});
+
+init();
+</script>
+</body>
+</html>
