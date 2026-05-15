@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<title>♻️ 废品回收报价 · 后台管理</title>
+<style>
+/* ========== Reset & Base ========== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;
+  background:#f0f2f5;
+  color:#1a1a2e;
+  min-height:100vh;
+  transition:background .35s,color .35s;
+}
+body.dark{
+  background:#0f0f1a;
+  color:#e0e0e0;
+}
+/* ========== Container ========== */
+.container{max-width:1200px;margin:0 auto;padding:16px}
+
+/* ========== Header ========== */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:16px;
+}
+.header-left h1{
+  font-size:1.4rem;
+  background:linear-gradient(135deg,#2563eb,#38bdf8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.header-left .sub{
+  font-size:.78rem;color:#888;margin-top:2px;
+}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ========== Toggle ========== */
+.toggle-wrap{
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;color:#888;cursor:pointer;user-select:none;
+}
+.toggle-track{
+  width:36px;height:20px;border-radius:10px;
+  background:#ccc;position:relative;transition:background .3s;flex-shrink:0;
+}
+.dark .toggle-track{background:#555}
+.toggle-knob{
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  position:absolute;top:2px;left:2px;transition:transform .3s;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.dark .toggle-knob{transform:translateX(16px)}
+
+/* ========== Buttons ========== */
+.btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:7px 14px;border:none;border-radius:8px;
+  font-size:.82rem;font-weight:600;cursor:pointer;
+  transition:all .18s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.btn:active{transform:translateY(0)}
+.btn-blue{background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff}
+.btn-green{background:linear-gradient(135deg,#059669,#34d399);color:#fff}
+.btn-orange{background:linear-gradient(135deg,#ea580c,#f97316);color:#fff}
+.btn-gray{background:#e2e8f0;color:#1e293b}
+.dark .btn-gray{background:#334155;color:#e0e0e0}
+.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn-outline{background:transparent;border:1.5px solid #2563eb;color:#2563eb}
+
+/* ========== Info Bar ========== */
+.info-bar{
+  background:#fff;border-radius:12px;padding:10px 16px;
+  margin-bottom:16px;font-size:.82rem;color:#555;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.dark .info-bar{background:#1e1e30;color:#aaa;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.info-bar .label{font-weight:600;color:#2563eb}
+.info-bar .hint{color:#888;font-size:.75rem}
+.info-bar .badge{
+  display:inline-block;padding:2px 8px;border-radius:6px;
+  font-size:.72rem;font-weight:600;
+}
+
+/* ========== Cards Grid ========== */
+.category-section{margin-bottom:20px}
+.category-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;margin-bottom:8px;flex-wrap:wrap;gap:6px;
+}
+.category-title{
+  font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:6px;
+}
+.category-actions{display:flex;gap:6px;align-items:center}
+.category-actions .adjust-btn{
+  padding:3px 10px;border:1.5px solid #2563eb;border-radius:6px;
+  background:transparent;color:#2563eb;font-size:.75rem;font-weight:600;
+  cursor:pointer;transition:all .15s;
+}
+.category-actions .adjust-btn:hover{background:#2563eb;color:#fff}
+
+.item-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;
+}
+.item-card{
+  background:#fff;border-radius:10px;padding:8px;
+  display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;
+  transition:box-shadow .2s,transform .2s;
+}
+.item-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);transform:translateY(-1px)}
+.dark .item-card{background:#1e1e30;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.dark .item-card:hover{box-shadow:0 3px 16px rgba(0,0,0,.4)}
+.item-name{font-size:.78rem;color:#666;margin-bottom:4px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dark .item-name{color:#999}
+.item-input{
+  width:80px;padding:4px 6px;border:2px solid #e2e8f0;border-radius:6px;
+  font-size:.9rem;font-weight:700;text-align:center;outline:none;
+  transition:border-color .2s,background .15s;
+  background:#f8fafc;color:#1a1a2e;
+}
+.dark .item-input{border-color:#334155;background:#2a2a40;color:#e0e0e0}
+.item-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.item-input.changed-up{background:#fef2f2;border-color:#ef4444}
+.item-input.changed-down{background:#f0fdf4;border-color:#22c55e}
+.dark .item-input.changed-up{background:#3b1515;border-color:#ef4444}
+.dark .item-input.changed-down{background:#153b1a;border-color:#22c55e}
+
+/* ========== Toast ========== */
+.toast{
+  position:fixed;top:16px;right:16px;z-index:9999;
+  background:#1e293b;color:#fff;padding:10px 18px;
+  border-radius:10px;font-size:.85rem;
+  opacity:0;transition:opacity .3s,transform .3s;
+  transform:translateY(-8px);pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  max-width:320px;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:#059669}
+.toast.error{background:#dc2626}
+.toast.warn{background:#d97706}
+
+/* ========== Modal ========== */
+.modal-overlay{
+  display:none;position:fixed;z-index:1000;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.45);justify-content:center;align-items:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:#fff;border-radius:16px;padding:20px;
+  width:92%;max-width:500px;max-height:82vh;overflow-y:auto;
+}
+.dark .modal{background:#1e1e30;color:#e0e0e0}
+.modal h3{font-size:1.05rem;margin-bottom:12px}
+.modal p{font-size:.82rem;color:#666;margin-bottom:10px;line-height:1.5}
+.dark .modal p{color:#999}
+.modal .btn-group{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;flex-wrap:wrap}
+.modal textarea{
+  width:100%;height:180px;padding:10px;border:1.5px solid #ddd;
+  border-radius:8px;font-size:.85rem;font-family:inherit;resize:vertical;
+}
+.dark .modal textarea{background:#2a2a40;border-color:#444;color:#e0e0e0}
+.preview-box{
+  background:#f8fafc;border-radius:8px;padding:10px;font-size:.78rem;
+  margin-top:8px;max-height:160px;overflow-y:auto;line-height:1.6;
+}
+.dark .preview-box{background:#151525}
+
+/* ========== Smart Paste ========== */
+.paste-section{
+  background:#fff;border-radius:12px;padding:14px 16px;
+  margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.dark .paste-section{background:#1e1e30;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.paste-section h3{font-size:.95rem;margin-bottom:8px;color:#2563eb}
+.paste-section textarea{
+  width:100%;min-height:90px;padding:10px;
+  border:1.5px solid #d0d5dd;border-radius:8px;
+  font-size:.85rem;font-family:inherit;resize:vertical;
+  outline:none;transition:border-color .2s;
+}
+.paste-section textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.dark .paste-section textarea{background:#2a2a40;border-color:#444;color:#e0e0e0}
+.paste-section .paste-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+
+.paste-results{
+  margin-top:10px;font-size:.82rem;line-height:1.7;
+  max-height:240px;overflow-y:auto;
+}
+.paste-results .pr-item{
+  display:flex;align-items:center;gap:8px;padding:3px 6px;
+  border-radius:6px;margin-bottom:2px;
+}
+.paste-results .pr-item.matched{background:#ecfdf5}
+.paste-results .pr-item.pending{background:#fef9c3}
+.paste-results .pr-item.unmatched{background:#fef2f2}
+.dark .paste-results .pr-item.matched{background:#0a2215}
+.dark .paste-results .pr-item.pending{background:#221e0a}
+.dark .paste-results .pr-item.unmatched{background:#220a0a}
+.paste-results .pr-icon{font-size:.9rem;flex-shrink:0}
+.paste-results .pr-name{font-weight:600;color:#1a1a2e}
+.dark .paste-results .pr-name{color:#e0e0e0}
+.paste-results .pr-arrow{color:#888}
+.paste-results .pr-price{font-weight:700;color:#059669}
+.paste-results .pr-msg{color:#888;font-size:.75rem}
+.paste-results select{
+  padding:2px 6px;border:1.5px solid #d0d5dd;border-radius:5px;
+  font-size:.78rem;background:#fff;max-width:160px;
+}
+.dark .paste-results select{background:#2a2a40;border-color:#444;color:#e0e0e0}
+
+/* highlight blink */
+@keyframes blink-highlight{
+  0%,100%{box-shadow:0 0 0 3px rgba(37,99,235,.3)}
+  50%{box-shadow:0 0 0 3px rgba(37,99,235,.7),0 0 12px rgba(37,99,235,.4)}
+}
+.item-input.blink-highlight{animation:blink-highlight .8s ease-in-out 2}
+
+/* ========== Scrollbar ========== */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+.dark ::-webkit-scrollbar-thumb{background:#475569}
+
+/* ========== Responsive ========== */
+@media(max-width:640px){
+  .container{padding:10px}
+  .header-left h1{font-size:1.15rem}
+  .header-right .btn{font-size:.75rem;padding:6px 10px}
+  .item-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+  .item-card{padding:6px}
+  .item-input{width:70px;font-size:.82rem}
+  .info-bar{font-size:.75rem;padding:8px 10px;flex-direction:column;align-items:flex-start}
+  .category-header{padding:6px 8px}
+  .category-title{font-size:.95rem}
+}
+@media(max-width:400px){
+  .item-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>♻️ 废品报价管理</h1>
+      <div class="sub">后台价格编辑面板 · 改完复制JSON到GitHub即可</div>
+    </div>
+    <div class="header-right">
+      <div class="toggle-wrap" onclick="toggleDark()">
+        <span>🌙</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span>☀️</span>
+      </div>
+      <button class="btn btn-blue" onclick="copyJSON()">📋 复制JSON</button>
+      <button class="btn btn-green" onclick="refreshPrices()">🔄 刷新</button>
+    </div>
+  </div>
+
+  <!-- Smart Paste Section -->
+  <div class="paste-section" id="pasteSection">
+    <h3>🧠 智能识别粘贴</h3>
+    <textarea id="pasteInput" placeholder="粘贴行情文本，自动识别品类和价格&#10;支持格式：&#10;  光亮铜 38.5&#10;  紫铜:35&#10;  铝线=15.8&#10;  1号光亮铜线,39.2&#10;一行一个，分隔符支持空格/冒号/等号/逗号/制表符"></textarea>
+    <div class="paste-actions">
+      <button class="btn btn-blue btn-sm" onclick="smartParse()">🔍 识别并更新</button>
+      <button class="btn btn-green btn-sm" id="applyAllBtn" style="display:none" onclick="applyAllParsed()">✅ 应用全部更新</button>
+      <span class="hint" style="font-size:.72rem;color:#888">粘贴后点击识别，匹配结果逐行显示</span>
+    </div>
+    <div class="paste-results" id="pasteResults"></div>
+  </div>
+
+  <!-- Info Bar -->
+  <div class="info-bar">
+    <span>💡 修改价格后，点击 <span class="label">📋 复制JSON</span> → 打开 GitHub 替换 <code>prices.json</code> 即可生效</span>
+    <span class="hint">｜ 上次更新：<span id="updateTime">-</span></span>
+  </div>
+
+  <!-- Categories Grid -->
+  <div id="app"></div>
+
+</div>
+
+<!-- Modal: Adjust Amount -->
+<div class="modal-overlay" id="adjustModal">
+  <div class="modal">
+    <h3>📊 统一调价：<span id="adjustCatName"></span></h3>
+    <p>输入调整金额（支持负数降价，如 <code>-2</code>），该大类下所有品类价格统一变动。</p>
+    <div style="display:flex;gap:8px;align-items:center;margin:12px 0">
+      <span style="font-size:.9rem;font-weight:600">金额：</span>
+      <input type="number" id="adjustAmount" step="0.5" value="1" style="flex:1;padding:8px;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;outline:none">
+      <span style="font-size:.85rem;color:#888">元</span>
+    </div>
+    <p style="font-size:.75rem;color:#999">正值=涨价，负值=降价。如 +2 表示该大类所有品种单价+2元。</p>
+    <div class="btn-group">
+      <button class="btn btn-gray btn-sm" onclick="closeAdjustModal()">取消</button>
+      <button class="btn btn-orange btn-sm" onclick="applyAdjust()">确认调整</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== State ==========
+let prices = {};
+let prevPrices = {};
+let updateTime = '';
+let isDark = false;
+
+// ========== Init ==========
+async function init() {
+  const saved = localStorage.getItem('fpba_admin_prices');
+  const savedPrev = localStorage.getItem('fpba_admin_prev');
+  const savedTime = localStorage.getItem('fpba_admin_time');
+  const savedDark = localStorage.getItem('fpba_admin_dark');
+
+  if (saved) {
+    prices = JSON.parse(saved);
+  }
+  if (savedPrev) {
+    prevPrices = JSON.parse(savedPrev);
+  }
+  if (savedTime) updateTime = savedTime;
+  if (savedDark === '1') {
+    isDark = true;
+    document.body.classList.add('dark');
+  }
+
+  await fetchPrices();
+  render();
+}
+
+// ========== Fetch ==========
+async function fetchPrices() {
+  try {
+    const resp = await fetch('prices.json?t=' + Date.now());
+    const data = await resp.json();
+    if (data && data.categories) {
+      // snapshot current as prev before overwriting
+      snapshotPrev();
+      prices = data.categories;
+      updateTime = data.updatedAt || formatTime(new Date());
+      localStorage.setItem('fpba_admin_time', updateTime);
+      localStorage.setItem('fpba_admin_prices', JSON.stringify(prices));
+      localStorage.setItem('fpba_admin_prev', JSON.stringify(prevPrices));
+      return true;
+    }
+  } catch(e) {
+    // if we have no local data either, use hardcoded defaults
+    if (Object.keys(prices).length === 0) {
+      prices = getDefaultPrices();
+      updateTime = formatTime(new Date());
+    }
+  }
+  return false;
+}
+
+function getDefaultPrices() {
+  return {
+    "废铜":{
+      "1号光亮铜线":36,"紫铜":35,"黄铜":25,"铜管":32,"铜排":33,"铜米":30,"杂铜":22,"铜屑":20
+    },
+    "废铝":{
+      "铝线":15,"熟铝":14,"生铝":10,"铝合金":12,"铝板":13,"铝型材":13.5,"铝箔":8,"铝屑":6
+    },
+    "废铁":{
+      "重废":2.5,"中废":2.3,"轻废":2.0,"钢筋":2.45,"铸铁":2.2,"铁皮":1.8,"铁屑":1.5,"生铁":2.1
+    },
+    "废不锈钢":{
+      "316不锈钢":12,"304不锈钢":8,"201不锈钢":4.5,"不锈钢屑":6,"杂不锈钢":3.5
+    },
+    "废纸":{
+      "A4纸":1.4,"报纸":1.2,"纸箱":1.0,"书本纸":0.9,"花纸":0.7,"杂纸":0.5
+    },
+    "废塑料":{
+      "ABS":6.5,"PP":4.5,"PE":3.8,"PVC":2.5,"PET":3.2,"杂塑料":1.5
+    },
+    "废玻璃":{
+      "钢化玻璃":0.35,"平板玻璃":0.3,"碎玻璃":0.2,"玻璃瓶":0.15
+    },
+    "废轮胎":{
+      "工程胎":1.8,"钢丝胎":1.2,"尼龙胎":0.9,"自行车胎":0.5
+    },
+    "废电池":{
+      "镍氢电池":12,"锂电池":8,"铅酸电池":4.5,"干电池":0.8
+    },
+    "其他":{
+      "废电子板":25,"废电机":5,"废电线":18,"废家电":2.5,"杂料":1.0
+    }
+  };
+}
+
+function snapshotPrev() {
+  prevPrices = JSON.parse(JSON.stringify(prices));
+}
+
+function formatTime(d) {
+  const pad = n => n.toString().padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ========== Render ==========
+const CAT_ICONS = {
+  '废铜':'🟤','废铝':'⚪','废铁':'⚫','废不锈钢':'🔘',
+  '废纸':'📰','废塑料':'♻️','废玻璃':'🪟','废轮胎':'🛞',
+  '废电池':'🔋','其他':'📦'
+};
+
+function render() {
+  const root = document.getElementById('app');
+  const utEl = document.getElementById('updateTime');
+  if (utEl) utEl.textContent = updateTime || '-';
+
+  let html = '';
+  Object.keys(prices).forEach(cat => {
+    const items = prices[cat];
+    const names = Object.keys(items);
+    const icon = CAT_ICONS[cat] || '📦';
+
+    html += `<div class="category-section">
+      <div class="category-header">
+        <div class="category-title">${icon} ${cat} <span style="font-size:.72rem;color:#888;font-weight:400">(${names.length}种)</span></div>
+        <div class="category-actions">
+          <button class="adjust-btn" onclick="openAdjustModal('${cat}')">➕ 涨价</button>
+          <button class="adjust-btn" onclick="openAdjustModalDown('${cat}')">➖ 降价</button>
+        </div>
+      </div>
+      <div class="item-grid">`;
+
+    names.forEach(name => {
+      const val = items[name];
+      const prev = prevPrices[cat] && prevPrices[cat][name];
+      let cls = '';
+      if (prev !== undefined && prev !== null && prev !== val) {
+        cls = val > prev ? 'changed-up' : 'changed-down';
+      }
+      html += `<div class="item-card">
+        <div class="item-name" title="${name}">${name}</div>
+        <input class="item-input ${cls}" type="number" step="0.01" min="0"
+               value="${val}" data-cat="${cat}" data-name="${name}"
+               onchange="onPriceChange(this)" onkeydown="onPriceKey(event,this)"
+               onfocus="onPriceFocus(this)">
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  root.innerHTML = html;
+  if (utEl) utEl.textContent = updateTime || '-';
+}
+
+// ========== Price Edit ==========
+let adjustingCat = '';
+
+function onPriceChange(el) {
+  const cat = el.dataset.cat;
+  const name = el.dataset.name;
+  const newVal = parseFloat(el.value);
+  if (isNaN(newVal) || newVal < 0) {
+    el.value = prices[cat][name];
+    toast('请输入有效价格', 'error');
+    return;
+  }
+  const oldVal = prices[cat][name];
+  if (oldVal === newVal) return;
+
+  // snapshot previous if not already
+  if (!prevPrices[cat]) prevPrices[cat] = {};
+  if (prevPrices[cat][name] === undefined) {
+    prevPrices[cat][name] = oldVal;
+  }
+
+  prices[cat][name] = newVal;
+  saveState();
+
+  // update highlight
+  el.className = 'item-input ' + (newVal > oldVal ? 'changed-up' : 'changed-down');
+  toast(`${name}: ${oldVal} → ${newVal} ${newVal > oldVal ? '↑ 涨价' : '↓ 降价'}`, newVal > oldVal ? 'warn' : 'success');
+}
+
+function onPriceKey(ev, el) {
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    el.blur();
+    onPriceChange(el);
+  }
+}
+
+function onPriceFocus(el) {
+  el.select();
+}
+
+// ========== Adjust Category ==========
+let adjustMode = 1; // 1 = up, -1 = down
+
+function openAdjustModal(cat) {
+  adjustMode = 1;
+  adjustingCat = cat;
+  document.getElementById('adjustCatName').textContent = cat;
+  document.getElementById('adjustAmount').value = 1;
+  document.getElementById('adjustModal').classList.add('show');
+}
+
+function openAdjustModalDown(cat) {
+  adjustMode = -1;
+  adjustingCat = cat;
+  document.getElementById('adjustCatName').textContent = cat;
+  document.getElementById('adjustAmount').value = 1;
+  document.getElementById('adjustModal').classList.add('show');
+}
+
+function closeAdjustModal() {
+  document.getElementById('adjustModal').classList.remove('show');
+}
+
+function applyAdjust() {
+  const cat = adjustingCat;
+  const amount = parseFloat(document.getElementById('adjustAmount').value);
+  if (isNaN(amount) || amount <= 0) {
+    toast('请输入有效的调整金额', 'error');
+    return;
+  }
+  const sign = adjustMode; // +1 or -1
+  const delta = sign * amount;
+  const items = prices[cat];
+  if (!items) return;
+
+  if (!prevPrices[cat]) prevPrices[cat] = {};
+  let count = 0;
+  Object.keys(items).forEach(name => {
+    if (prevPrices[cat][name] === undefined) {
+      prevPrices[cat][name] = items[name];
+    }
+    items[name] = Math.round((items[name] + delta) * 100) / 100;
+    if (items[name] < 0) items[name] = 0;
+    count++;
+  });
+
+  saveState();
+  render();
+  closeAdjustModal();
+  toast(`✅ ${cat}：全部${delta > 0 ? '涨价' : '降价'} ${Math.abs(delta)}元，共${count}个品类`);
+}
+
+// ========== Save State ==========
+function saveState() {
+  localStorage.setItem('fpba_admin_prices', JSON.stringify(prices));
+  localStorage.setItem('fpba_admin_prev', JSON.stringify(prevPrices));
+  localStorage.setItem('fpba_admin_time', updateTime);
+}
+
+// ========== Copy JSON ==========
+function copyJSON() {
+  const now = new Date();
+  const tz = 'Asia/Shanghai';
+  const offset = '+08:00';
+  const pad = n => n.toString().padStart(2,'0');
+  const updatedAt = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}${offset}`;
+
+  const payload = {
+    updatedAt: updatedAt,
+    categories: prices
+  };
+
+  const jsonStr = JSON.stringify(payload, null, 2);
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      updateTime = formatTime(now);
+      localStorage.setItem('fpba_admin_time', updateTime);
+      document.getElementById('updateTime').textContent = updateTime;
+      toast('✅ JSON已复制到剪贴板！打开GitHub替换prices.json', 'success');
+    }).catch(() => {
+      fallbackCopy(jsonStr);
+    });
+  } else {
+    fallbackCopy(jsonStr);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.style.position = 'fixed'; ta.style.left = '-9999px'; ta.style.top = '-9999px';
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    const now = new Date();
+    updateTime = formatTime(now);
+    localStorage.setItem('fpba_admin_time', updateTime);
+    document.getElementById('updateTime').textContent = updateTime;
+    toast('✅ JSON已复制！打开GitHub替换prices.json', 'success');
+  } catch(e) {
+    toast('⚠️ 复制失败，请手动复制', 'error');
+  }
+  document.body.removeChild(ta);
+}
+
+// ========== Refresh ==========
+async function refreshPrices() {
+  toast('🔄 重新加载价格...', '');
+  snapshotPrev();
+  const ok = await fetchPrices();
+  render();
+  toast(ok ? '✅ 价格已刷新' : '✅ 已加载本地数据', ok ? 'success' : '');
+}
+
+// ========== Dark Mode ==========
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('fpba_admin_dark', isDark ? '1' : '0');
+}
+
+// ========== Toast ==========
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast';
+  if (type) el.classList.add(type);
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ========== Smart Paste ==========
+/* Build a flat map of all item names -> {cat, name} for quick matching */
+function getAllItemMap() {
+  const map = {};
+  Object.keys(prices).forEach(cat => {
+    Object.keys(prices[cat]).forEach(name => {
+      const key = name.toLowerCase().replace(/[\s\-]/g,'');
+      if (!map[key]) map[key] = [];
+      map[key].push({cat, name});
+    });
+  });
+  return map;
+}
+
+/* Levenshtein distance for fuzzy matching */
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, () => new Uint8Array(n+1));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] :
+        1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/* Normalize name for comparison: lowercase, remove spaces & dashes */
+function norm(s) { return s.toLowerCase().replace(/[\s\-]/g,''); }
+
+/* Try to fuzzy match a raw name against all known items.
+   Returns {matched: true/false, cat, name, exact, score, candidates[]}
+   candidates is populated when match is fuzzy or ambiguous */
+function fuzzyMatch(rawName, allItems) {
+  const nRaw = norm(rawName);
+  const results = [];
+
+  Object.keys(prices).forEach(cat => {
+    Object.keys(prices[cat]).forEach(kname => {
+      const nKnown = norm(kname);
+      // Containment check (one contains the other)
+      if (nRaw.includes(nKnown) || nKnown.includes(nRaw)) {
+        results.push({cat, name: kname, score: 100, exact: nRaw === nKnown});
+        return;
+      }
+      // Edit distance
+      const dist = levenshtein(nRaw, nKnown);
+      const maxLen = Math.max(nRaw.length, nKnown.length);
+      if (maxLen === 0) return;
+      const sim = Math.round((1 - dist / maxLen) * 100);
+      if (sim >= 50) {
+        results.push({cat, name: kname, score: sim, exact: false});
+      }
+    });
+  });
+
+  // Sort by score desc
+  results.sort((a,b) => b.score - a.score);
+
+  if (results.length === 0) {
+    return {matched: false, rawName, candidates: []};
+  }
+
+  const best = results[0];
+  if (best.score >= 85) {
+    return {matched: true, cat: best.cat, name: best.name, exact: best.exact, score: best.score, candidates: results.slice(0,5)};
+  }
+
+  // Ambiguous / low confidence — return candidates for manual selection
+  return {matched: false, rawName, candidates: results.slice(0,6), best: results[0]};
+}
+
+/* Parse pasted text into lines of {rawName, price} */
+function parsePastedText(text) {
+  const lines = text.split(/\r?\n/);
+  const entries = [];
+  // Support separators: space, colon（：）, equals（＝）, comma（，）, tab
+  const sepRe = /[\s:：=＝,，\t]+/;
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    // Try to split name and price
+    const parts = trimmed.split(sepRe).filter(p => p);
+    if (parts.length < 2) return;
+    // Price is the last numeric value
+    let price = null;
+    let priceIdx = -1;
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const v = parseFloat(parts[i].replace(/[,，]/g,''));
+      if (!isNaN(v) && v >= 0) {
+        price = v;
+        priceIdx = i;
+        break;
+      }
+    }
+    if (price === null) return;
+    // Name is everything before the price part
+    const nameParts = parts.slice(0, priceIdx);
+    const rawName = nameParts.join(' ');
+    if (!rawName) return;
+    entries.push({rawName, price, line: idx+1, original: trimmed});
+  });
+  return entries;
+}
+
+/* parsed results storage for applyAll */
+let parsedResults = [];
+
+/* Main smart parse function */
+function smartParse() {
+  const textarea = document.getElementById('pasteInput');
+  const text = textarea.value;
+  if (!text.trim()) {
+    toast('请先粘贴行情文本', 'error');
+    return;
+  }
+
+  const entries = parsePastedText(text);
+  if (entries.length === 0) {
+    toast('未识别到任何品类+价格的组合', 'error');
+    return;
+  }
+
+  const allItems = getAllItemMap();
+  parsedResults = [];
+  let matchedCount = 0, pendingCount = 0, unmatchedCount = 0;
+
+  entries.forEach(entry => {
+    const match = fuzzyMatch(entry.rawName, allItems);
+    const result = {
+      rawName: entry.rawName,
+      price: entry.price,
+      original: entry.original,
+      cat: null,
+      name: null,
+      matched: false,
+      pending: false,
+      candidates: []
+    };
+
+    if (match.matched) {
+      result.matched = true;
+      result.cat = match.cat;
+      result.name = match.name;
+      matchedCount++;
+    } else if (match.candidates && match.candidates.length > 0) {
+      result.pending = true;
+      result.candidates = match.candidates;
+      pendingCount++;
+    } else {
+      unmatchedCount++;
+    }
+
+    parsedResults.push(result);
+  });
+
+  const summary = `📊 识别结果：${matchedCount}个已匹配，${pendingCount}个待确认，${unmatchedCount}个未识别`;
+  const resultsDiv = document.getElementById('pasteResults');
+  resultsDiv.innerHTML = `<div style="margin-bottom:6px;font-size:.75rem;color:#888">${summary}</div>` +
+    parsedResults.map((r, i) => renderPasteResult(r, i)).join('');
+
+  const applyBtn = document.getElementById('applyAllBtn');
+  applyBtn.style.display = (matchedCount > 0 || pendingCount > 0) ? 'inline-flex' : 'none';
+
+  // Wire up select onchange handlers
+  parsedResults.forEach((r, i) => {
+    if (r.pending && r.candidates.length > 0) {
+      const select = document.querySelector(`.pr-select-${i}`);
+      if (select) {
+        select.innerHTML = r.candidates.map((c, ci) =>
+          `<option value="${ci}">${c.cat} → ${c.name} (匹配度${c.score}%)</option>`
+        ).join('');
+        select.onchange = function() {
+          const ci = parseInt(this.value);
+          parsedResults[i].cat = r.candidates[ci].cat;
+          parsedResults[i].name = r.candidates[ci].name;
+          parsedResults[i].pending = false;
+          parsedResults[i].matched = true;
+          // update row style
+          const row = this.closest('.pr-item');
+          row.className = 'pr-item matched';
+          row.querySelector('.pr-icon').textContent = '✅';
+          const msgEl = row.querySelector('.pr-msg');
+          msgEl.textContent = `${r.price} 已确认`;
+          // Check if all pending resolved
+          checkApplyBtn();
+        };
+      }
+    }
+  });
+
+  toast(`🔍 识别完成：${matchedCount}已匹配 / ${pendingCount}待确认 / ${unmatchedCount}未识别`, '');
+}
+
+function renderPasteResult(r, idx) {
+  const icon = r.pending ? '⚠️' : (r.matched ? '✅' : '❌');
+  const cls = r.pending ? 'pending' : (r.matched ? 'matched' : 'unmatched');
+  const nameDisplay = r.matched
+    ? `<span class="pr-name">${r.name}</span>`
+    : `<span style="color:#666">${r.original || r.rawName}</span>`;
+
+  let detail = '';
+  if (r.matched) {
+    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">已更新</span>`;
+  } else if (r.pending) {
+    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">待确认 → <select class="pr-select-${idx}"></select></span>`;
+  } else {
+    detail = `<span class="pr-msg">无法识别</span>`;
+  }
+
+  return `<div class="pr-item ${cls}">
+    <span class="pr-icon">${icon}</span>
+    ${nameDisplay}
+    ${detail}
+  </div>`;
+}
+
+function checkApplyBtn() {
+  const anyMatched = parsedResults.some(r => r.matched && !r.pending);
+  document.getElementById('applyAllBtn').style.display = anyMatched ? 'inline-flex' : 'none';
+}
+
+/* Apply all matched (including confirmed pending) results to prices */
+function applyAllParsed() {
+  let appliedCount = 0;
+  parsedResults.forEach(r => {
+    if ((!r.matched && !r.pending) || !r.cat || !r.name) return;
+    // If still pending, user hasn't confirmed — skip
+    if (r.pending) return;
+    const cat = r.cat;
+    const name = r.name;
+    const price = r.price;
+
+    // Create category if it doesn't exist
+    if (!prices[cat]) prices[cat] = {};
+
+    // Snapshot previous
+    if (!prevPrices[cat]) prevPrices[cat] = {};
+    if (prevPrices[cat][name] === undefined) {
+      prevPrices[cat][name] = prices[cat][name] !== undefined ? prices[cat][name] : price;
+    }
+
+    prices[cat][name] = price;
+    appliedCount++;
+  });
+
+  if (appliedCount === 0) {
+    toast('没有可应用的结果', 'warn');
+    return;
+  }
+
+  saveState();
+  render();
+  blinkMatchedInputs();
+  document.getElementById('pasteResults').innerHTML = '';
+  document.getElementById('applyAllBtn').style.display = 'none';
+  toast(`✅ 已应用 ${appliedCount} 个价格更新`, 'success');
+}
+
+/* Blink the inputs that were updated */
+function blinkMatchedInputs() {
+  parsedResults.forEach(r => {
+    if (r.pending || !r.matched || !r.cat || !r.name) return;
+    const input = document.querySelector(
+      `.item-input[data-cat="${CSS.escape(r.cat)}"][data-name="${CSS.escape(r.name)}"]`
+    );
+    if (input) {
+      input.classList.remove('blink-highlight');
+      // Force reflow to restart animation
+      void input.offsetWidth;
+      input.classList.add('blink-highlight');
+    }
+  });
+}
+
+// ========== Keyboard shortcut ==========
+document.addEventListener('keydown', ev => {
+  // Ctrl+Shift+C = Copy JSON
+  if (ev.ctrlKey && ev.shiftKey && (ev.key === 'C' || ev.key === 'c')) {
+    ev.preventDefault();
+    copyJSON();
+  }
+  // Escape = close modal
+  if (ev.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+  }
+});
+
+// ========== Start ==========
+init();
+</script>
+</body>
+</html>
