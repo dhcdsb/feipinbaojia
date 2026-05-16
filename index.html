@@ -336,10 +336,30 @@ async function fetchPrices() {
   try {
     const resp = await fetch('prices.json?t=' + Date.now());
     const data = await resp.json();
-    // 将 data.categories 合并到 priceData
+    // 先快照当前价格到 lastPrices（做对比用）
+    for (const [cat, items] of Object.entries(data.categories)) {
+      if (!priceData[cat]) continue;
+      if (!lastPrices[cat]) lastPrices[cat] = {};
+      for (const item of Object.keys(items)) {
+        // 只在第一次获取或价格变化时记录上次价格
+        if (priceData[cat][item] !== undefined && priceData[cat][item] !== items[item]) {
+          if (lastPrices[cat][item] === undefined) {
+            lastPrices[cat][item] = priceData[cat][item];
+          }
+        }
+      }
+    }
+    // 合并新价格到 priceData
     for (const [cat, items] of Object.entries(data.categories)) {
       if (!priceData[cat]) priceData[cat] = {};
-      Object.assign(priceData[cat], items);
+      for (const [item, price] of Object.entries(items)) {
+        // 价格变了才更新 lastPrices
+        if (priceData[cat][item] !== undefined && priceData[cat][item] !== price) {
+          lastPrices[cat] = lastPrices[cat] || {};
+          lastPrices[cat][item] = priceData[cat][item];
+        }
+        priceData[cat][item] = price;
+      }
     }
     // 更新 updateTime 为服务器时间
     updateTime = data.updatedAt || new Date().toLocaleString('zh-CN');
