@@ -273,24 +273,7 @@ def main():
     # 保存
     save_prices(prices_path, prices)
 
-    # Git 自动推送
-    if total_updated > 0:
-        print("\n--- Git Push ---")
-        import subprocess
-        try:
-            repo_dir = str(script_dir)
-            subprocess.run(["git", "-C", repo_dir, "add", "prices.json"], check=True, capture_output=True)
-            commit_msg = f"[auto] 价格更新 {datetime.now().strftime('%m-%d %H:%M')} ({total_updated}项)"
-            subprocess.run(["git", "-C", repo_dir, "commit", "-m", commit_msg], check=True, capture_output=True)
-            subprocess.run(["git", "-C", repo_dir, "push"], check=True, capture_output=True)
-            print(f"[OK] 已推送到 GitHub: {commit_msg}")
-        except subprocess.CalledProcessError as e:
-            print(f"[WARN] Git push 失败: {e.stderr.decode() if e.stderr else str(e)}")
-            print("  价格已保存到本地，请手动 git push")
-        except FileNotFoundError:
-            print("[WARN] 未找到 git，请手动提交推送")
-
-    return total_updated
+    return 0
 
 
 if __name__ == "__main__":
