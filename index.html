@@ -230,82 +230,82 @@ if ('serviceWorker' in navigator) {
 // 推荐收货价 = 市场参考价（元/kg）
 const REC_PRICES = {
   "废铜": {
-    "1号光亮铜线": { price: 36, note: "纯度高，按铜价走" },
-    "紫铜": { price: 35, note: "干净无杂质" },
-    "黄铜": { price: 25, note: "H62等常见牌号" },
-    "铜管": { price: 32, note: "空调/水管铜管" },
-    "铜排": { price: 33, note: "电气铜排" },
-    "铜米": { price: 30, note: "加工铜米" },
-    "杂铜": { price: 22, note: "混合铜料" },
-    "铜屑": { price: 20, note: "车床铜屑" }
+    "1号光亮铜线": { price: 89.75, note: "纯度高，按铜价走" },
+    "紫铜": { price: 90.0, note: "干净无杂质" },
+    "黄铜": { price: 37.0, note: "H62等常见牌号" },
+    "铜管": { price: 90.0, note: "空调/水管铜管" },
+    "铜排": { price: 90.0, note: "电气铜排" },
+    "铜米": { price: 90.5, note: "加工铜米" },
+    "杂铜": { price: 55.85, note: "混合铜料" },
+    "铜屑": { price: 68.2, note: "车床铜屑" }
   },
   "废铝": {
-    "铝线": { price: 15, note: "纯铝线" },
-    "熟铝": { price: 14, note: "干净铝材" },
-    "生铝": { price: 10, note: "铸铝件" },
-    "铝合金": { price: 12, note: "6063/6061等" },
-    "铝板": { price: 13, note: "纯铝板" },
-    "铝型材": { price: 13.5, note: "门窗/工业型材" },
-    "铝箔": { price: 8, note: "食品/药用铝箔" },
-    "铝屑": { price: 6, note: "加工铝屑" }
+    "铝线": { price: 21.45, note: "纯铝线" },
+    "熟铝": { price: 18.5, note: "干净铝材" },
+    "生铝": { price: 18.0, note: "铸铝件" },
+    "铝合金": { price: 16.5, note: "6063/6061等" },
+    "铝板": { price: 21.23, note: "纯铝板" },
+    "铝型材": { price: 19.33, note: "门窗/工业型材" },
+    "铝箔": { price: 14.0, note: "食品/药用铝箔" },
+    "铝屑": { price: 17.8, note: "加工铝屑" }
   },
   "废铁": {
-    "重废": { price: 2.5, note: "厚度>6mm" },
-    "中废": { price: 2.3, note: "厚度3-6mm" },
+    "重废": { price: 2.36, note: "厚度>6mm" },
+    "中废": { price: 2.25, note: "厚度3-6mm" },
     "轻废": { price: 2.0, note: "薄铁皮" },
-    "钢筋": { price: 2.45, note: "建筑钢筋" },
-    "铸铁": { price: 2.2, note: "生铁铸件" },
-    "铁皮": { price: 1.8, note: "薄铁皮/铁桶" },
-    "铁屑": { price: 1.5, note: "车床铁屑" },
-    "生铁": { price: 2.1, note: "生铁件" }
+    "钢筋": { price: 2.4, note: "建筑钢筋" },
+    "铸铁": { price: 2.3, note: "生铁铸件" },
+    "铁皮": { price: 1.79, note: "薄铁皮/铁桶" },
+    "铁屑": { price: 1.79, note: "车床铁屑" },
+    "生铁": { price: 2.3, note: "生铁件" }
   },
   "废不锈钢": {
-    "316不锈钢": { price: 12, note: "耐酸钢" },
-    "304不锈钢": { price: 8, note: "最常见不锈钢" },
-    "201不锈钢": { price: 4.5, note: "低镍不锈钢" },
-    "不锈钢屑": { price: 6, note: "不锈钢加工屑" },
-    "杂不锈钢": { price: 3.5, note: "混合不锈钢" }
+    "316不锈钢": { price: 19.0, note: "耐酸钢" },
+    "304不锈钢": { price: 10.5, note: "最常见不锈钢" },
+    "201不锈钢": { price: 5.5, note: "低镍不锈钢" },
+    "不锈钢屑": { price: 5.5, note: "不锈钢加工屑" },
+    "杂不锈钢": { price: 5.5, note: "混合不锈钢" }
   },
   "废纸": {
-    "A4纸": { price: 1.4, note: "白色办公纸" },
-    "报纸": { price: 1.2, note: "废旧报纸" },
-    "纸箱": { price: 1.0, note: "黄板纸箱" },
-    "书本纸": { price: 0.9, note: "废旧书本" },
-    "花纸": { price: 0.7, note: "杂色纸张" },
+    "A4纸": { price: 1.1, note: "白色办公纸" },
+    "报纸": { price: 0.8, note: "废旧报纸" },
+    "纸箱": { price: 1.3, note: "黄板纸箱" },
+    "书本纸": { price: 0.85, note: "废旧书本" },
+    "花纸": { price: 0.6, note: "杂色纸张" },
     "杂纸": { price: 0.5, note: "混合废纸" }
   },
   "废塑料": {
-    "ABS": { price: 6.5, note: "硬塑料壳" },
+    "ABS": { price: 5.8, note: "硬塑料壳" },
     "PP": { price: 4.5, note: "编织袋/塑料桶" },
     "PE": { price: 3.8, note: "薄膜/管材" },
-    "PVC": { price: 2.5, note: "管材/型材" },
-    "PET": { price: 3.2, note: "饮料瓶" },
+    "PVC": { price: 1.8, note: "管材/型材" },
+    "PET": { price: 4.2, note: "饮料瓶" },
     "杂塑料": { price: 1.5, note: "混合塑料" }
   },
   "废玻璃": {
-    "钢化玻璃": { price: 0.35, note: "完整钢化" },
-    "平板玻璃": { price: 0.3, note: "普通平板" },
+    "钢化玻璃": { price: 0.5, note: "完整钢化" },
+    "平板玻璃": { price: 0.45, note: "普通平板" },
     "碎玻璃": { price: 0.2, note: "碎裂玻璃" },
     "玻璃瓶": { price: 0.15, note: "酒瓶/饮料瓶" }
   },
   "废轮胎": {
-    "工程胎": { price: 1.8, note: "大型工程胎" },
-    "钢丝胎": { price: 1.2, note: "汽车钢丝胎" },
-    "尼龙胎": { price: 0.9, note: "尼龙线胎" },
-    "自行车胎": { price: 0.5, note: "电动车/自行车胎" }
+    "工程胎": { price: 1.7, note: "大型工程胎" },
+    "钢丝胎": { price: 1.6, note: "汽车钢丝胎" },
+    "尼龙胎": { price: 1.2, note: "尼龙线胎" },
+    "自行车胎": { price: 0.8, note: "电动车/自行车胎" }
   },
   "废电池": {
-    "镍氢电池": { price: 12, note: "混合动力电池" },
-    "锂电池": { price: 8, note: "手机/电动车电池" },
-    "铅酸电池": { price: 4.5, note: "汽车/电动车电池" },
-    "干电池": { price: 0.8, note: "普通干电池" }
+    "镍氢电池": { price: 18, note: "混合动力电池" },
+    "锂电池": { price: 7, note: "手机/电动车电池" },
+    "铅酸电池": { price: 10, note: "汽车/电动车电池" },
+    "干电池": { price: 1.0, note: "普通干电池" }
   },
   "其他": {
-    "废电子板": { price: 25, note: "电路板/主板" },
-    "废电机": { price: 5, note: "铜芯电机" },
-    "废电线": { price: 18, note: "铜芯电线" },
-    "废家电": { price: 2.5, note: "旧家电整机" },
-    "杂料": { price: 1.0, note: "混合废料" }
+    "废电子板": { price: 7.6, note: "电路板/主板" },
+    "废电机": { price: 12.5, note: "铜芯电机" },
+    "废电线": { price: 25, note: "铜芯电线" },
+    "废家电": { price: 3.5, note: "旧家电整机" },
+    "杂料": { price: 1.5, note: "混合废料" }
   }
 };
 
@@ -417,17 +417,23 @@ function renderRecGrid() {
   const grid = document.getElementById('recGrid');
   if (!grid) return;
   const icons = { '废铜':'🟤', '废铝':'⚪', '废铁':'⚫', '废不锈钢':'🔘', '废纸':'📰', '废塑料':'♻️', '废玻璃':'🪟', '废轮胎':'🛞', '废电池':'🔋', '其他':'📦' };
-  let html = '';
+  const notes = {};
+  // 构建品类备注索引
   for (const [cat, items] of Object.entries(REC_PRICES)) {
-    const cur = priceData[cat] || {};
+    for (const [item, info] of Object.entries(items)) {
+      notes[cat + '|' + item] = info.note;
+    }
+  }
+  let html = '';
+  for (const [cat, items] of Object.entries(priceData)) {
     html += `<div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #667eea">
       <div style="font-weight:700;margin-bottom:8px;font-size:.95rem">${icons[cat]||'📦'} ${cat}</div>`;
-    for (const [item, info] of Object.entries(items)) {
-      const basePrice = cur[item] !== undefined ? cur[item] : info.price;
-      const buyPrice = (basePrice * recRatio / 100).toFixed(2);
+    for (const [item, price] of Object.entries(items)) {
+      const buyPrice = (price * recRatio / 100).toFixed(2);
+      const note = notes[cat + '|' + item] || '';
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.82rem">
         <span style="color:#555">${item}</span>
-        <span><b style="color:#667eea">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${basePrice}</span></span>
+        <span><b style="color:#667eea">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${price}</span></span>
       </div>`;
     }
     html += '</div>';
