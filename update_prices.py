@@ -126,6 +126,27 @@ def save_prices(path, data):
     return data
 
 
+# 价格合理区间（元/kg）
+PRICE_RANGES = {
+    "废铜": (30, 100),
+    "废铝": (10, 30),
+    "废铁": (1, 5),
+    "废不锈钢": (3, 25),
+    "废纸": (0.5, 3),
+    "废塑料": (1, 10),
+    "废玻璃": (0.1, 1),
+    "废轮胎": (0.5, 3),
+    "废电池": (5, 30),
+    "其他": (1, 30),
+}
+
+def is_price_in_range(price, category):
+    """检查价格是否在合理区间"""
+    if category in PRICE_RANGES:
+        min_price, max_price = PRICE_RANGES[category]
+        return min_price <= price <= max_price
+    return True  # 未知品类不检查
+
 def parse_price_text(text):
     result = {}
     for line in text.split('\n'):
@@ -171,6 +192,11 @@ def apply_mapped_prices(prices, category, mapping, parsed):
     updated = 0
     items = prices["categories"][category]
     for raw_name, price in parsed.items():
+        # 检查价格是否在合理区间
+        if not is_price_in_range(price, category):
+            print(f"  [SKIP] {raw_name}: {price}/kg 不在 {category} 合理区间内")
+            continue
+        
         if raw_name in mapping:
             target = mapping[raw_name]
             if target in items:
