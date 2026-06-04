@@ -175,7 +175,7 @@ def apply_mapped_prices(prices, category, mapping, parsed):
             target = mapping[raw_name]
             if target in items:
                 old = items[target]
-                if abs(price - old) / max(old, 0.01) > 0.01:
+                if abs(price - old) / max(old, 0.01) > 0.005:
                     items[target] = price
                     updated += 1
                     print(f"  [UPD] {raw_name} -> {target}: {old} -> {price}")
@@ -184,7 +184,7 @@ def apply_mapped_prices(prices, category, mapping, parsed):
             if key in raw_name or raw_name in key:
                 if target in items:
                     old = items[target]
-                    if abs(price - old) / max(old, 0.01) > 0.01:
+                    if abs(price - old) / max(old, 0.01) > 0.005:
                         items[target] = price
                         updated += 1
                         print(f"  [UPD] {raw_name} ~> {target}: {old} -> {price}")
