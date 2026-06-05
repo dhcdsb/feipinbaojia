@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-废品回收价格 - 多源搜索+更新脚本
-从 jinritongjia.com、smm.cn 等回收站价格网站获取数据
+废品回收价格 - 自动更新脚本
+从百度搜索获取批发价/市场价，更新 prices.json
 """
 import urllib.request
 import urllib.parse
@@ -16,33 +16,44 @@ SCRIPT_DIR = Path(__file__).parent
 PRICES_PATH = SCRIPT_DIR / "prices.json"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
-# 数据源配置：每个品类对应一个URL和价格提取方式
-# 提取方式：从HTML表格中找第一行数字（元/吨），转为元/kg
+# 数据源配置：我的钢铁网（m.mysteel.com）
 SOURCES = [
     {
         "category": "废铜",
         "target": "1号光亮铜线",
-        "url": "https://www.jinritongjia.com/feitong",
-        # 第一个数字是期货价，跳过；第三个是上海#1铜（回收站价）
-        "extract": "third_price",
-        "reliable": True,  # 可靠数据源，允许更大波动
+        "url": "https://m.mysteel.com/hot/424076.html",
+        "extract": "mysteel_scrap_copper",
+        "reliable": True,
     },
     {
-        "category": "废铜",
-        "target": "黄铜",
-        "url": "https://www.jinritongjia.com/feitong",
-        # 第四个数字是黄铜价格（37000/39200）
-        "extract": "fourth_price",
+        "category": "废铝",
+        "target": "铝线",
+        "url": "https://m.mysteel.com/hot/424077.html",
+        "extract": "mysteel_scrap_aluminum",
+        "reliable": True,
+    },
+    {
+        "category": "废铁",
+        "target": "重废",
+        "url": "https://m.mysteel.com/hot/424078.html",
+        "extract": "mysteel_scrap_steel",
+        "reliable": True,
+    },
+    {
+        "category": "废不锈钢",
+        "target": "304不锈钢",
+        "url": "https://m.mysteel.com/hot/424079.html",
+        "extract": "mysteel_scrap_stainless",
         "reliable": True,
     },
 ]
 
-# 价格合理区间（元/kg）- 回收站价格
+# 价格合理区间（元/kg）- 批发价/市场价
 PRICE_RANGES = {
-    "废铜": (30, 70),       # 回收站价：30-70元/kg（黄铜37元/kg，光亮铜58元/kg）
-    "废铝": (15, 25),       # 回收站价：15-25元/kg
-    "废铁": (1.5, 3.5),     # 回收站价：1.5-3.5元/kg
-    "废不锈钢": (5, 15),    # 回收站价：5-15元/kg
+    "废铜": (80, 100),      # 批发价：80-100元/kg（光亮铜92元/kg，黄铜53元/kg）
+    "废铝": (15, 25),       # 批发价：15-25元/kg
+    "废铁": (2, 4),         # 批发价：2-4元/kg
+    "废不锈钢": (8, 15),    # 批发价：8-15元/kg
     "废电池": (10, 30),     # 锂电池：10-30元/kg
     "废电线": (15, 35),     # 废电线：15-35元/kg
 }
@@ -60,6 +71,12 @@ def fetch_url(url):
         print(f"  [WARN] 获取失败: {url} -> {e}")
         return ""
 
+def search_baidu(query):
+    """百度搜索"""
+    encoded_query = urllib.parse.quote(query)
+    url = f"https://www.baidu.com/s?wd={encoded_query}"
+    return fetch_url(url)
+
 def extract_price_from_source(source):
     """从数据源提取价格（数字匹配）"""
     html = fetch_url(source["url"])
@@ -74,19 +91,20 @@ def extract_price_from_source(source):
     prices = []
     for m in re.finditer(r'(\d{4,6})', text):
         price = int(m.group(1))
-        if 10000 <= price <= 200000:
+        if 50000 <= price <= 120000:  # 废铜价格范围
             prices.append(price)
     
     if not prices:
         return None
     
     # 根据 extract 类型选择价格
-    extract_type = source.get("extract", "first_price")
-    idx_map = {"first_price": 0, "second_price": 1, "third_price": 2, "fourth_price": 3}
-    idx = idx_map.get(extract_type, 0)
-    if idx < len(prices):
-        raw_price = prices[idx]
+    extract_type = source.get("extract", "mysteel_scrap_copper")
+    
+    if extract_type.startswith("mysteel_"):
+        # mysteel 数据：取第一个价格（通常是最低价）
+        raw_price = prices[0]
     else:
+        # 其他数据源：取第一个价格
         raw_price = prices[0]
     
     # 转为元/kg
@@ -99,13 +117,6 @@ def is_price_in_range(price, category):
         min_price, max_price = PRICE_RANGES[category]
         return min_price <= price <= max_price
     return True
-
-def is_price_change_valid(old, new):
-    """检查价格波动是否在合理范围内"""
-    if old == 0:
-        return True
-    change = abs(new - old) / old
-    return change <= MAX_PRICE_CHANGE
 
 def update_prices_from_sources(prices):
     """从数据源更新价格"""
@@ -182,7 +193,7 @@ def git_push(total_updated):
 
 def main():
     print("=" * 50)
-    print("废品回收价格 - 多源搜索+更新")
+    print("废品回收价格 - 自动更新（我的钢铁网批发价）")
     print(f"时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
     
