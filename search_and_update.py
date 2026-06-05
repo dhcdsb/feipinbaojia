@@ -107,9 +107,8 @@ def is_price_change_valid(old, new):
     change = abs(new - old) / old
     return change <= MAX_PRICE_CHANGE
 
-def update_prices_from_sources():
+def update_prices_from_sources(prices):
     """从数据源更新价格"""
-    prices = load_prices()
     updated = 0
     
     for source in SOURCES:
@@ -187,12 +186,12 @@ def main():
     print(f"时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
     
-    total = update_prices_from_sources()
+    prices = load_prices()
+    total = update_prices_from_sources(prices)
     
     print(f"\n[STAT] 共更新 {total} 个品类")
     
     if total > 0:
-        prices = load_prices()
         save_prices(prices)
         git_push(total)
     else:
