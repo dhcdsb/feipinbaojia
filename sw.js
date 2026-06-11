@@ -1,6 +1,6 @@
 /* 废品回收报价助手 - Service Worker v1.0 */
 
-const CACHE_NAME = 'scrap-price-cache-v1';
+var CACHE_NAME = 'scrap-price-cache-v2';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
@@ -95,7 +95,7 @@ self.addEventListener('fetch', function(event) {
       }).catch(function() {
         // 离线且无缓存时，对于 HTML 页面返回 fallback
         if (event.request.mode === 'navigate') {
-          return caches.match('.');
+          return caches.match('index.html');
         }
       });
     })

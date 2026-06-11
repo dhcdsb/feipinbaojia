@@ -320,6 +320,7 @@ let priceData = {};     // { category: { item: price } }
 let lastPrices = {};    // 上次价格快照
 let updateTime = null;
 let calcCount = 0;
+let calcCountDate = '';
 let editingItem = null;
 let recRatio = 85;      // 收货比例，默认85%
 
@@ -391,7 +392,14 @@ async function init() {
   }
   lastPrices = savedLast ? JSON.parse(savedLast) : {};
   updateTime = savedTime || null;
-  calcCount = savedCount ? parseInt(savedCount) : 0;
+  const savedCountDate = localStorage.getItem('scrap_calc_count_date');
+  const today = new Date().toISOString().slice(0, 10);
+  if (savedCount && savedCountDate === today) {
+    calcCount = parseInt(savedCount);
+  } else {
+    calcCount = 0;
+  }
+  calcCountDate = today;
   recRatio = parseInt(localStorage.getItem('scrap_rec_ratio') || '85');
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
@@ -453,6 +461,7 @@ function save() {
   localStorage.setItem('scrap_last_prices', JSON.stringify(lastPrices));
   if (updateTime) localStorage.setItem('scrap_update_time', updateTime);
   localStorage.setItem('scrap_calc_count', calcCount.toString());
+  localStorage.setItem('scrap_calc_count_date', calcCountDate);
 }
 
 // ========== 统计 ==========
@@ -622,6 +631,7 @@ function previewBatch() {
 function applyBatch() {
   const text = document.getElementById('batchText').value.trim();
   if (!text) return toast('请粘贴价格数据');
+  if (!confirm('确定要批量更新价格吗？')) return;
 
   // 保存当前为 lastPrices
   Object.keys(priceData).forEach(cat => {
@@ -700,17 +710,23 @@ function exportCSV() {
 
 // ========== 导出Excel ==========
 function exportExcel() {
+  if (typeof XLSX === 'undefined') return toast('Excel 库加载失败，请检查网络');
   const ratio = recRatio;
-  const rows = [['大类', '品类', '当前价格(元/kg)', '收货价(元/kg)']];
+  const rows = [['大类', '品类', '当前价格(元/kg)', '上次价格', '涨跌幅', '收货价(元/kg)']];
   Object.keys(priceData).forEach(cat => {
     Object.keys(priceData[cat]).forEach(item => {
       const cur = priceData[cat][item];
+      const last = lastPrices[cat] ? lastPrices[cat][item] : null;
+      let pct = '-';
+      if (last !== null && last !== undefined && last !== cur) {
+        pct = ((cur - last) / last * 100).toFixed(1) + '%';
+      }
       const buyPrice = (cur * ratio / 100).toFixed(2);
-      rows.push([cat, item, cur, parseFloat(buyPrice)]);
+      rows.push([cat, item, cur, last !== null && last !== undefined ? last : '-', pct, parseFloat(buyPrice)]);
     });
   });
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+  ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 16 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '废品回收报价');
   const date = new Date().toISOString().slice(0, 10);
