@@ -4,7 +4,7 @@ const CACHE_NAME = 'scrap-price-cache-v1';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
-  '.',
+  'index.html',
   'manifest.json',
   'https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js'
 ];
@@ -66,7 +66,7 @@ self.addEventListener('fetch', function(event) {
       }).catch(function() {
         // 网络失败时用缓存兜底
         return caches.match(event.request).then(function(cachedResponse) {
-          return cachedResponse || new Response(JSON.stringify({}), {
+          return cachedResponse || new Response(JSON.stringify({ "categories": {} }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });

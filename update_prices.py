@@ -68,7 +68,7 @@ PLASTIC_MAP = {
     "PVC": "PVC", "PVC塑料": "PVC",
     "PET": "PET", "PET塑料": "PET", "PET瓶片": "PET",
     "杂塑料": "杂塑料",
-    "PC": "ABS", "尼龙": "PE",
+    "PC": "杂塑料", "尼龙": "杂塑料",
 }
 
 GLASS_MAP = {
@@ -279,7 +279,7 @@ def main():
         elif not sys.stdin.isatty():
             try:
                 price_text = sys.stdin.buffer.read().decode('utf-8')
-            except:
+            except Exception:
                 price_text = sys.stdin.read()
 
     if not price_text:
