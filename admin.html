@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1a1a2e">
-<title>♻️ 废品回收报价 · 后台管理</title>
+<title>废品回收报价 · 后台管理</title>
 <style>
 /* ========== Reset & Base ========== */
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;
-  background:#f0f2f5;
-  color:#1a1a2e;
+  background:#f4f6f9;
+  color:#1f2937;
   min-height:100vh;
   transition:background .35s,color .35s;
 }
@@ -29,11 +29,9 @@ body.dark{
 }
 .header-left h1{
   font-size:1.4rem;
-  background:linear-gradient(135deg,#2563eb,#38bdf8);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+  color:#1f2937;
 }
+.dark .header-left h1{color:#e5e7eb}
 .header-left .sub{
   font-size:.78rem;color:#888;margin-top:2px;
 }
@@ -52,7 +50,7 @@ body.dark{
 .toggle-knob{
   width:16px;height:16px;border-radius:50%;background:#fff;
   position:absolute;top:2px;left:2px;transition:transform .3s;
-  box-shadow:0 1px 4px rgba(0,0,0,.2);
+  border:1px solid #d1d5db;
 }
 .dark .toggle-knob{transform:translateX(16px)}
 
@@ -63,11 +61,11 @@ body.dark{
   font-size:.82rem;font-weight:600;cursor:pointer;
   transition:all .18s;white-space:nowrap;
 }
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.btn:hover{filter:brightness(.92)}
 .btn:active{transform:translateY(0)}
-.btn-blue{background:linear-gradient(135deg,#2563eb,#38bdf8);color:#fff}
-.btn-green{background:linear-gradient(135deg,#059669,#34d399);color:#fff}
-.btn-orange{background:linear-gradient(135deg,#ea580c,#f97316);color:#fff}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.btn-orange{background:#ea580c;color:#fff}
 .btn-gray{background:#e2e8f0;color:#1e293b}
 .dark .btn-gray{background:#334155;color:#e0e0e0}
 .btn-sm{padding:5px 10px;font-size:.75rem}
@@ -78,9 +76,9 @@ body.dark{
   background:#fff;border-radius:12px;padding:10px 16px;
   margin-bottom:16px;font-size:.82rem;color:#555;
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  border:1px solid #e3e8ef;
 }
-.dark .info-bar{background:#1e1e30;color:#aaa;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.dark .info-bar{background:#1e1e30;color:#aaa;border-color:#374151}
 .info-bar .label{font-weight:600;color:#2563eb}
 .info-bar .hint{color:#888;font-size:.75rem}
 .info-bar .badge{
@@ -110,14 +108,13 @@ body.dark{
   gap:8px;
 }
 .item-card{
-  background:#fff;border-radius:10px;padding:8px;
+  background:#fff;border:1px solid #e3e8ef;border-radius:8px;padding:8px;
   display:flex;flex-direction:column;align-items:center;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;
-  transition:box-shadow .2s,transform .2s;
+  position:relative;transition:border-color .2s;
 }
-.item-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);transform:translateY(-1px)}
-.dark .item-card{background:#1e1e30;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.dark .item-card:hover{box-shadow:0 3px 16px rgba(0,0,0,.4)}
+.item-card:hover{border-color:#93c5fd}
+.dark .item-card{background:#1e1e30;border-color:#374151}
+.dark .item-card:hover{border-color:#4b5563}
 .item-name{font-size:.78rem;color:#666;margin-bottom:4px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dark .item-name{color:#999}
 .item-input{
@@ -127,7 +124,7 @@ body.dark{
   background:#f8fafc;color:#1a1a2e;
 }
 .dark .item-input{border-color:#334155;background:#2a2a40;color:#e0e0e0}
-.item-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.item-input:focus{border-color:#2563eb}
 .item-input.changed-up{background:#fef2f2;border-color:#ef4444}
 .item-input.changed-down{background:#f0fdf4;border-color:#22c55e}
 .dark .item-input.changed-up{background:#3b1515;border-color:#ef4444}
@@ -140,7 +137,6 @@ body.dark{
   border-radius:10px;font-size:.85rem;
   opacity:0;transition:opacity .3s,transform .3s;
   transform:translateY(-8px);pointer-events:none;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
   max-width:320px;
 }
 .toast.show{opacity:1;transform:translateY(0)}
@@ -153,11 +149,10 @@ body.dark{
   display:none;position:fixed;z-index:1000;
   top:0;left:0;width:100%;height:100%;
   background:rgba(0,0,0,.45);justify-content:center;align-items:center;
-  backdrop-filter:blur(4px);
 }
 .modal-overlay.show{display:flex}
 .modal{
-  background:#fff;border-radius:16px;padding:20px;
+  background:#fff;border-radius:8px;padding:20px;
   width:92%;max-width:500px;max-height:82vh;overflow-y:auto;
 }
 .dark .modal{background:#1e1e30;color:#e0e0e0}
@@ -178,10 +173,10 @@ body.dark{
 
 /* ========== Smart Paste ========== */
 .paste-section{
-  background:#fff;border-radius:12px;padding:14px 16px;
-  margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);
+  background:#fff;border:1px solid #e3e8ef;border-radius:8px;padding:14px 16px;
+  margin-bottom:16px;
 }
-.dark .paste-section{background:#1e1e30;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.dark .paste-section{background:#1e1e30;border-color:#374151}
 .paste-section h3{font-size:.95rem;margin-bottom:8px;color:#2563eb}
 .paste-section textarea{
   width:100%;min-height:90px;padding:10px;
@@ -189,7 +184,7 @@ body.dark{
   font-size:.85rem;font-family:inherit;resize:vertical;
   outline:none;transition:border-color .2s;
 }
-.paste-section textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.paste-section textarea:focus{border-color:#2563eb}
 .dark .paste-section textarea{background:#2a2a40;border-color:#444;color:#e0e0e0}
 .paste-section .paste-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
 
@@ -221,8 +216,8 @@ body.dark{
 
 /* highlight blink */
 @keyframes blink-highlight{
-  0%,100%{box-shadow:0 0 0 3px rgba(37,99,235,.3)}
-  50%{box-shadow:0 0 0 3px rgba(37,99,235,.7),0 0 12px rgba(37,99,235,.4)}
+  0%,100%{border-color:#2563eb}
+  50%{border-color:#93c5fd}
 }
 .item-input.blink-highlight{animation:blink-highlight .8s ease-in-out 2}
 
@@ -256,27 +251,27 @@ body.dark{
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h1>♻️ 废品报价管理</h1>
+      <h1>废品报价管理</h1>
       <div class="sub">后台价格编辑面板 · 改完复制JSON到GitHub即可</div>
     </div>
     <div class="header-right">
       <div class="toggle-wrap" onclick="toggleDark()">
-        <span>🌙</span>
+        
         <div class="toggle-track"><div class="toggle-knob"></div></div>
-        <span>☀️</span>
+        
       </div>
-      <button class="btn btn-blue" onclick="copyJSON()">📋 复制JSON</button>
-      <button class="btn btn-green" onclick="refreshPrices()">🔄 刷新</button>
+      <button class="btn btn-blue" onclick="copyJSON()">复制JSON</button>
+      <button class="btn btn-green" onclick="refreshPrices()">刷新</button>
     </div>
   </div>
 
   <!-- Smart Paste Section -->
   <div class="paste-section" id="pasteSection">
-    <h3>🧠 智能识别粘贴</h3>
+    <h3>智能识别粘贴</h3>
     <textarea id="pasteInput" placeholder="粘贴行情文本，自动识别品类和价格&#10;支持格式：&#10;  光亮铜 38.5&#10;  紫铜:35&#10;  铝线=15.8&#10;  1号光亮铜线,39.2&#10;一行一个，分隔符支持空格/冒号/等号/逗号/制表符"></textarea>
     <div class="paste-actions">
-      <button class="btn btn-blue btn-sm" onclick="smartParse()">🔍 识别并更新</button>
-      <button class="btn btn-green btn-sm" id="applyAllBtn" style="display:none" onclick="applyAllParsed()">✅ 应用全部更新</button>
+      <button class="btn btn-blue btn-sm" onclick="smartParse()">识别并更新</button>
+      <button class="btn btn-green btn-sm" id="applyAllBtn" style="display:none" onclick="applyAllParsed()">应用全部更新</button>
       <span class="hint" style="font-size:.72rem;color:#888">粘贴后点击识别，匹配结果逐行显示</span>
     </div>
     <div class="paste-results" id="pasteResults"></div>
@@ -284,7 +279,7 @@ body.dark{
 
   <!-- Info Bar -->
   <div class="info-bar">
-    <span>💡 修改价格后，点击 <span class="label">📋 复制JSON</span> → 打开 GitHub 替换 <code>prices.json</code> 即可生效</span>
+    <span>修改价格后，点击 <span class="label">复制JSON</span> → 打开 GitHub 替换 <code>prices.json</code> 即可生效</span>
     <span class="hint">｜ 上次更新：<span id="updateTime">-</span></span>
   </div>
 
@@ -296,7 +291,7 @@ body.dark{
 <!-- Modal: Adjust Amount -->
 <div class="modal-overlay" id="adjustModal">
   <div class="modal">
-    <h3>📊 统一调价：<span id="adjustCatName"></span></h3>
+    <h3>统一调价：<span id="adjustCatName"></span></h3>
     <p>输入调整金额（支持负数降价，如 <code>-2</code>），该大类下所有品类价格统一变动。</p>
     <div style="display:flex;gap:8px;align-items:center;margin:12px 0">
       <span style="font-size:.9rem;font-weight:600">金额：</span>
@@ -414,12 +409,6 @@ function formatTime(d) {
 }
 
 // ========== Render ==========
-const CAT_ICONS = {
-  '废铜':'🟤','废铝':'⚪','废铁':'⚫','废不锈钢':'🔘',
-  '废纸':'📰','废塑料':'♻️','废玻璃':'🪟','废轮胎':'🛞',
-  '废电池':'🔋','其他':'📦'
-};
-
 function render() {
   const root = document.getElementById('app');
   const utEl = document.getElementById('updateTime');
@@ -429,14 +418,13 @@ function render() {
   Object.keys(prices).forEach(cat => {
     const items = prices[cat];
     const names = Object.keys(items);
-    const icon = CAT_ICONS[cat] || '📦';
 
     html += `<div class="category-section">
       <div class="category-header">
-        <div class="category-title">${icon} ${cat} <span style="font-size:.72rem;color:#888;font-weight:400">(${names.length}种)</span></div>
+        <div class="category-title">${cat} <span style="font-size:.72rem;color:#888;font-weight:400">(${names.length}种)</span></div>
         <div class="category-actions">
-          <button class="adjust-btn" onclick="openAdjustModal('${cat}')">➕ 涨价</button>
-          <button class="adjust-btn" onclick="openAdjustModalDown('${cat}')">➖ 降价</button>
+          <button class="adjust-btn" onclick="openAdjustModal('${cat}')">涨价</button>
+          <button class="adjust-btn" onclick="openAdjustModalDown('${cat}')">降价</button>
         </div>
       </div>
       <div class="item-grid">`;
