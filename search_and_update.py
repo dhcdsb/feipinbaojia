@@ -66,16 +66,22 @@ def fetch(url):
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
             raw = r.read()
-            content_encoding = r.headers.get('content-encoding', '')
-            
-            # Decompress if gzip
-            if content_encoding == 'gzip':
-                import gzip
-                try:
+            content_encoding = r.headers.get('content-encoding', '').lower()
+
+            # 按响应头解压（站点可能返回 gzip 或 deflate）
+            try:
+                if 'gzip' in content_encoding:
+                    import gzip
                     raw = gzip.decompress(raw)
-                except Exception:
-                    pass
-            
+                elif 'deflate' in content_encoding:
+                    import zlib
+                    try:
+                        raw = zlib.decompress(raw)
+                    except zlib.error:
+                        raw = zlib.decompress(raw, -zlib.MAX_WBITS)
+            except Exception as e:
+                print(f"  [WARN] 解压失败，尝试按原始字节解析: {e}")
+
             # Try different encodings
             for encoding in ['utf-8', 'gb2312', 'gbk', 'gb18030']:
                 try:
@@ -85,11 +91,11 @@ def fetch(url):
                         return text
                 except UnicodeDecodeError:
                     continue
-            
+
             # Fallback
             return raw.decode("utf-8", errors="ignore")
     except Exception as e:
-        print(f"  [WARN] {e}")
+        print(f"  [WARN] {type(e).__name__}: {e}")
         return ""
 
 
@@ -213,14 +219,19 @@ def main():
     for source_key, url in SMM_URLS.items():
         print(f"\n[SMM] 获取 {source_key} 数据...")
         smm_html = fetch(url)
-        if smm_html:
-            smm_prices = extract_smm_prices(smm_html)
-            smm_data[source_key] = smm_prices
-            print(f"  [OK] 提取到 {len(smm_prices)} 条数据")
-            for name, v in smm_prices.items():
-                print(f"    {name}: {v['low']}-{v['high']} (均价 {v['mid']})")
-        else:
-            print(f"  [WARN] 获取失败")
+        if not smm_html:
+            print(f"  [WARN] 获取失败（网络或反爬）")
+            continue
+        # SMM 对未登录用户用 lock 图标遮住价格，静态抓取拿不到数字。
+        # 明确提示，避免误以为脚本解析逻辑坏了。
+        if 'lock.png' in smm_html or 'user.smm.cn/login' in smm_html:
+            print(f"  [WARN] 该源价格被登录墙锁定（需登录 SMM 账号），已跳过")
+            continue
+        smm_prices = extract_smm_prices(smm_html)
+        smm_data[source_key] = smm_prices
+        print(f"  [OK] 提取到 {len(smm_prices)} 条数据")
+        for name, v in smm_prices.items():
+            print(f"    {name}: {v['low']}-{v['high']} (均价 {v['mid']})")
 
     for src in SOURCES:
         cat, target, keyword = src["category"], src["target"], src["keyword"]

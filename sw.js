@@ -1,12 +1,12 @@
-/* 废品回收报价助手 - Service Worker v1.0 */
+/* 废品回收报价助手 - Service Worker v2.1 */
 
-var CACHE_NAME = 'scrap-price-cache-v2';
+var CACHE_NAME = 'scrap-price-cache-v3';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
   'index.html',
   'manifest.json',
-  'https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js'
+  'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js'
 ];
 
 // 安装事件：预缓存关键静态资源
@@ -22,7 +22,7 @@ self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
-// 激活事件：清理旧缓存
+// 激活事件：清理旧缓存，并立即接管页面
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
@@ -33,15 +33,25 @@ self.addEventListener('activate', function(event) {
           }
         })
       );
+    }).then(function() {
+      // clients.claim 必须在 waitUntil 内，否则新 SW 不一定能立即接管已打开的页面
+      return self.clients.claim();
     })
   );
-  // 立即控制所有打开的页面
-  return self.clients.claim();
 });
 
 // 判断是否为 prices.json 请求
 function isPricesJson(url) {
   return url.includes('prices.json');
+}
+
+// 去掉查询参数（如 ?t=时间戳）得到稳定的缓存 key。
+// 页面每次用带时间戳的 URL 请求以绕过 HTTP 缓存，若直接拿它做 key，
+// 离线时 caches.match 永远匹配不到，兜底失效。
+function cacheKey(request) {
+  var url = new URL(request.url);
+  url.search = '';
+  return url.toString();
 }
 
 // 请求拦截
@@ -54,18 +64,19 @@ self.addEventListener('fetch', function(event) {
 
   // prices.json 采用 Network First 策略
   if (isPricesJson(event.request.url)) {
+    var key = cacheKey(event.request);
     event.respondWith(
       fetch(event.request).then(function(response) {
         if (response && response.status === 200) {
           var responseClone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, responseClone);
+            cache.put(key, responseClone);
           });
         }
         return response;
       }).catch(function() {
-        // 网络失败时用缓存兜底
-        return caches.match(event.request).then(function(cachedResponse) {
+        // 网络失败时用缓存兜底（用规范化后的 key 匹配）
+        return caches.match(key).then(function(cachedResponse) {
           return cachedResponse || new Response(JSON.stringify({ "categories": {} }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
