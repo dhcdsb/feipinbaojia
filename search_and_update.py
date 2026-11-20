@@ -10,6 +10,7 @@
 import urllib.request
 import re
 import json
+import os
 import subprocess
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -180,6 +181,11 @@ def save_prices(data):
 
 
 def git_push(n):
+    # GitHub Actions 里由 workflow 统一提交，脚本自带 push 需跳过，
+    # 否则会与 workflow 的提交冲突（detached HEAD / 重复 commit）。
+    if os.environ.get("SKIP_GIT_PUSH") == "1":
+        print("[INFO] SKIP_GIT_PUSH=1，跳过脚本内 git push（交给 CI 提交）")
+        return
     try:
         subprocess.run(["git", "-C", str(SCRIPT_DIR), "add", "prices.json"],
                        check=True, capture_output=True, timeout=10)

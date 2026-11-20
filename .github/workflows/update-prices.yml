@@ -1,0 +1,52 @@
+name: 自动更新废品报价
+
+# 定时抓取行情并更新 prices.json。
+# 时区说明：GitHub Actions 的 cron 一律按 UTC 计算。
+#   UTC 01:30 = 北京时间 09:30（上午报价）
+#   UTC 07:30 = 北京时间 15:30（下午报价）
+# 周一至周五运行（1-5），周末行情不更新，跳过。
+on:
+  schedule:
+    - cron: '30 1 * * 1-5'
+    - cron: '30 7 * * 1-5'
+  # 允许在 Actions 页面手动触发，方便随时更新或排错
+  workflow_dispatch:
+
+# 需要写权限才能把更新后的 prices.json 推回仓库
+permissions:
+  contents: write
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 检查语法
+        run: python -m py_compile search_and_update.py
+
+      - name: 抓取并更新价格
+        # 跳过脚本自带的 git push，由下面的步骤统一提交
+        env:
+          SKIP_GIT_PUSH: '1'
+        run: python search_and_update.py
+
+      - name: 有变化才提交
+        run: |
+          if git diff --quiet -- prices.json; then
+            echo "价格无变化，跳过提交"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          NOW=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M')
+          git commit -m "[auto] 价格更新 $NOW"
+          git push
