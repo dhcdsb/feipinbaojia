@@ -208,15 +208,12 @@ if ('serviceWorker' in navigator) {
     <div id="recGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
   </div>
 
-  <!-- 操作按钮 -->
+  <!-- 导出 -->
   <div class="card">
-    <div class="card-title">价格管理</div>
+    <div class="card-title">导出数据</div>
     <div class="btn-group">
-      <button class="btn btn-success" onclick="showSitesModal()">查询行情</button>
-      <button class="btn btn-primary" onclick="showBatchModal()">更新价格</button>
       <button class="btn btn-info" onclick="exportCSV()">导出CSV</button>
       <button class="btn btn-info" onclick="exportExcel()">导出Excel</button>
-      <button class="btn btn-warning" onclick="resetPrices()">恢复默认</button>
     </div>
   </div>
 
@@ -226,72 +223,12 @@ if ('serviceWorker' in navigator) {
     <input type="text" class="search-box" id="searchBox" placeholder="搜索品类名称..." oninput="renderTable()">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>上次价格</th><th>涨跌</th><th>操作</th></tr></thead>
+        <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>上次价格</th><th>涨跌</th><th>详情</th></tr></thead>
         <tbody id="priceBody"></tbody>
       </table>
     </div>
   </div>
 </div>
-
-<!-- 批量更新弹窗 -->
-<div class="modal-overlay" id="batchModal">
-  <div class="modal">
-    <h3>批量更新价格</h3>
-    <p style="font-size:.8rem;color:#888;margin-bottom:10px">粘贴价格表，每行格式：<b>品类名 价格</b>（空格或冒号分隔）</p>
-    <textarea id="batchText" placeholder="例：&#10;1号光亮铜线 36&#10;紫铜 35&#10;黄铜 25&#10;熟铝 14.5"></textarea>
-    <div id="batchPreview" style="margin-top:10px;font-size:.8rem;color:#666"></div>
-    <div class="btn-group">
-      <button class="btn btn-danger btn-sm" onclick="closeBatchModal()">取消</button>
-      <button class="btn btn-primary btn-sm" onclick="previewBatch()">预览</button>
-      <button class="btn btn-success btn-sm" onclick="applyBatch()">确认更新</button>
-    </div>
-  </div>
-</div>
-
-<!-- 单个编辑弹窗 -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <h3>修改价格</h3>
-    <div class="form-group" style="margin-bottom:12px">
-      <label>品类</label>
-      <input type="text" id="editName" readonly style="background:#f5f5f5">
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label>当前价格 (元/kg)</label>
-      <input type="number" id="editPrice" step="0.01" min="0">
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-danger btn-sm" onclick="closeEditModal()">取消</button>
-      <button class="btn btn-success btn-sm" onclick="saveEdit()">保存</button>
-    </div>
-  </div>
-</div>
-
-<!-- 行情网站弹窗 -->
-<div class="modal-overlay" id="sitesModal">
-  <div class="modal">
-    <h3>查询实时行情</h3>
-    <p style="font-size:.8rem;color:#888;margin-bottom:14px">点击跳转到行情网站，查完价格后回来用「更新价格」粘贴即可</p>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="https://www.cnal.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
-        <b>世铝网</b><br><span style="font-size:.8rem;color:#888">铝锭、铝合金、铝型材价格</span>
-      </a>
-      <a href="https://www.ccmn.cn/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
-        <b>长江有色金属网</b><br><span style="font-size:.8rem;color:#888">铜、铝、锌、铅、镍等有色金属</span>
-      </a>
-      <a href="https://www.feijiu.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
-        <b>废品之家</b><br><span style="font-size:.8rem;color:#888">废铜、废铝、废铁、废纸等废料报价</span>
-      </a>
-      <a href="https://www.mysteel.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
-        <b>我的钢铁网</b><br><span style="font-size:.8rem;color:#888">废钢、废铁、不锈钢等钢铁类</span>
-      </a>
-    </div>
-    <div class="btn-group" style="margin-top:14px;justify-content:flex-end">
-      <button class="btn btn-primary btn-sm" onclick="closeSitesModal()">关闭</button>
-    </div>
-  </div>
-</div>
-
 
 <!-- 品类详情弹窗 -->
 <div class="modal-overlay" id="infoModal">
@@ -714,7 +651,6 @@ let lastPrices = {};    // 上次价格快照
 let updateTime = null;
 let calcCount = 0;
 let calcCountDate = '';
-let editingItem = null;
 let recRatio = 85;      // 收货比例，默认85%
 
 // ========== 从 prices.json 拉取远程价格 ==========
@@ -936,7 +872,7 @@ function renderTable() {
         <td>${cat}</td><td><span class="item-link" onclick="openItemInfo('${cat}','${item}')">${item}</span><span class="info-badge" onclick="openItemInfo('${cat}','${item}')" title="查看介绍与分辨方法">i</span></td><td><b>${cur}</b></td>
         <td>${last !== null && last !== undefined ? last : '-'}</td>
         <td>${changeHtml} ${tagHtml}</td>
-        <td><button class="btn btn-primary btn-sm" onclick="openEdit('${cat}','${item}')">编辑</button></td>
+        <td><button class="btn btn-info btn-sm" onclick="openItemInfo('${cat}','${item}')">详情</button></td>
       </tr>`;
     });
   });
@@ -959,137 +895,6 @@ function openItemInfo(cat, item) {
 }
 function closeItemInfo() {
   document.getElementById('infoModal').classList.remove('show');
-}
-
-// ========== 编辑 ==========
-function openEdit(cat, item) {
-  editingItem = { cat, item };
-  document.getElementById('editName').value = cat + ' - ' + item;
-  document.getElementById('editPrice').value = priceData[cat][item];
-  document.getElementById('editModal').classList.add('show');
-}
-
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('show');
-}
-
-function saveEdit() {
-  if (!editingItem) return;
-  const newPrice = parseFloat(document.getElementById('editPrice').value);
-  if (isNaN(newPrice) || newPrice < 0) return toast('请输入有效价格');
-
-  const { cat, item } = editingItem;
-  if (!lastPrices[cat]) lastPrices[cat] = {};
-  lastPrices[cat][item] = priceData[cat][item];
-  priceData[cat][item] = newPrice;
-
-  save();
-  renderTable();
-  renderRecGrid();
-  loadItems();
-  updateStats();
-  closeEditModal();
-  toast('✅ 价格已更新');
-}
-
-// ========== 批量更新 ==========
-function showBatchModal() {
-  document.getElementById('batchText').value = '';
-  document.getElementById('batchPreview').innerHTML = '';
-  document.getElementById('batchModal').classList.add('show');
-}
-
-function closeBatchModal() {
-  document.getElementById('batchModal').classList.remove('show');
-}
-
-function previewBatch() {
-  const text = document.getElementById('batchText').value.trim();
-  if (!text) return toast('请粘贴价格数据');
-
-  const lines = text.split('\n').filter(l => l.trim());
-  let matched = 0, unmatched = 0;
-  let html = '<b>匹配预览：</b><br>';
-
-  lines.forEach(line => {
-    // 支持：空格、冒号、等号、tab 分隔
-    const m = line.match(/^(.+?)[\s:：=＝\t]+(\d+\.?\d*)/);
-    if (!m) { unmatched++; html += `<span style="color:#e74c3c">❌ ${line}</span><br>`; return; }
-    const name = m[1].trim();
-    const price = parseFloat(m[2]);
-    let found = false;
-    Object.keys(priceData).forEach(cat => {
-      Object.keys(priceData[cat]).forEach(item => {
-        if (item === name || cat + item === name) {
-          matched++;
-          const old = priceData[cat][item];
-          const diff = price - old;
-          const arrow = diff > 0 ? '<span class="up">↑</span>' : diff < 0 ? '<span class="down">↓</span>' : '→';
-          html += `<span style="color:#27ae60">✅ ${name}: ${old} → ${price} ${arrow}</span><br>`;
-          found = true;
-        }
-      });
-    });
-    if (!found) { unmatched++; html += `<span style="color:#f39c12">⚠️ ${name}: ${price} (未找到品类)</span><br>`; }
-  });
-
-  html += `<br><b>匹配 ${matched} 条，未匹配 ${unmatched} 条</b>`;
-  document.getElementById('batchPreview').innerHTML = html;
-}
-
-function applyBatch() {
-  const text = document.getElementById('batchText').value.trim();
-  if (!text) return toast('请粘贴价格数据');
-  if (!confirm('确定要批量更新价格吗？')) return;
-
-  // 保存当前为 lastPrices
-  Object.keys(priceData).forEach(cat => {
-    if (!lastPrices[cat]) lastPrices[cat] = {};
-    Object.keys(priceData[cat]).forEach(item => {
-      lastPrices[cat][item] = priceData[cat][item];
-    });
-  });
-
-  const lines = text.split('\n').filter(l => l.trim());
-  let count = 0;
-
-  lines.forEach(line => {
-    const m = line.match(/^(.+?)[\s:：=＝\t]+(\d+\.?\d*)/);
-    if (!m) return;
-    const name = m[1].trim();
-    const price = parseFloat(m[2]);
-    Object.keys(priceData).forEach(cat => {
-      Object.keys(priceData[cat]).forEach(item => {
-        if (item === name || cat + item === name) {
-          priceData[cat][item] = price;
-          count++;
-        }
-      });
-    });
-  });
-
-  updateTime = new Date().toLocaleString('zh-CN');
-  save();
-  renderTable();
-  renderRecGrid();
-  updateStats();
-  closeBatchModal();
-  toast(`✅ 成功更新 ${count} 个品类`);
-}
-
-// ========== 恢复默认 ==========
-function resetPrices() {
-  if (!confirm('确定要恢复默认价格吗？当前数据将被覆盖。')) return;
-  // 保存当前为 lastPrices
-  lastPrices = JSON.parse(JSON.stringify(priceData));
-  priceData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  updateTime = new Date().toLocaleString('zh-CN');
-  save();
-  renderCatSelect();
-  renderTable();
-  renderRecGrid();
-  updateStats();
-  toast('✅ 已恢复默认价格');
 }
 
 // ========== 导出CSV ==========
@@ -1141,14 +946,6 @@ function exportExcel() {
   const date = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(wb, `废品回收报价_${date}.xlsx`);
   toast('✅ Excel已下载');
-}
-
-// ========== 行情网站弹窗 ==========
-function showSitesModal() {
-  document.getElementById('sitesModal').classList.add('show');
-}
-function closeSitesModal() {
-  document.getElementById('sitesModal').classList.remove('show');
 }
 
 // ========== 工具 ==========
