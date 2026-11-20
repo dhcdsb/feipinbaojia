@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#f4f6f9">
+<meta name="theme-color" content="#4f46e5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,65 +12,117 @@
 <link rel="apple-touch-icon" href="icon.png">
 <title>废品回收报价助手</title>
 <style>
-/* 扁平化视觉：纯色 + 细边框，无渐变/阴影/模糊 */
+/* ===== 现代精致设计系统 ===== */
+:root{
+  --primary:#6366f1; --primary-dark:#4f46e5; --primary-deep:#4338ca;
+  --primary-light:#eef2ff; --success:#10b981; --warning:#f59e0b;
+  --up:#ef4444; --down:#10b981;
+  --bg:#f1f5f9; --card:#fff; --text:#0f172a; --text-2:#475569; --text-3:#94a3b8;
+  --border:#e2e8f0;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 4px 16px rgba(15,23,42,.06);
+  --shadow-hover:0 6px 12px rgba(15,23,42,.08),0 12px 28px rgba(15,23,42,.10);
+  --radius:14px;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Microsoft YaHei',sans-serif;background:#f4f6f9;min-height:100vh;padding:20px;color:#1f2937}
+body{
+  font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;padding:20px;
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+}
 .container{max-width:1100px;margin:0 auto}
-.header{margin-bottom:24px}
-.header h1{font-size:1.9rem;margin-bottom:6px;color:#1f2937}
-.header .sub{font-size:.9rem;color:#6b7280}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
-.stat-card{background:#fff;border:1px solid #e3e8ef;border-radius:8px;padding:14px;text-align:center}
-.stat-card .num{font-size:1.6rem;font-weight:700;color:#1f2937}
-.stat-card .label{font-size:.75rem;color:#6b7280;margin-top:2px}
-.card{background:#fff;border:1px solid #e3e8ef;border-radius:8px;padding:20px;margin-bottom:16px}
-.card-title{font-size:1.1rem;font-weight:700;color:#1f2937;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #e3e8ef;display:flex;justify-content:space-between;align-items:center}
-.card-title .time{font-size:.75rem;color:#9ca3af;font-weight:400}
-.btn{padding:8px 16px;border:1px solid transparent;border-radius:6px;cursor:pointer;font-size:.85rem;color:#fff;transition:filter .15s;display:inline-flex;align-items:center;gap:4px}
-.btn:hover{filter:brightness(.92)}
-.btn:active{filter:brightness(.85)}
-.btn-primary{background:#2563eb}
-.btn-success{background:#16a34a}
-.btn-warning{background:#d97706}
-.btn-info{background:#0891b2}
-.btn-danger{background:#dc2626}
-.btn-sm{padding:5px 10px;font-size:.75rem}
-.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-select,input[type=number],input[type=text]{padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;outline:none;transition:border .2s;background:#fff;color:#1f2937}
-select:focus,input:focus{border-color:#2563eb}
-label{font-size:.85rem;color:#4b5563;margin-bottom:4px;display:block}
-.form-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+
+/* 品牌头部 */
+.header{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#4f46e5 0%,#6366f1 55%,#7c3aed 100%);
+  border-radius:18px;padding:26px 30px;margin-bottom:20px;color:#fff;
+  box-shadow:0 8px 24px rgba(79,70,229,.28);
+}
+.header::after{content:'';position:absolute;right:-30px;top:-70px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.09)}
+.header::before{content:'';position:absolute;right:110px;bottom:-100px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)}
+.header h1{font-size:1.8rem;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.header .logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-style:normal}
+.header .sub{font-size:.86rem;opacity:.85;margin-top:8px;position:relative;z-index:1}
+
+/* 统计卡片 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.stat-icon{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-style:normal}
+.stat-card:nth-child(1) .stat-icon{background:#eef2ff}
+.stat-card:nth-child(2) .stat-icon{background:#ecfdf5}
+.stat-card:nth-child(3) .stat-icon{background:#fffbeb}
+.stat-card:nth-child(4) .stat-icon{background:#ecfeff}
+.stat-card .num{font-size:1.45rem;font-weight:800;line-height:1.2}
+.stat-card .label{font-size:.76rem;color:var(--text-3);margin-top:2px}
+
+/* 卡片 */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.card-title{font-size:1.08rem;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--primary-light);display:flex;justify-content:space-between;align-items:center}
+.card-title .time{font-size:.75rem;color:var(--text-3);font-weight:400}
+
+/* 按钮 */
+.btn{padding:9px 18px;border:none;border-radius:9px;cursor:pointer;font-size:.86rem;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,box-shadow .15s,filter .15s;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669)}
+.btn-warning{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.btn-info{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-sm{padding:6px 12px;font-size:.78rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+
+/* 表单 */
+select,input[type=number],input[type=text]{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;outline:none;background:#fff;color:var(--text);transition:border-color .2s,box-shadow .2s}
+select:focus,input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-weight:600}
+.form-row{display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
 .form-group{display:flex;flex-direction:column;flex:1;min-width:120px}
-.result-box{background:#f8fafc;border:1px solid #e3e8ef;border-radius:8px;padding:16px;margin-top:12px;text-align:center}
-.result-box .price{font-size:2rem;font-weight:700;color:#2563eb}
-.result-box .detail{font-size:.85rem;color:#6b7280;margin-top:4px}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th{background:#f8fafc;padding:10px 8px;text-align:left;font-weight:600;color:#4b5563;position:sticky;top:0;border-bottom:1px solid #e3e8ef}
-td{padding:8px;border-bottom:1px solid #eef1f5}
-tr:hover{background:#f8fafc}
-.up{color:#dc2626;font-weight:600}
-.down{color:#16a34a;font-weight:600}
-.flat{color:#9ca3af}
-.search-box{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:12px;font-size:.9rem}
-.table-wrap{max-height:400px;overflow-y:auto;border-radius:6px;border:1px solid #e3e8ef}
-.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:600}
-.tag-up{background:#fef2f2;color:#dc2626}
-.tag-down{background:#f0fdf4;color:#16a34a}
-.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;justify-content:center;align-items:center}
+
+/* 结果框 */
+.result-box{background:linear-gradient(135deg,#eef2ff,#eff6ff);border:1px solid #c7d2fe;border-radius:12px;padding:20px;margin-top:14px;text-align:center}
+.result-box .price{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#4f46e5,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.result-box .detail{font-size:.85rem;color:var(--text-2);margin-top:6px}
+
+/* 表格 */
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{background:var(--primary-light);padding:12px 10px;text-align:left;font-weight:700;color:var(--primary-deep);position:sticky;top:0;border-bottom:2px solid #c7d2fe}
+td{padding:10px;border-bottom:1px solid var(--border);color:var(--text-2)}
+tr:hover td{background:#f8fafc}
+.up{color:var(--up);font-weight:700}
+.down{color:var(--down);font-weight:700}
+.flat{color:var(--text-3)}
+.search-box{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;margin-bottom:14px;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.search-box:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.table-wrap{max-height:420px;overflow-y:auto;border-radius:10px;border:1px solid var(--border)}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700}
+.tag-up{background:#fef2f2;color:var(--up)}
+.tag-down{background:#ecfdf5;color:var(--down)}
+
+/* 弹窗 */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:100;justify-content:center;align-items:center;padding:20px}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:8px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto}
-.modal h3{margin-bottom:16px;color:#1f2937}
-.modal textarea{width:100%;height:200px;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;resize:vertical;font-family:inherit}
-.modal .btn-group{margin-top:14px;justify-content:flex-end}
-.toast{position:fixed;top:20px;right:20px;background:#1f2937;color:#fff;padding:12px 20px;border-radius:8px;font-size:.9rem;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
+.modal{background:#fff;border-radius:18px;padding:26px;width:90%;max-width:500px;max-height:82vh;overflow-y:auto;box-shadow:0 24px 60px rgba(15,23,42,.3);animation:pop .2s ease-out}
+@keyframes pop{from{transform:scale(.95) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.modal h3{margin-bottom:16px;color:var(--text);font-size:1.2rem}
+.modal textarea{width:100%;height:200px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:.86rem;resize:vertical;font-family:inherit;outline:none}
+.modal textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.modal .btn-group{margin-top:16px;justify-content:flex-end}
+.toast{position:fixed;top:24px;right:24px;background:var(--text);color:#fff;padding:13px 22px;border-radius:10px;font-size:.9rem;z-index:200;opacity:0;transform:translateY(-10px);transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 8px 24px rgba(15,23,42,.3)}
+.toast.show{opacity:1;transform:none}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
 @media(max-width:600px){
+  body{padding:12px}
+  .header{padding:22px}
   .header h1{font-size:1.4rem}
   .stats{grid-template-columns:repeat(2,1fr)}
   .form-row{flex-direction:column}
-  .btn-group{gap:6px}
-  .btn{padding:7px 12px;font-size:.8rem}
+  .btn-group{gap:8px}
 }
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -83,15 +135,15 @@ if ('serviceWorker' in navigator) {
 <body>
 <div class="container">
   <div class="header">
-    <h1>废品回收报价助手</h1>
-    <div class="sub">快速查询 · 批量更新 · 本地存储</div>
+    <h1><span class="logo">♻</span>废品回收报价助手</h1>
+    <div class="sub">快速查询 · 批量更新 · 本地存储 · 实时掌握废料行情</div>
   </div>
 
   <div class="stats">
-    <div class="stat-card"><div class="num" id="statCats">0</div><div class="label">大类</div></div>
-    <div class="stat-card"><div class="num" id="statItems">0</div><div class="label">品类</div></div>
-    <div class="stat-card"><div class="num" id="statUpdate">-</div><div class="label">最后更新</div></div>
-    <div class="stat-card"><div class="num" id="statCalc">0</div><div class="label">今日查询</div></div>
+    <div class="stat-card"><div class="stat-icon">📦</div><div><div class="num" id="statCats">0</div><div class="label">大类</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🏷️</div><div><div class="num" id="statItems">0</div><div class="label">品类</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🕐</div><div><div class="num" id="statUpdate">-</div><div class="label">最后更新</div></div></div>
+    <div class="stat-card"><div class="stat-icon">📊</div><div><div class="num" id="statCalc">0</div><div class="label">今日查询</div></div></div>
   </div>
 
   <!-- 计算区 -->
@@ -126,8 +178,8 @@ if ('serviceWorker' in navigator) {
     <div class="card-title">推荐收货价格 <span class="time" id="recTimeLabel"></span></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
       <span style="font-size:.85rem;font-weight:600;white-space:nowrap">收货比例</span>
-      <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#667eea">
-      <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#667eea;min-width:45px;text-align:right">85%</span>
+      <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#6366f1">
+      <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#4f46e5;min-width:45px;text-align:right">85%</span>
     </div>
     <p style="font-size:.8rem;color:#888;margin-bottom:12px">调节收货价占市场价的百分比，根据利润空间和竞争情况调整</p>
     <div id="recGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
@@ -198,16 +250,16 @@ if ('serviceWorker' in navigator) {
     <h3>查询实时行情</h3>
     <p style="font-size:.8rem;color:#888;margin-bottom:14px">点击跳转到行情网站，查完价格后回来用「更新价格」粘贴即可</p>
     <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="https://www.cnal.com/" target="_blank" style="display:block;padding:12px;background:#f8f9fa;border-radius:6px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+      <a href="https://www.cnal.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
         <b>世铝网</b><br><span style="font-size:.8rem;color:#888">铝锭、铝合金、铝型材价格</span>
       </a>
-      <a href="https://www.ccmn.cn/" target="_blank" style="display:block;padding:12px;background:#f8f9fa;border-radius:6px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+      <a href="https://www.ccmn.cn/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
         <b>长江有色金属网</b><br><span style="font-size:.8rem;color:#888">铜、铝、锌、铅、镍等有色金属</span>
       </a>
-      <a href="https://www.feijiu.com/" target="_blank" style="display:block;padding:12px;background:#f8f9fa;border-radius:6px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+      <a href="https://www.feijiu.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
         <b>废品之家</b><br><span style="font-size:.8rem;color:#888">废铜、废铝、废铁、废纸等废料报价</span>
       </a>
-      <a href="https://www.mysteel.com/" target="_blank" style="display:block;padding:12px;background:#f8f9fa;border-radius:6px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
+      <a href="https://www.mysteel.com/" target="_blank" style="display:block;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#333" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='#f8f9fa'">
         <b>我的钢铁网</b><br><span style="font-size:.8rem;color:#888">废钢、废铁、不锈钢等钢铁类</span>
       </a>
     </div>
@@ -426,14 +478,14 @@ function renderRecGrid() {
   }
   let html = '';
   for (const [cat, items] of Object.entries(priceData)) {
-    html += `<div style="background:#f8f9fa;border-radius:6px;padding:14px;border-left:3px solid #2563eb">
-      <div style="font-weight:700;margin-bottom:8px;font-size:.95rem">${cat}</div>`;
+    html += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 14px 12px;border-left:4px solid #6366f1;box-shadow:0 1px 3px rgba(15,23,42,.05)">
+      <div style="font-weight:700;margin-bottom:8px;font-size:.92rem;color:#4338ca">${cat}</div>`;
     for (const [item, price] of Object.entries(items)) {
       const buyPrice = (price * recRatio / 100).toFixed(2);
       const note = notes[cat + '|' + item] || '';
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.82rem">
         <span style="color:#555">${item}</span>
-        <span><b style="color:#667eea">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${price}</span></span>
+        <span><b style="color:#4f46e5">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${price}</span></span>
       </div>`;
     }
     html += '</div>';

@@ -4,8 +4,8 @@
   "description": "快速查询废品回收价格，计算收益，批量更新",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f4f6f9",
-  "theme_color": "#f4f6f9",
+  "background_color": "#f1f5f9",
+  "theme_color": "#4f46e5",
   "orientation": "portrait",
   "lang": "zh-CN",
   "icons": [
