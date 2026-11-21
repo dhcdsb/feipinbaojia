@@ -30,7 +30,7 @@ jobs:
           python-version: '3.11'
 
       - name: 检查语法
-        run: python -m py_compile search_and_update.py
+        run: python -m py_compile search_and_update.py update_prices.py
 
       - name: 抓取并更新价格
         # 跳过脚本自带的 git push，由下面的步骤统一提交

@@ -1,11 +1,13 @@
-/* 废品回收报价助手 - Service Worker v2.9 */
+/* 废品回收报价助手 - Service Worker v3.0 */
 
-var CACHE_NAME = 'scrap-price-cache-v14';
+var CACHE_NAME = 'scrap-price-cache-v15';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
   'index.html',
+  'admin.html',
   'manifest.json',
+  'icon.png',
   'xlsx.full.min.js'
 ];
 
@@ -13,10 +15,13 @@ const PRECACHE_URLS = [
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(PRECACHE_URLS).catch(function(err) {
-        // 外部 CDN 资源可能失败，不影响主功能
-        console.log('SW precache warning:', err);
-      });
+      // 逐个缓存而不是 addAll：单个文件失败不会拖累其它文件，
+      // 并且 cache:'reload' 强制绕过 HTTP 缓存，避免把旧页面写进新版本的缓存。
+      return Promise.all(PRECACHE_URLS.map(function(url) {
+        return cache.add(new Request(url, { cache: 'reload' })).catch(function(err) {
+          console.log('SW precache skip:', url, err);
+        });
+      }));
     })
   );
   self.skipWaiting();

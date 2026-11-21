@@ -330,6 +330,15 @@ tr:hover td{background:#f8fafc}
 </style>
 <script>
 if ('serviceWorker' in navigator) {
+  // 记录进入页面时是否已有 SW 接管：只有"老用户升级"才自动刷新，
+  // 首次安装不刷新，避免打断正在输入的内容。
+  var hadController = !!navigator.serviceWorker.controller;
+  var reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (!hadController || reloading) return;
+    reloading = true;
+    location.reload();
+  });
   navigator.serviceWorker.register('sw.js').catch(function() {});
 }
 </script>
@@ -772,79 +781,79 @@ const ITEM_INFO = {
 // 推荐收货价 = 市场参考价（元/kg）
 const REC_PRICES = {
   "废铜": {
-    "1号光亮铜线": { price: 91.5, note: "纯度高，按铜价走" },
-    "紫铜": { price: 91.25, note: "干净无杂质" },
-    "黄铜": { price: 54.5, note: "H62等常见牌号" },
-    "铜管": { price: 91.0, note: "空调/水管铜管" },
+    "1号光亮铜线": { price: 86.9, note: "纯度高，按铜价走" },
+    "紫铜": { price: 89.75, note: "干净无杂质" },
+    "黄铜": { price: 54.8, note: "H62等常见牌号" },
+    "铜管": { price: 90.0, note: "空调/水管铜管" },
     "铜排": { price: 91.0, note: "电气铜排" },
-    "铜米": { price: 91.25, note: "加工铜米" },
-    "杂铜": { price: 55.85, note: "混合铜料" },
-    "铜屑": { price: 68.2, note: "车床铜屑" }
+    "铜米": { price: 68.5, note: "加工铜米" },
+    "杂铜": { price: 46.0, note: "混合铜料" },
+    "铜屑": { price: 76.0, note: "车床铜屑" }
   },
   "废铝": {
-    "铝线": { price: 20.5, note: "纯铝线" },
-    "熟铝": { price: 18.5, note: "干净铝材" },
-    "生铝": { price: 18.0, note: "铸铝件" },
-    "铝合金": { price: 16.5, note: "6063/6061等" },
-    "铝板": { price: 20.5, note: "纯铝板" },
-    "铝型材": { price: 19.0, note: "门窗/工业型材" },
-    "铝箔": { price: 14.0, note: "食品/药用铝箔" },
-    "铝屑": { price: 17.5, note: "加工铝屑" }
+    "铝线": { price: 21.35, note: "纯铝线" },
+    "熟铝": { price: 19.75, note: "干净铝材" },
+    "生铝": { price: 17.1, note: "铸铝件" },
+    "铝合金": { price: 17.6, note: "6063/6061等" },
+    "铝板": { price: 21.1, note: "纯铝板" },
+    "铝型材": { price: 19.2, note: "门窗/工业型材" },
+    "铝箔": { price: 17.6, note: "食品/药用铝箔" },
+    "铝屑": { price: 17.7, note: "加工铝屑" }
   },
   "废铁": {
-    "重废": { price: 2.25, note: "厚度>6mm" },
+    "重废": { price: 2.1, note: "厚度>6mm" },
     "中废": { price: 2.15, note: "厚度3-6mm" },
-    "轻废": { price: 1.95, note: "薄铁皮" },
-    "钢筋": { price: 2.3, note: "建筑钢筋" },
+    "轻废": { price: 1.8, note: "薄铁皮" },
+    "钢筋": { price: 2.4, note: "建筑钢筋" },
     "铸铁": { price: 2.25, note: "生铁铸件" },
     "铁皮": { price: 1.75, note: "薄铁皮/铁桶" },
     "铁屑": { price: 1.79, note: "车床铁屑" },
-    "生铁": { price: 2.25, note: "生铁件" }
+    "生铁": { price: 1.73, note: "生铁件" }
   },
   "废不锈钢": {
-    "316不锈钢": { price: 18.5, note: "耐酸钢" },
-    "304不锈钢": { price: 10.0, note: "最常见不锈钢" },
-    "201不锈钢": { price: 5.5, note: "低镍不锈钢" },
-    "不锈钢屑": { price: 5.5, note: "不锈钢加工屑" },
-    "杂不锈钢": { price: 5.5, note: "混合不锈钢" }
+    "316不锈钢": { price: 21.7, note: "耐酸钢" },
+    "304不锈钢": { price: 10.45, note: "最常见不锈钢" },
+    "201不锈钢": { price: 4.9, note: "低镍不锈钢" },
+    "不锈钢屑": { price: 5.0, note: "不锈钢加工屑" },
+    "杂不锈钢": { price: 3.45, note: "混合不锈钢" }
   },
   "废纸": {
-    "A4纸": { price: 1.1, note: "白色办公纸" },
-    "报纸": { price: 0.85, note: "废旧报纸" },
-    "纸箱": { price: 1.3, note: "黄板纸箱" },
-    "书本纸": { price: 0.85, note: "废旧书本" },
+    "A4纸": { price: 1.85, note: "白色办公纸" },
+    "报纸": { price: 2.57, note: "废旧报纸" },
+    "纸箱": { price: 1.83, note: "黄板纸箱" },
+    "书本纸": { price: 2.52, note: "废旧书本" },
     "花纸": { price: 0.6, note: "杂色纸张" },
     "杂纸": { price: 0.5, note: "混合废纸" }
   },
   "废塑料": {
     "ABS": { price: 5.8, note: "硬塑料壳" },
-    "PP": { price: 4.5, note: "编织袋/塑料桶" },
-    "PE": { price: 3.8, note: "薄膜/管材" },
+    "PP": { price: 2.6, note: "编织袋/塑料桶" },
+    "PE": { price: 1.2, note: "薄膜/管材" },
     "PVC": { price: 1.8, note: "管材/型材" },
     "PET": { price: 4.2, note: "饮料瓶" },
-    "杂塑料": { price: 1.5, note: "混合塑料" }
+    "杂塑料": { price: 1.6, note: "混合塑料" }
   },
   "废玻璃": {
-    "钢化玻璃": { price: 0.5, note: "完整钢化" },
-    "平板玻璃": { price: 0.45, note: "普通平板" },
-    "碎玻璃": { price: 0.2, note: "碎裂玻璃" },
-    "玻璃瓶": { price: 0.15, note: "酒瓶/饮料瓶" }
+    "钢化玻璃": { price: 0.8, note: "完整钢化" },
+    "平板玻璃": { price: 0.7, note: "普通平板" },
+    "碎玻璃": { price: 0.56, note: "碎裂玻璃" },
+    "玻璃瓶": { price: 0.25, note: "酒瓶/饮料瓶" }
   },
   "废轮胎": {
-    "工程胎": { price: 1.7, note: "大型工程胎" },
-    "钢丝胎": { price: 1.6, note: "汽车钢丝胎" },
-    "尼龙胎": { price: 1.2, note: "尼龙线胎" },
+    "工程胎": { price: 1.8, note: "大型工程胎" },
+    "钢丝胎": { price: 1.8, note: "汽车钢丝胎" },
+    "尼龙胎": { price: 1.25, note: "尼龙线胎" },
     "自行车胎": { price: 0.8, note: "电动车/自行车胎" }
   },
   "废电池": {
     "镍氢电池": { price: 18, note: "混合动力电池" },
-    "锂电池": { price: 7, note: "手机/电动车电池" },
-    "铅酸电池": { price: 10, note: "汽车/电动车电池" },
+    "锂电池": { price: 21.55, note: "手机/电动车电池" },
+    "铅酸电池": { price: 9.75, note: "汽车/电动车电池" },
     "干电池": { price: 1.0, note: "普通干电池" }
   },
   "其他": {
     "废电子板": { price: 7.6, note: "电路板/主板" },
-    "废电机": { price: 12.5, note: "铜芯电机" },
+    "废电机": { price: 4.5, note: "铜芯电机" },
     "废电线": { price: 25, note: "铜芯电线" },
     "废家电": { price: 3.5, note: "旧家电整机" },
     "杂料": { price: 1.5, note: "混合废料" }
@@ -865,7 +874,7 @@ let priceData = {};     // { category: { item: price } }
 let lastPrices = {};    // 上次价格快照
 let updateTime = null;
 const RATIO_PRESETS = [70, 80, 85, 90, 95, 100];
-let recRatio = 85;      // 收货比例，默认85%
+let recRatio = 100;     // 收货比例，默认100%（= 市场价）
 let recCat = '';        // 推荐收货价当前显示的大类
 
 // ========== 存储（浏览器禁用/无痕模式下 localStorage 可能抛异常） ==========
@@ -884,48 +893,44 @@ function fmtTime(s) {
   return t.length >= 16 ? t.slice(0, 16) : t;
 }
 
-async function fetchPrices() {
+async function fetchPrices(silent) {
   const toastEl = document.getElementById('toast');
-  if (toastEl) {
+  if (toastEl && !silent) {
     toastEl.textContent = '🔄 同步中...';
     toastEl.classList.add('show');
   }
   try {
     const resp = await fetch('prices.json?t=' + Date.now());
+    // 离线时 Service Worker 会兜底返回 {categories:{}}，不能当成同步成功
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    // 先快照当前价格到 lastPrices（做对比用）
-    for (const [cat, items] of Object.entries(data.categories)) {
-      if (!priceData[cat]) continue;
-      if (!lastPrices[cat]) lastPrices[cat] = {};
-      for (const item of Object.keys(items)) {
-        // 只在第一次获取或价格变化时记录上次价格
-        if (priceData[cat][item] !== undefined && priceData[cat][item] !== items[item]) {
-          if (lastPrices[cat][item] === undefined) {
-            lastPrices[cat][item] = priceData[cat][item];
-          }
-        }
-      }
-    }
-    // 合并新价格到 priceData
-    for (const [cat, items] of Object.entries(data.categories)) {
-      if (!priceData[cat]) priceData[cat] = {};
+    const cats = data && data.categories;
+    if (!cats || !Object.keys(cats).length) throw new Error('empty data');
+
+    // 整体替换远端数据：避免旧版本残留的品类一直留在本地
+    const fresh = {};
+    for (const [cat, items] of Object.entries(cats)) {
+      fresh[cat] = {};
       for (const [item, price] of Object.entries(items)) {
-        // 价格变了才更新 lastPrices
-        if (priceData[cat][item] !== undefined && priceData[cat][item] !== price) {
-          lastPrices[cat] = lastPrices[cat] || {};
-          lastPrices[cat][item] = priceData[cat][item];
+        const oldVal = priceData[cat] ? priceData[cat][item] : undefined;
+        // 价格变了才更新"上次价格"，没变就保留原有记录
+        if (oldVal !== undefined && oldVal !== price) {
+          if (!lastPrices[cat]) lastPrices[cat] = {};
+          lastPrices[cat][item] = oldVal;
         }
-        priceData[cat][item] = price;
+        fresh[cat][item] = price;
       }
     }
-    // 更新 updateTime 为服务器时间
-    updateTime = data.updatedAt || new Date().toLocaleString('zh-CN');
-    document.getElementById('updateTimeLabel').textContent = '更新于 ' + fmtTime(updateTime);
+    priceData = fresh;
+
+    updateTime = data.updatedAt || updateTime;
+    document.getElementById('updateTimeLabel').textContent = updateTime ? '更新于 ' + fmtTime(updateTime) : '';
     if (toastEl) {
-      toastEl.textContent = '✅ 已同步';
-      setTimeout(() => toastEl.classList.remove('show'), 1500);
+      if (!silent) {
+        toastEl.textContent = '✅ 已同步';
+        setTimeout(() => toastEl.classList.remove('show'), 1500);
+      }
     }
-    // 保存到 localStorage
     save();
     // 数据已更新，立即重绘界面（否则表格和推荐价要等手动刷新才变）
     const selCat = document.getElementById('selCat');
@@ -936,9 +941,10 @@ async function fetchPrices() {
     updateStats();
     return true;
   } catch(e) {
-    if (toastEl) {
-      toastEl.textContent = '使用本地数据';
-      setTimeout(() => toastEl.classList.remove('show'), 1500);
+    // 自动刷新失败不打扰用户；首次加载失败才提示用了本地数据
+    if (toastEl && !silent) {
+      toastEl.textContent = priceData && Object.keys(priceData).length ? '⚠️ 同步失败，显示本地数据' : '⚠️ 暂无数据，请检查网络';
+      setTimeout(() => toastEl.classList.remove('show'), 2200);
     }
     return false;
   }
@@ -957,7 +963,9 @@ async function init() {
   }
   lastPrices = savedLast ? JSON.parse(savedLast) : {};
   updateTime = savedTime || null;
-  recRatio = parseInt(storeGet('scrap_rec_ratio_v2') || '100');
+  recRatio = parseInt(storeGet('scrap_rec_ratio_v2') || '100', 10);
+  if (isNaN(recRatio)) recRatio = 100;
+  recRatio = Math.min(120, Math.max(50, recRatio));
   recCat = storeGet('scrap_rec_cat') || '';
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
@@ -994,7 +1002,7 @@ async function init() {
   });
 
   // 每5分钟自动刷新价格
-  setInterval(fetchPrices, 5 * 60 * 1000);
+  setInterval(function() { fetchPrices(true); }, 5 * 60 * 1000);
 }
 
 // ========== 推荐收货价 ==========
@@ -1373,7 +1381,7 @@ function exportCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `废品回收价格_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `废品回收价格_${todayKey()}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   toast('✅ CSV已下载');
@@ -1422,8 +1430,7 @@ function doExportExcel() {
   ws['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 16 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '废品回收报价');
-  const date = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `废品回收报价_${date}.xlsx`);
+  XLSX.writeFile(wb, `废品回收报价_${todayKey()}.xlsx`);
   toast('✅ Excel已下载');
 }
 
@@ -1438,6 +1445,10 @@ function toast(msg) {
 // 回车计算
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && (document.activeElement.id === 'inputWeight')) calcPrice();
+  if (e.key === 'Escape') {
+    if (document.getElementById('infoModal').classList.contains('show')) closeItemInfo();
+    else if (document.getElementById('ovModal').classList.contains('show')) closeOverview();
+  }
 });
 
 init();

@@ -24,7 +24,9 @@ SOURCES = [
     # 我的钢铁网数据源
     {"category": "废铜", "target": "1号光亮铜线", "keyword": "光亮铜", "range": (50000, 120000)},
     {"category": "废铜", "target": "黄铜",       "keyword": "黄杂铜", "range": (30000, 80000)},
-    {"category": "废铝", "target": "铝线",       "keyword": "废铝",   "range": (10000, 30000)},
+    # 关键词必须具体到品名：原来写"废铝"会把任意含废铝字样的行（甚至标题行）
+    # 的中间价当成铝线价写进 prices.json，与下面 SMM 的铝线条目互相覆盖。
+    {"category": "废铝", "target": "铝线",       "keyword": "铝线",   "range": (10000, 30000)},
     
     # SMM数据源 - 废铝
     {"category": "废铝", "target": "铝线",       "keyword": "割胶铝线", "range": (18000, 25000), "source": "smm_aluminum"},
