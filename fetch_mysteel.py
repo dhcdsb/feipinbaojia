@@ -18,6 +18,7 @@
 import json
 import re
 import sys
+import time
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -52,20 +53,32 @@ MAX_DRIFT = 0.10
 FRESH_DAYS = 5
 
 
-def fetch(url):
-    req = urllib.request.Request(url, headers={
+def fetch(url, tries=3, timeout=35):
+    """抓页面。云端（GitHub Actions，境外 IP）访问国内站偶发超时，
+    所以带重试：一次失败不代表源不可用。"""
+    req_headers = {
         "User-Agent": UA,
         "Accept": "text/html,application/xhtml+xml",
         "Accept-Language": "zh-CN,zh;q=0.9",
-    })
-    with urllib.request.urlopen(req, timeout=20) as r:
-        raw = r.read()
-    for enc in ("utf-8", "gbk", "gb18030"):
+    }
+    last = None
+    for attempt in range(1, tries + 1):
         try:
-            return raw.decode(enc)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("utf-8", "ignore")
+            req = urllib.request.Request(url, headers=req_headers)
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                raw = r.read()
+            for enc in ("utf-8", "gbk", "gb18030"):
+                try:
+                    return raw.decode(enc)
+                except UnicodeDecodeError:
+                    continue
+            return raw.decode("utf-8", "ignore")
+        except Exception as e:
+            last = e
+            print(f"  [RETRY {attempt}/{tries}] {url}: {e}")
+            if attempt < tries:
+                time.sleep(4)
+    raise last
 
 
 def parse_today_price(html):
