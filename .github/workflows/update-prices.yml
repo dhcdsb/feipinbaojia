@@ -36,13 +36,20 @@ jobs:
           python-version: '3.11'
 
       - name: 检查语法
-        run: python -m py_compile search_and_update.py update_prices.py forecast.py
+        run: python -m py_compile search_and_update.py update_prices.py forecast.py fetch_mysteel.py
 
       - name: 抓取并更新价格
         # 跳过脚本自带的 git push，由下面的步骤统一提交
         env:
           SKIP_GIT_PUSH: '1'
         run: python search_and_update.py
+
+      - name: 补充废铜/废铝公开行情
+        # Mysteel 子站首页的「今日价格」表：多地区报价，且自带涨跌。
+        # 放在上一步之后，铜铝的主价格以这里的中位数为准（更稳，也带涨跌依据）。
+        # 抓不到就跳过，不影响前面已更新的结果。
+        continue-on-error: true
+        run: python fetch_mysteel.py
 
       - name: 核对走势预测信号
         # 抓取公开行情文本，与 forecast.json 里的判断做交叉验证；
