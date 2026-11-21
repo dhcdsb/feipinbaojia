@@ -233,7 +233,7 @@ footer b{color:#6b7280}
   function render(d, prices, fc){
     var w = d.weights, dims = d.dims;
     var cats = d.categories;
-    // 基准价优先取 prices.json 的当日报价（自动任务工作日早晚各更新一次），
+    // 基准价优先取 prices.json 的当日报价（废铜由自动任务工作日早晚各更新，其余人工维护），
     // 取不到才退回 outlook.json 里判断生成时的快照，避免区间与首页报价脱节。
     function baseOf(c){
       var g = prices && prices.categories && prices.categories[c.cat];
