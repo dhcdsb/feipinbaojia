@@ -291,8 +291,8 @@ if ('serviceWorker' in navigator) {
   <div class="stats">
     <div class="stat-card"><div class="stat-icon">📦</div><div><div class="num" id="statCats">0</div><div class="label">大类</div></div></div>
     <div class="stat-card"><div class="stat-icon">🏷️</div><div><div class="num" id="statItems">0</div><div class="label">品类</div></div></div>
-    <div class="stat-card"><div class="stat-icon">👀</div><div><div class="num" id="statToday">—</div><div class="label" id="statTotal">累计浏览 —</div></div></div>
-    <div class="stat-card"><div class="stat-icon">🕐</div><div><div class="num" id="statUpdate">-</div><div class="label">最后更新</div></div></div>
+    <div class="stat-card"><div class="stat-icon">👀</div><div><div class="num" id="statToday">—</div><div class="label">今日浏览</div></div></div>
+    <div class="stat-card"><div class="stat-icon">📈</div><div><div class="num" id="statTotal">—</div><div class="label">累计浏览</div></div></div>
   </div>
 
   <!-- 计算区 -->
@@ -938,7 +938,7 @@ function renderRecGrid() {
     const note = notes[item] || '';
     rowsHtml += `<div class="rec-row">
       <span class="rec-name"><span class="item-link" onclick="openItemInfo('${recCat}','${item}')">${item}</span>${note ? `<i>${note}</i>` : ''}</span>
-      <span class="rec-num"><b>${buyPrice}</b><em>市场 ${price}</em></span>
+      <span class="rec-num"><b>${buyPrice}</b>${buyPrice === Number(price).toFixed(2) ? '' : `<em>市场 ${price}</em>`}</span>
     </div>`;
   }
   html += rowsHtml + '</div></div>';
@@ -1001,26 +1001,28 @@ function loadViews() {
   const cb = 'bszCb' + Math.random().toString(36).slice(2);
   const pageId = '/feipinbaojia/day/' + todayKey();
   let done = false;
+  let sc = null;
 
   function finish(data) {
     if (done) return;
     done = true;
     if (data && data.page_pv != null) {
       elToday.textContent = fmtCount(data.page_pv);
-      elTotal.textContent = '累计浏览 ' + fmtCount(data.site_pv);
+      elTotal.textContent = fmtCount(data.site_pv);
     } else {
       elToday.textContent = '—';
-      elTotal.textContent = '累计浏览 —';
+      elTotal.textContent = '—';
     }
     try { delete window[cb]; } catch (e) {}
+    if (sc && sc.parentNode) sc.parentNode.removeChild(sc);
   }
 
   window[cb] = finish;
-  const sc = document.createElement('script');
+  sc = document.createElement('script');
   sc.src = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=' + cb + '&page_id=' + encodeURIComponent(pageId);
   sc.onerror = function() { finish(null); };
   document.head.appendChild(sc);
-  setTimeout(function() { finish(null); }, 8000);
+  setTimeout(function() { finish(null); }, 12000);
 }
 
 function updateStats() {
@@ -1029,7 +1031,6 @@ function updateStats() {
   cats.forEach(c => items += Object.keys(priceData[c]).length);
   document.getElementById('statCats').textContent = cats.length;
   document.getElementById('statItems').textContent = items;
-  document.getElementById('statUpdate').textContent = updateTime ? fmtTime(updateTime).slice(5,16) : '未更新';
   document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + fmtTime(updateTime) : '';
 }
 
