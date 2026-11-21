@@ -30,7 +30,7 @@ jobs:
           python-version: '3.11'
 
       - name: 检查语法
-        run: python -m py_compile search_and_update.py update_prices.py
+        run: python -m py_compile search_and_update.py update_prices.py forecast.py
 
       - name: 抓取并更新价格
         # 跳过脚本自带的 git push，由下面的步骤统一提交
@@ -38,15 +38,21 @@ jobs:
           SKIP_GIT_PUSH: '1'
         run: python search_and_update.py
 
+      - name: 核对走势预测信号
+        # 抓取公开行情文本，与 forecast.json 里的判断做交叉验证；
+        # 抓取失败会保留原判断，不会把预测改成中性。
+        continue-on-error: true
+        run: python forecast.py
+
       - name: 有变化才提交
         run: |
-          if git diff --quiet -- prices.json; then
-            echo "价格无变化，跳过提交"
+          if git diff --quiet -- prices.json forecast.json; then
+            echo "价格与预测均无变化，跳过提交"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add prices.json
+          git add prices.json forecast.json
           NOW=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M')
           git commit -m "[auto] 价格更新 $NOW"
           git push

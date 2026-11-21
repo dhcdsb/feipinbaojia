@@ -111,6 +111,73 @@ label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-
 .rec-tab{flex:0 0 auto;padding:7px 15px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-2);font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
 .rec-tab:hover{border-color:#c7d2fe;color:var(--primary-deep)}
 .rec-tab.active{background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.28)}
+/* ===== 7 天走势预测 ===== */
+.alert-bar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:12px;margin-bottom:16px;border:1px solid;box-shadow:var(--shadow);font-size:.85rem;line-height:1.5;flex-wrap:wrap}
+.alert-bar.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.alert-bar.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.alert-bar.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.alert-bar .ab-icon{font-size:1.05rem;flex-shrink:0;line-height:1}
+.alert-bar .ab-text{flex:1 1 240px;min-width:0}
+.alert-bar b{font-weight:800}
+.alert-bar .ab-btn{margin-left:auto;flex-shrink:0;background:rgba(255,255,255,.7);border:1px solid currentColor;color:inherit;font-family:inherit;font-size:.78rem;font-weight:700;padding:4px 11px;border-radius:999px;cursor:pointer;opacity:.85;transition:opacity .15s}
+.alert-bar .ab-btn:hover{opacity:1}
+
+.fc-head{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border:1px solid var(--border);margin-bottom:12px}
+.fc-verdict{flex:1 1 260px;min-width:0}
+.fc-badge{display:inline-flex;align-items:center;gap:5px;font-size:.76rem;font-weight:800;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+.fc-badge.down{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.fc-badge.up{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.fc-badge.flat{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.fc-badge.severe{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+.fc-range{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.fc-range .fc-now{font-size:1.28rem;font-weight:800;color:var(--text)}
+.fc-range .fc-arrow{color:var(--text-3);font-size:1rem}
+.fc-range .fc-target{font-size:1.28rem;font-weight:800}
+.fc-range .fc-target.down{color:#059669}
+.fc-range .fc-target.up{color:#dc2626}
+.fc-range em{font-style:normal;font-size:.72rem;color:var(--text-3)}
+.fc-sub{font-size:.75rem;color:var(--text-3);margin-top:5px}
+.fc-conf{flex:0 0 130px;font-size:.75rem;color:var(--text-3)}
+.fc-conf b{color:var(--text-2);font-size:.86rem}
+.fc-conf-bar{height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:6px}
+.fc-conf-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#818cf8,#6366f1)}
+.fc-chart{margin:0 0 12px;max-width:560px}
+.fc-chart svg{display:block;width:100%;height:auto}
+.fc-advice{display:flex;gap:8px;align-items:flex-start;font-size:.84rem;color:var(--text-2);background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:9px 12px;margin-bottom:12px;line-height:1.55}
+.fc-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.76rem;color:var(--text-2);background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:7px 11px;margin-bottom:13px}
+.fc-auto .fa-label{font-weight:700;color:var(--text-3);font-size:.72rem;flex-shrink:0}
+.fc-auto .fa-val{font-weight:800;flex-shrink:0}
+.fc-auto .fa-meta{color:var(--text-3);font-size:.72rem;flex:1 1 120px;min-width:0}
+.fc-auto.conflict{background:#fffbeb;border-color:#fde68a}
+.fc-auto.conflict .fa-meta{color:#b45309}
+.fc-auto.muted{background:transparent;border-style:dashed}
+.fc-block-title{font-size:.78rem;font-weight:800;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.fc-sig-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;margin-bottom:14px}
+.fc-sig{display:flex;align-items:baseline;gap:6px;padding:8px 11px;background:#f8fafc;border:1px solid var(--border);border-radius:9px;font-size:.78rem;min-width:0}
+.fc-sig .fs-label{color:var(--text-3);flex-shrink:0}
+.fc-sig .fs-value{font-weight:700;color:var(--text);white-space:nowrap}
+.fc-sig .fs-note{color:var(--text-3);font-size:.71rem;flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-sig .fs-dir{font-weight:800;flex-shrink:0}
+.fs-dir.down{color:#059669}
+.fs-dir.up{color:#dc2626}
+.fs-dir.flat{color:#94a3b8}
+.fc-drivers ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.fc-drivers li{display:flex;gap:9px;font-size:.81rem;color:var(--text-2);line-height:1.6;align-items:flex-start}
+.fc-drivers .fd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.fd-dot.down{background:#10b981}
+.fd-dot.up{background:#ef4444}
+.fd-dot.flat{background:#cbd5e1}
+.fc-drivers .fd-src{margin-left:auto;flex-shrink:0;font-size:.71rem;color:var(--text-3);white-space:nowrap;padding-left:8px}
+.fc-note{font-size:.72rem;color:var(--text-3);margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);line-height:1.6}
+.fc-empty{font-size:.84rem;color:var(--text-3);padding:14px 0;text-align:center}
+.info-fc{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:.78rem;background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:12px}
+.info-fc .if-tag{font-weight:800;padding:2px 8px;border-radius:999px;font-size:.72rem}
+.info-fc .if-tag.down{background:#ecfdf5;color:#047857}
+.info-fc .if-tag.up{background:#fef2f2;color:#b91c1c}
+.info-fc .if-tag.flat{background:#f1f5f9;color:#475569}
+.info-fc .if-range{color:var(--text-2)}
+.info-fc .if-range b{color:var(--text);font-variant-numeric:tabular-nums}
+.info-fc .if-conf{color:var(--text-3);margin-left:auto;font-size:.72rem}
 .rec-card{background:linear-gradient(180deg,#fbfcff,#f7f9fd);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:12px;padding:4px 16px 6px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
 .rec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 0 9px;border-bottom:1px dashed #dbe3ee;margin-bottom:2px}
 .rec-head .rec-cat{font-weight:800;font-size:.96rem;color:var(--primary-deep)}
@@ -223,6 +290,20 @@ tr:hover td{background:#f8fafc}
   .header h1{font-size:1.14rem;gap:9px;line-height:1.35}
   .header .logo{width:34px;height:34px;border-radius:9px;font-size:1.12rem}
   .header .sub{font-size:.73rem;margin-top:5px;line-height:1.5}
+
+  /* 走势预测 */
+  .alert-bar{padding:10px 12px;font-size:.79rem;gap:7px;border-radius:11px}
+  .alert-bar .ab-text{flex:1 1 100%;line-height:1.55}
+  .alert-bar .ab-btn{margin-left:0}
+  .fc-head{padding:12px 13px;gap:10px;border-radius:11px}
+  .fc-verdict{flex:1 1 100%}
+  .fc-range .fc-now,.fc-range .fc-target{font-size:1.12rem}
+  .fc-conf{flex:1 1 100%}
+  .fc-sig-list{grid-template-columns:1fr;gap:6px}
+  .fc-sig .fs-note{white-space:normal;overflow:visible;text-overflow:clip}
+  .fc-drivers li{flex-wrap:wrap}
+  .fc-drivers li>span:not(.fd-src){flex:1 1 0;min-width:0}
+  .fc-drivers .fd-src{flex:1 1 100%;margin-left:0;padding-left:16px;width:auto;text-align:left}
 
   /* 数据概览：折叠条 */
   .stat-panel{margin-bottom:12px}
@@ -361,6 +442,9 @@ if ('serviceWorker' in navigator) {
     <div class="sub">快速查询 · 实时行情 · 品类详情 · 价格估算</div>
   </div>
 
+  <!-- 涨价/降价预警 -->
+  <div class="alert-bar" id="alertBar" style="display:none"></div>
+
   <!-- 数据概览：默认折叠，点标题展开 -->
   <div class="stat-panel" id="statPanel">
     <button class="stat-bar" type="button" onclick="toggleStats()" id="statBar" aria-expanded="false">
@@ -429,6 +513,14 @@ if ('serviceWorker' in navigator) {
     <div id="recGrid"></div>
   </div>
 
+  <!-- 7 天走势预测 -->
+  <div class="card" id="fcCard">
+    <div class="card-title">7 天走势预测<span class="time" id="fcTimeLabel"></span></div>
+    <div class="rec-tabs" id="fcTabs"></div>
+    <div id="fcBody"><div class="fc-empty">预测数据加载中…</div></div>
+    <p class="fc-note" id="fcNote"></p>
+  </div>
+
   <!-- 导出 -->
   <div class="card">
     <div class="card-title">导出数据</div>
@@ -475,6 +567,7 @@ if ('serviceWorker' in navigator) {
       <div><div class="ih-cat" id="infoCat"></div><div class="ih-name" id="infoName"></div></div>
       <div class="ih-price"><b id="infoPrice"></b><span>元/公斤</span><i id="infoRange"></i></div>
     </div>
+    <div class="info-fc" id="infoFc" style="display:none"></div>
     <div class="info-sec intro">
       <div class="sec-t">品类介绍</div>
       <p id="infoIntro"></p>
@@ -891,6 +984,8 @@ let recRatio = 100;     // 收货比例，默认100%（= 市场价）
 let recCat = '';        // 推荐收货价当前显示的大类
 let quotes = null;      // quotes.json：地区报价 + 各地区价
 let regionId = 'all';   // 当前报价地区，all = 全国均价
+let forecast = null;    // forecast.json：7 天走势预测
+let fcCat = '';         // 预测卡当前大类
 
 // ========== 地区报价 ==========
 function regionName(id) {
@@ -979,6 +1074,222 @@ function renderRegionChips() {
   if (tag) tag.textContent = regionId === 'all' ? '全国均价' : regionName(regionId) + '报价';
 }
 
+// ========== 7 天走势预测 ==========
+function trendMeta(f) {
+  const mid = (f.changePct[0] + f.changePct[1]) / 2;
+  const severe = Math.abs(mid) >= 3;
+  if (f.trend === 'down') return { cls: 'down', icon: '↘', label: severe ? '明显下跌' : '偏弱下行', short: '偏弱', severe: severe };
+  if (f.trend === 'up') return { cls: 'up', icon: '↗', label: severe ? '明显上涨' : '偏强上行', short: '偏强', severe: severe };
+  return { cls: 'flat', icon: '→', label: '横盘震荡', short: '横盘', severe: false };
+}
+
+// 7 天后目标价：以该大类的示例品类为基准，用当前地区价 × 预测幅度
+function fcTargets(cat) {
+  const f = forecast && forecast.categories ? forecast.categories[cat] : null;
+  if (!f) return null;
+  const base = regionPrice(cat, f.sample);
+  if (base == null) return null;
+  const a = base * (1 + f.changePct[0] / 100);
+  const b = base * (1 + f.changePct[1] / 100);
+  return {
+    base: base, lo: Math.max(0, Math.min(a, b)), hi: Math.max(a, b),
+    item: f.sample, f: f, mid: base * (1 + (f.changePct[0] + f.changePct[1]) / 200)
+  };
+}
+
+async function loadForecast() {
+  try {
+    const resp = await fetch('forecast.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data || !data.categories) throw new Error('empty');
+    forecast = data;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function renderFcTabs() {
+  const box = document.getElementById('fcTabs');
+  if (!box) return;
+  if (!forecast) { box.innerHTML = ''; return; }
+  const cats = Object.keys(forecast.categories);
+  if (!fcCat || !forecast.categories[fcCat]) fcCat = cats[0];
+  box.innerHTML = cats.map(function(c) {
+    const t = trendMeta(forecast.categories[c]);
+    const arrow = t.cls === 'down' ? '<span style="color:#059669;font-weight:800">↓</span>'
+      : (t.cls === 'up' ? '<span style="color:#dc2626;font-weight:800">↑</span>'
+      : '<span style="color:#cbd5e1;font-weight:800">·</span>');
+    return `<button type="button" class="rec-tab${c === fcCat ? ' active' : ''}" onclick="selectFcCat('${c}')">${c} ${arrow}</button>`;
+  }).join('');
+}
+
+function selectFcCat(c) {
+  fcCat = c;
+  renderFcTabs();
+  renderForecast();
+}
+
+function goForecast(c) {
+  if (c) fcCat = c;
+  renderFcTabs();
+  renderForecast();
+  const el = document.getElementById('fcCard');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// 迷你走势图：从今天的价格扇形展开到 7 天后的区间
+function fcChartSvg(tg) {
+  const W = 340, H = 96, L = 44, R = 40, T = 12, B = 22;
+  const iw = W - L - R, ih = H - T - B;
+  const lo = Math.min(tg.base, tg.lo), hi = Math.max(tg.base, tg.hi);
+  const span = Math.max(hi - lo, tg.base * 0.004);
+  const y = function(v) { return T + ih - ((v - lo) / span) * ih; };
+  const x0 = L, x7 = L + iw;
+  const yB = y(tg.base), yHi = y(tg.hi), yLo = y(tg.lo), yMid = y(tg.mid);
+  const color = tg.f.trend === 'up' ? '#ef4444' : (tg.f.trend === 'down' ? '#10b981' : '#64748b');
+  let g = '';
+  for (let i = 0; i <= 3; i++) {
+    const gy = T + ih * i / 3;
+    g += `<line x1="${L}" y1="${gy.toFixed(1)}" x2="${x7}" y2="${gy.toFixed(1)}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4"/>`;
+  }
+  return `<div class="fc-chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="7 天价格走势示意">` +
+    g +
+    `<polygon points="${x0},${yB.toFixed(1)} ${x7},${yHi.toFixed(1)} ${x7},${yLo.toFixed(1)}" fill="${color}" opacity="0.12"/>` +
+    `<line x1="${x0}" y1="${yB.toFixed(1)}" x2="${x7}" y2="${yHi.toFixed(1)}" stroke="${color}" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.55"/>` +
+    `<line x1="${x0}" y1="${yB.toFixed(1)}" x2="${x7}" y2="${yLo.toFixed(1)}" stroke="${color}" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.55"/>` +
+    `<line x1="${x0}" y1="${yB.toFixed(1)}" x2="${x7}" y2="${yMid.toFixed(1)}" stroke="${color}" stroke-width="2.4" stroke-linecap="round"/>` +
+    `<circle cx="${x0}" cy="${yB.toFixed(1)}" r="3.4" fill="#fff" stroke="${color}" stroke-width="2.2"/>` +
+    `<line x1="${x7}" y1="${yLo.toFixed(1)}" x2="${x7}" y2="${yHi.toFixed(1)}" stroke="${color}" stroke-width="2.4" stroke-linecap="round" opacity="0.75"/>` +
+    `<text x="${x0 - 6}" y="${yB + 3.5}" text-anchor="end" font-size="9.5" fill="#94a3b8">${px(tg.base)}</text>` +
+    `<text x="${x7 + 4}" y="${yHi + 3.5}" font-size="9.5" fill="${color}">${px(tg.hi)}</text>` +
+    `<text x="${x7 + 4}" y="${yLo + 3.5}" font-size="9.5" fill="${color}">${px(tg.lo)}</text>` +
+    `<text x="${x0}" y="${H - 5}" font-size="9.5" fill="#94a3b8">今天</text>` +
+    `<text x="${x7}" y="${H - 5}" text-anchor="end" font-size="9.5" fill="#94a3b8">7 天后</text>` +
+    `</svg></div>`;
+}
+
+function renderForecast() {
+  const box = document.getElementById('fcBody');
+  if (!box) return;
+  if (!forecast) {
+    box.innerHTML = '<div class="fc-empty">预测数据暂不可用，价格查询与计算不受影响</div>';
+    document.getElementById('fcNote').textContent = '';
+    return;
+  }
+  const cats = Object.keys(forecast.categories);
+  if (!fcCat || !forecast.categories[fcCat]) fcCat = cats[0];
+  const tg = fcTargets(fcCat);
+  const f = forecast.categories[fcCat];
+  if (!tg) {
+    box.innerHTML = '<div class="fc-empty">该大类缺少可用的基准价，暂时无法推算目标价</div>';
+    return;
+  }
+  const t = trendMeta(f);
+  const chg = f.changePct.map(function(v) { return (v > 0 ? '+' : '') + v.toFixed(1) + '%'; }).join(' ~ ');
+  const conf = Math.round(f.confidence * 100);
+
+  const sigs = (f.signals || []).map(function(s) {
+    const d = s.dir === 'down' ? '↓' : (s.dir === 'up' ? '↑' : '·');
+    return `<div class="fc-sig"><span class="fs-label">${s.label}</span><span class="fs-value">${s.value}</span>` +
+      `<span class="fs-note">${s.note || ''}</span><span class="fs-dir ${s.dir || 'flat'}">${d}</span></div>`;
+  }).join('');
+
+  const drv = (f.drivers || []).map(function(d) {
+    return `<li><i class="fd-dot ${d.impact || 'flat'}"></i><span>${d.text}</span>` +
+      `<span class="fd-src">${d.source} · ${d.date}</span></li>`;
+  }).join('');
+
+  // 自动核对：脚本每天抓公开行情文本，只做交叉验证，不改动上面的判断
+  let autoHtml = '';
+  if (f.auto) {
+    const am = trendMeta({ trend: f.auto.trend, changePct: [0, 0] });
+    const agree = f.auto.trend === f.trend || f.auto.trend === 'flat';
+    autoHtml = `<div class="fc-auto${agree ? '' : ' conflict'}">` +
+      `<span class="fa-label">自动核对</span>` +
+      `<span class="fa-val" style="color:${am.cls === 'down' ? '#059669' : (am.cls === 'up' ? '#dc2626' : '#64748b')}">${am.icon} ${am.short}</span>` +
+      `<span class="fa-meta">近期行情文本 看涨 ${f.auto.up} / 看跌 ${f.auto.down}${agree ? ' · 与上方判断一致' : ' · 与上方判断相反，请谨慎参考'}</span></div>`;
+  } else {
+    autoHtml = `<div class="fc-auto muted"><span class="fa-label">自动核对</span>` +
+      `<span class="fa-meta">这一类暂无稳定的公开数据源，以上为人工研判</span></div>`;
+  }
+
+  box.innerHTML =
+    `<div class="fc-head">
+      <div class="fc-verdict">
+        <span class="fc-badge ${t.cls}${t.severe ? ' severe' : ''}">${t.icon} ${t.label}</span>
+        <div class="fc-range">
+          <span class="fc-now">${px(tg.base)}</span>
+          <span class="fc-arrow">→</span>
+          <span class="fc-target ${t.cls}">${px(tg.lo)}–${px(tg.hi)}</span>
+          <em>元/公斤</em>
+        </div>
+        <div class="fc-sub">以「${tg.item}」为例 · 预计 7 天变动 ${chg}${regionId === 'all' ? '' : ' · 按' + regionName(regionId) + '价'}</div>
+      </div>
+      <div class="fc-conf">置信度 <b>${conf}%</b><div class="fc-conf-bar"><i style="width:${conf}%"></i></div></div>
+    </div>` +
+    fcChartSvg(tg) +
+    (f.advice ? `<div class="fc-advice"><span>💡</span><span>${f.advice}</span></div>` : '') +
+    autoHtml +
+    (sigs ? `<div class="fc-block-title">关键指标</div><div class="fc-sig-list">${sigs}</div>` : '') +
+    (drv ? `<div class="fc-block-title">依据（近期公开消息）</div><div class="fc-drivers"><ul>${drv}</ul></div>` : '');
+
+  const when = forecast.generatedAt ? fmtTime(forecast.generatedAt) : '';
+  const chk = forecast.checkedAt ? fmtTime(forecast.checkedAt) : '';
+  const stale = forecast.staleDays || 0;
+  const tl = document.getElementById('fcTimeLabel');
+  if (tl) tl.textContent = when ? '生成于 ' + when : '';
+  document.getElementById('fcNote').textContent =
+    '说明：以上为基于公开行情与新闻的方向性判断，幅度按同类品的传导弹性估算，仅供参考，不构成价格承诺。' +
+    (when ? '判断生成于 ' + when + '。' : '') +
+    (chk ? ' 自动核对 ' + chk + '。' : '') +
+    (stale > 7 ? ' ⚠ 该判断已生成 ' + stale + ' 天，行情可能已变化，建议重新研判。' : '');
+}
+
+// 顶部预警条：取变动幅度最大且非横盘的大类
+function renderAlertBar() {
+  const bar = document.getElementById('alertBar');
+  if (!bar) return;
+  if (!forecast) { bar.style.display = 'none'; return; }
+  let best = null;
+  Object.keys(forecast.categories).forEach(function(c) {
+    const f = forecast.categories[c];
+    if (f.alert === 'flat' || f.trend === 'flat') return;
+    const mid = Math.abs((f.changePct[0] + f.changePct[1]) / 2);
+    if (!best || mid > best.mid) best = { cat: c, f: f, mid: mid };
+  });
+  if (!best) { bar.style.display = 'none'; return; }
+  const tg = fcTargets(best.cat);
+  if (!tg) { bar.style.display = 'none'; return; }
+  const down = best.f.trend === 'down';
+  const severe = best.mid >= 3;
+  bar.className = 'alert-bar ' + (down ? (severe ? 'danger' : 'warn') : 'info');
+  const head = down ? '降价预警' : '涨价提示';
+  const icon = down ? '⚠️' : '📈';
+  bar.innerHTML = `<span class="ab-icon">${icon}</span>
+    <span class="ab-text"><b>${head}：${best.cat}</b> 未来 7 天${down ? '偏弱下行' : '偏强上行'}，
+    ${tg.item} ${px(tg.base)} → <b>${px(tg.lo)}–${px(tg.hi)}</b> 元/公斤${regionId === 'all' ? '' : '（' + regionName(regionId) + '价）'}
+    </span>
+    <button type="button" class="ab-btn" onclick="goForecast('${best.cat}')">查看预测</button>`;
+  bar.style.display = '';
+}
+
+// 详情弹窗里的预测条
+function renderInfoFc(cat, item) {
+  const el = document.getElementById('infoFc');
+  if (!el) return;
+  const f = forecast && forecast.categories ? forecast.categories[cat] : null;
+  const base = regionPrice(cat, item);
+  if (!f || base == null) { el.style.display = 'none'; return; }
+  const a = base * (1 + f.changePct[0] / 100), b = base * (1 + f.changePct[1] / 100);
+  const t = trendMeta(f);
+  el.style.display = '';
+  el.innerHTML = `<span class="if-tag ${t.cls}">${t.icon} 7 天${t.short}</span>` +
+    `<span class="if-range">预计 <b>${px(Math.min(a, b))}–${px(Math.max(a, b))}</b> 元/公斤</span>` +
+    `<span class="if-conf">置信度 ${Math.round(f.confidence * 100)}%</span>`;
+}
+
 function selectRegion(id) {
   if (id === regionId) return;
   regionId = id;
@@ -986,6 +1297,9 @@ function selectRegion(id) {
   renderRegionChips();
   renderRecGrid();
   renderTable();
+  renderFcTabs();
+  renderForecast();
+  renderAlertBar();
   const rb = document.getElementById('resultBox');
   if (rb && rb.style.display !== 'none') calcPrice(true);
   toast(id === 'all' ? '已切换：全国均价' : '已切换：' + regionName(id) + '报价');
@@ -1053,6 +1367,8 @@ async function fetchPrices(silent) {
     renderRecTabs();
     renderRecGrid();
     renderTable();
+    renderForecast();
+    renderAlertBar();
     updateStats();
     return true;
   } catch(e) {
@@ -1090,12 +1406,16 @@ async function init() {
   // 从远程拉取价格（失败时使用本地兜底），再拉地区报价
   await fetchPrices();
   await loadQuotes();
+  await loadForecast();
   renderRegionChips();
 
   renderCatSelect();
   renderTable();
   renderRecTabs();
   renderRecGrid();
+  renderFcTabs();
+  renderForecast();
+  renderAlertBar();
   updateStats();
 
   // 数据概览默认折叠，记住上次状态
@@ -1485,6 +1805,7 @@ function openItemInfo(cat, item) {
   document.getElementById('infoRange').textContent = rng
     ? '区间 ' + rng + (regionId === 'all' ? '' : ' · ' + regionName(regionId))
     : '';
+  renderInfoFc(cat, item);
   document.getElementById('infoIntro').textContent = info.intro;
   document.getElementById('infoTip').textContent = info.tip;
   const how = document.getElementById('infoHow');
