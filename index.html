@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="回收报价">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <title>废品回收报价助手</title>
 <style>
@@ -80,6 +81,16 @@ body{
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
 .card-title{font-size:1.08rem;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--primary-light);display:flex;justify-content:space-between;align-items:center}
 .card-title .time{font-size:.75rem;color:var(--text-3);font-weight:400}
+/* 价格计算：默认折叠，标题条自己当按钮 */
+.calc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:0 0 12px;margin:0;background:none;border:0;border-bottom:2px solid var(--primary-light);font-family:inherit;font-size:1.08rem;font-weight:700;color:var(--text);text-align:left;cursor:pointer;transition:color .15s}
+.calc-head:hover{color:var(--primary-dark)}
+.calc-head:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:6px}
+.calc-hint{font-size:.78rem;font-weight:400;color:var(--text-3);white-space:nowrap}
+.calc-body{padding-top:16px}
+.tbl-time{font-size:.75rem;color:var(--text-3);margin:10px 0 0}
+.tbl-time:empty{display:none}
+/* 可横向滚动的标签条：右侧渐隐，提示还能往右滑 */
+.can-scroll{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent)}
 
 /* 按钮 */
 .btn{padding:9px 18px;border:none;border-radius:9px;cursor:pointer;font-size:.86rem;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,box-shadow .15s,filter .15s;box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -341,6 +352,9 @@ tr:hover td{background:#f8fafc}
   .card{padding:14px 13px;border-radius:13px;margin-bottom:12px}
   .card-title{font-size:.98rem;margin-bottom:12px;padding-bottom:9px;flex-wrap:wrap;gap:3px}
   .card-title .time{font-size:.67rem;width:100%}
+  .calc-head{font-size:.98rem;padding-bottom:9px}
+  .calc-hint{font-size:.72rem}
+  .calc-body{padding-top:12px}
 
   /* 按钮：触控≥44px */
   .btn{min-height:44px;padding:11px 15px;font-size:.9rem;justify-content:center}
@@ -479,30 +493,35 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
 
-  <!-- 计算区 -->
-  <div class="card">
-    <div class="card-title">价格计算</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>大类</label>
-        <select id="selCat" onchange="loadItems()"><option value="">选择大类</option></select>
+  <!-- 计算区：默认折叠，避免把报价挤到第二屏；展开状态会记住 -->
+  <div class="card" id="calcCard">
+    <button class="calc-head" type="button" onclick="toggleCalc()" id="calcHead" aria-expanded="false" aria-controls="calcBody">
+      <span>价格计算</span>
+      <span class="calc-hint" id="calcHint">输入重量算总价 ▾</span>
+    </button>
+    <div id="calcBody" class="calc-body" hidden>
+      <div class="form-row">
+        <div class="form-group">
+          <label>大类</label>
+          <select id="selCat" onchange="loadItems()"><option value="">选择大类</option></select>
+        </div>
+        <div class="form-group">
+          <label>品类</label>
+          <select id="selItem"><option value="">选择品类</option></select>
+        </div>
+        <div class="form-group" style="max-width:140px">
+          <label>重量 (公斤)</label>
+          <input type="number" id="inputWeight" placeholder="0" min="0" step="0.1" oninput="recalcIfShown()">
+        </div>
+        <div class="form-group" style="max-width:100px">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="calcPrice()">计算</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label>品类</label>
-        <select id="selItem"><option value="">选择品类</option></select>
+      <div class="result-box" id="resultBox" style="display:none">
+        <div class="price" id="resultPrice">¥0.00</div>
+        <div class="detail" id="resultDetail"></div>
       </div>
-      <div class="form-group" style="max-width:140px">
-        <label>重量 (公斤)</label>
-        <input type="number" id="inputWeight" placeholder="0" min="0" step="0.1" oninput="recalcIfShown()">
-      </div>
-      <div class="form-group" style="max-width:100px">
-        <label>&nbsp;</label>
-        <button class="btn btn-primary" onclick="calcPrice()">计算</button>
-      </div>
-    </div>
-    <div class="result-box" id="resultBox" style="display:none">
-      <div class="price" id="resultPrice">¥0.00</div>
-      <div class="detail" id="resultDetail"></div>
     </div>
   </div>
 
@@ -542,18 +561,24 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
 
-  <!-- 价格总览 -->
-  <div class="card">
-    <div class="card-title">价格总览<span class="tbl-region-tag" id="tblRegionTag"></span><span class="time" id="updateTimeLabel"></span></div>
-    <div class="region-bar" id="regionBar2"></div>
-    <input type="text" class="search-box" id="searchBox" placeholder="搜索品类名称..." oninput="renderTable()">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>参考区间</th><th>上次价格</th><th>涨跌</th><th>详情</th></tr></thead>
-        <tbody id="priceBody"></tbody>
-      </table>
+  <!-- 价格总览：手机上默认收起，58 行卡片式表格接近 1.7 万像素，展开会把页面拉到 2 万 -->
+  <div class="card" id="tblCard">
+    <button class="calc-head" type="button" onclick="toggleTbl()" id="tblHead" aria-expanded="true" aria-controls="tblBody">
+      <span>价格总览<span class="tbl-region-tag" id="tblRegionTag"></span></span>
+      <span class="calc-hint" id="tblHint">58 项 · 收起 ▴</span>
+    </button>
+    <div id="tblBody">
+      <p class="tbl-time" id="updateTimeLabel"></p>
+      <div class="region-bar" id="regionBar2"></div>
+      <input type="text" class="search-box" id="searchBox" placeholder="搜索品类名称..." oninput="renderTable()">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>参考区间</th><th>上次价格</th><th>涨跌</th><th>详情</th></tr></thead>
+          <tbody id="priceBody"></tbody>
+        </table>
+      </div>
+      <p class="tbl-note">参考区间＝当日报价在<b>全国 7 个地区</b>里的最低～最高（同品类同口径），用来判断本地报价偏高还是偏低，不是买卖双方的还价空间；涨跌按全国基准价计算，切换地区不会变。首次打开还没有昨天的记录，<b>涨跌显示「-」</b>，隔天再来就能对比。</p>
     </div>
-    <p class="tbl-note">参考区间＝当日报价在<b>全国 7 个地区</b>里的最低～最高（同品类同口径），用来判断本地报价偏高还是偏低，不是买卖双方的还价空间；涨跌按全国基准价计算，切换地区不会变。</p>
   </div>
 </div>
 
@@ -1336,8 +1361,52 @@ function refreshView() {
   renderAlertBar();
   updateStats();
   refreshItemOptions();
+  updateScrollHints();
   const rb = document.getElementById('resultBox');
   if (rb && rb.style.display !== 'none') calcPrice(true);
+}
+
+// ========== 价格计算：默认折叠 ==========
+// 计算器原来占首屏 400px，把「今天的报价」挤到第二屏；折起来后打开就能看到价。
+// 展开状态记在本地，常用计算器的人下次打开仍是展开的。
+function toggleCalc(force) {
+  const card = document.getElementById('calcCard');
+  const body = document.getElementById('calcBody');
+  const head = document.getElementById('calcHead');
+  const hint = document.getElementById('calcHint');
+  if (!card || !body || !head) return;
+  const open = (typeof force === 'boolean') ? force : body.hidden;
+  body.hidden = !open;
+  card.classList.toggle('open', open);
+  head.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (hint) hint.textContent = open ? '收起 ▴' : '输入重量算总价 ▾';
+  storeSet('scrap_calc_open', open ? '1' : '0');
+}
+
+// ========== 价格总览：手机上默认收起 ==========
+// 58 行卡片式表格接近 1.7 万像素，展开后整页到 2 万，手机翻不到底。
+function toggleTbl(force) {
+  const body = document.getElementById('tblBody');
+  const head = document.getElementById('tblHead');
+  const hint = document.getElementById('tblHint');
+  if (!body || !head) return;
+  const open = (typeof force === 'boolean') ? force : body.hidden;
+  body.hidden = !open;
+  head.setAttribute('aria-expanded', open ? 'true' : 'false');
+  const rows = document.querySelectorAll('#priceBody tr').length;
+  if (hint) hint.textContent = open ? '收起 ▴' : (rows ? rows + ' 项 · 展开 ▾' : '展开 ▾');
+  storeSet('scrap_tbl_open', open ? '1' : '0');
+}
+
+// ========== 横向标签条：右侧还能滑时给个渐隐，避免看起来被裁掉 ==========
+function updateScrollHints() {
+  ['regionBar', 'regionBar2', 'recTabs', 'fcTabs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const over = el.scrollWidth - el.clientWidth > 4;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+    el.classList.toggle('can-scroll', over && !atEnd);
+  });
 }
 
 function selectRegion(id) {
@@ -1464,6 +1533,21 @@ async function init() {
 
   // 数据概览默认折叠，记住上次状态
   toggleStats(storeGet('scrap_stats_open') === '1');
+
+  // 价格计算默认折叠，同样记住上次状态
+  toggleCalc(storeGet('scrap_calc_open') === '1');
+
+  // 价格总览：手机默认收起（58 行接近 1.7 万像素），桌面默认展开一屏扫完
+  const tblSaved = storeGet('scrap_tbl_open');
+  toggleTbl(tblSaved === null ? window.innerWidth > 640 : tblSaved === '1');
+
+  // 标签条能横向滑时给右侧渐隐；滚动和转屏后重新判断
+  ['regionBar', 'regionBar2', 'recTabs', 'fcTabs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('scroll', updateScrollHints, { passive: true });
+  });
+  window.addEventListener('resize', updateScrollHints);
+  updateScrollHints();
 
   // 点弹窗外遮罩关闭
   document.getElementById('ovModal').addEventListener('click', function(e) {
