@@ -312,7 +312,7 @@ footer b{color:#6b7280}
 
     // 品类卡
     html += '<div class="card"><h2><span class="n">2</span>四大类目标区间</h2>'
-      + '<p class="h2sub">区间 = 当日基准价 ×（1 + 判断幅度）。当前价取本站报价，收货时按品级、含杂、扣重再打折。</p>'
+      + '<p class="h2sub">区间 = 当日基准价 ×（1 + 判断幅度）。当前价取本站报价，收货时按品级、含杂、扣重再打折。这里只研判消息足够的四大类；不锈钢、塑料、电池、玻璃、轮胎、其他公开信息太少，只在首页给方向和幅度。</p>'
       + '<div class="cats" id="cats"></div></div>';
 
     // 评分总表
@@ -410,7 +410,10 @@ footer b{color:#6b7280}
       return '<td class="c '+cls(n)+'">'+label(n)+'</td>';
     }).join('') + '</tr>';
     tb += '<tr><td style="color:#94a3b8">置信度</td>' + cats.map(function(c){
-      return '<td class="c" style="color:#475569">'+Math.round(c.confidence*100)+'%</td>';
+      // 与首页预测卡同源：优先取 forecast.json 的 confidence，避免同一品种两页显示两个数。
+      var fC = fc && fc.categories ? fc.categories[c.cat] : null;
+      var cv = (fC && typeof fC.confidence === 'number') ? fC.confidence : c.confidence;
+      return '<td class="c" style="color:#475569">'+Math.round(cv*100)+'%</td>';
     }).join('') + '</tr></tbody>';
     document.getElementById('scoreTbl').innerHTML = tb;
 
