@@ -44,16 +44,36 @@ body{
 .header .logo{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-style:normal}
 .header .sub{font-size:.86rem;opacity:.85;margin-top:8px;position:relative;z-index:1}
 
-/* 统计卡片 */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+/* 数据概览：折叠条 + 卡片 */
+.stat-panel{margin-bottom:18px}
+.stat-bar{display:flex;align-items:center;gap:10px;width:100%;padding:11px 15px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);cursor:pointer;font-family:inherit;color:var(--text);text-align:left;transition:border-color .15s,box-shadow .15s}
+.stat-bar:hover{border-color:#c7d2fe}
+.sb-title{font-size:.82rem;font-weight:700;color:var(--text-2);flex-shrink:0;display:flex;align-items:center;gap:6px}
+.sb-sum{flex:1;text-align:right;font-size:.76rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-sum i{font-style:normal;color:var(--primary-dark);font-weight:700}
+.sb-hint{display:none;margin-left:auto;font-size:.72rem;color:var(--text-3);flex-shrink:0}
+.stat-panel.open .sb-hint{display:inline}
+.sb-arrow{color:var(--text-3);font-size:.72rem;line-height:1;transition:transform .22s;flex-shrink:0}
+.stat-panel.open .sb-arrow{transform:rotate(180deg)}
+.stat-panel.open .sb-sum{display:none}
+.stats{display:none;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:11px}
+.stat-panel.open .stats{display:grid}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;transition:transform .2s,box-shadow .2s}
 .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.stat-card.stat-click{cursor:pointer}
+.stat-card.stat-click:hover{border-color:#c7d2fe}
+.sc-body{min-width:0;flex:1}
+.sc-body .num{display:flex;align-items:baseline;gap:3px}
+.sc-body .num em{font-style:normal;font-size:.74rem;font-weight:600;color:var(--text-3);margin-left:2px}
+.sc-body .label{font-size:.74rem;color:var(--text-3);margin-top:3px;display:flex;align-items:center;gap:5px}
+.sc-body .label b{color:var(--text-2);font-weight:700}
+.sc-go{color:#c7d2fe;font-size:1.2rem;line-height:1;flex-shrink:0}
 .stat-icon{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-style:normal}
 .stat-card:nth-child(1) .stat-icon{background:#eef2ff}
 .stat-card:nth-child(2) .stat-icon{background:#ecfdf5}
 .stat-card:nth-child(3) .stat-icon{background:#fffbeb}
 .stat-card:nth-child(4) .stat-icon{background:#ecfeff}
-.stat-card .num{font-size:1.45rem;font-weight:800;line-height:1.2}
+.stat-card .num{font-size:1.55rem;font-weight:800;line-height:1.2}
 .stat-card .label{font-size:.76rem;color:var(--text-3);margin-top:2px}
 
 /* 卡片 */
@@ -160,6 +180,23 @@ tr:hover td{background:#f8fafc}
 .how-list li::before{content:counter(how);counter-increment:how;position:absolute;left:0;top:1px;width:19px;height:19px;border-radius:6px;background:var(--primary-light);color:var(--primary);font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
 .how-list{counter-reset:how}
 .info-tip{font-size:.82rem;color:#92400e;line-height:1.6;padding:11px 13px;background:#fffbeb;border:1px solid #fde68a;border-radius:9px}
+
+/* 品类总览 */
+.ov-modal{max-width:620px}
+.ov-head{display:flex;align-items:flex-start;gap:12px;padding-bottom:13px;border-bottom:2px solid var(--primary-light);margin-bottom:13px}
+.ov-head .ov-title{font-size:1.1rem;font-weight:800;color:var(--text)}
+.ov-head .ov-sub{font-size:.76rem;color:var(--text-3);margin-top:3px;line-height:1.5}
+.ov-close{margin-left:auto;width:30px;height:30px;flex-shrink:0;border:none;border-radius:50%;background:#f1f5f9;color:var(--text-3);font-size:.9rem;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.ov-close:hover{background:var(--primary-light);color:var(--primary)}
+.ov-tabs{display:flex;gap:7px;overflow-x:auto;padding:0 0 11px;scrollbar-width:none;-ms-overflow-style:none}
+.ov-tabs::-webkit-scrollbar{display:none}
+.ov-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ov-item{display:flex;align-items:center;gap:8px;width:100%;padding:11px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;transition:background .15s,border-color .15s,transform .15s}
+.ov-item:hover{background:var(--primary-light);border-color:#c7d2fe;transform:translateY(-1px)}
+.ov-i-name{font-size:.87rem;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-i-price{font-size:.85rem;font-weight:700;color:var(--primary-dark);font-variant-numeric:tabular-nums;flex-shrink:0}
+.ov-i-price em{font-style:normal;font-size:.62rem;color:var(--text-3);font-weight:400;margin-left:1px}
+.ov-i-go{color:#c7d2fe;font-size:1rem;line-height:1;flex-shrink:0}
 ::-webkit-scrollbar{width:7px;height:7px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
@@ -176,13 +213,29 @@ tr:hover td{background:#f8fafc}
   .header .logo{width:34px;height:34px;border-radius:9px;font-size:1.12rem}
   .header .sub{font-size:.73rem;margin-top:5px;line-height:1.5}
 
-  /* 统计卡：固定两列，数字不换行 */
-  .stats{grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+  /* 数据概览：折叠条 */
+  .stat-panel{margin-bottom:12px}
+  .stat-bar{padding:10px 13px;border-radius:11px;gap:8px}
+  .sb-title{font-size:.79rem}
+  .sb-sum{font-size:.71rem}
+
+  /* 统计卡：两列，数字不换行 */
+  .stats{grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
   .stat-card{padding:11px 10px;gap:8px;border-radius:12px}
   .stat-card:hover{transform:none;box-shadow:var(--shadow)}
   .stat-icon{width:34px;height:34px;font-size:.98rem;border-radius:9px}
   .stat-card .num{font-size:1.02rem;white-space:nowrap}
-  .stat-card .label{font-size:.66rem;margin-top:1px}
+  .sc-body .label{font-size:.64rem;margin-top:2px;gap:3px}
+  .sc-body .num em{font-size:.66rem}
+  .sc-go{display:none}
+
+  /* 品类总览：单列 */
+  .ov-modal{max-width:100%}
+  .ov-body{grid-template-columns:1fr;gap:7px}
+  .ov-item{padding:12px 13px;min-height:44px}
+  .ov-i-name{font-size:.9rem}
+  .ov-i-price{font-size:.9rem}
+  .ov-tabs{gap:6px}
 
   /* 卡片 */
   .card{padding:14px 13px;border-radius:13px;margin-bottom:12px}
@@ -288,11 +341,30 @@ if ('serviceWorker' in navigator) {
     <div class="sub">快速查询 · 实时行情 · 品类详情 · 价格估算</div>
   </div>
 
-  <div class="stats">
-    <div class="stat-card"><div class="stat-icon">📦</div><div><div class="num" id="statCats">0</div><div class="label">大类</div></div></div>
-    <div class="stat-card"><div class="stat-icon">🏷️</div><div><div class="num" id="statItems">0</div><div class="label">品类</div></div></div>
-    <div class="stat-card"><div class="stat-icon">👀</div><div><div class="num" id="statToday">—</div><div class="label">今日浏览</div></div></div>
-    <div class="stat-card"><div class="stat-icon">📈</div><div><div class="num" id="statTotal">—</div><div class="label">累计浏览</div></div></div>
+  <!-- 数据概览：默认折叠，点标题展开 -->
+  <div class="stat-panel" id="statPanel">
+    <button class="stat-bar" type="button" onclick="toggleStats()" id="statBar" aria-expanded="false">
+      <span class="sb-title">📊 数据概览</span>
+      <span class="sb-sum" id="sbSum">—</span>
+      <span class="sb-hint">收起</span>
+      <span class="sb-arrow">▼</span>
+    </button>
+    <div class="stats">
+      <div class="stat-card stat-click" onclick="openOverview()" title="查看全部大类与品类">
+        <div class="stat-icon">📦</div>
+        <div class="sc-body">
+          <div class="num"><span id="statCats">0</span><em>大类</em><span id="statItems" style="margin-left:6px">0</span><em>品类</em></div>
+          <div class="label">点此查看全部品类 →</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👀</div>
+        <div class="sc-body">
+          <div class="num"><span id="statToday">—</span><em>今日浏览</em></div>
+          <div class="label">累计 <b id="statTotal">—</b></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 计算区 -->
@@ -355,6 +427,21 @@ if ('serviceWorker' in navigator) {
         <tbody id="priceBody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- 品类总览弹窗 -->
+<div class="modal-overlay" id="ovModal">
+  <div class="modal ov-modal">
+    <div class="ov-head">
+      <div>
+        <div class="ov-title">全部品类</div>
+        <div class="ov-sub" id="ovSub"></div>
+      </div>
+      <button class="ov-close" type="button" onclick="closeOverview()" aria-label="关闭">✕</button>
+    </div>
+    <div class="ov-tabs" id="ovTabs"></div>
+    <div class="ov-body" id="ovBody"></div>
   </div>
 </div>
 
@@ -885,6 +972,17 @@ async function init() {
   renderRecGrid();
   updateStats();
 
+  // 数据概览默认折叠，记住上次状态
+  toggleStats(storeGet('scrap_stats_open') === '1');
+
+  // 点弹窗外遮罩关闭
+  document.getElementById('ovModal').addEventListener('click', function(e) {
+    if (e.target === this) closeOverview();
+  });
+  document.getElementById('infoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeItemInfo();
+  });
+
   // 浏览量统计（异步，不阻塞页面）
   loadViews();
 
@@ -985,21 +1083,43 @@ function todayKey() {
   return d.getFullYear() + '-' + m + '-' + day;
 }
 
-// ========== 浏览量统计（不蒜子，按天分桶） ==========
+// ========== 浏览量统计（不蒜子，按天分桶 + 本地去重） ==========
 // 每次打开页面按「/feipinbaojia/day/YYYY-MM-DD」计数，得到今日浏览；
-// 同一次请求返回的 site_pv 就是累计浏览。全程只发一个跨域脚本请求，失败就显示「—」。
+// 同一次请求返回的 site_pv 就是累计浏览。
+// 去重：同一浏览器同一天只上报一次，之后刷新直接读本地快照，不会一次刷新涨一个数。
 function fmtCount(n) {
   n = Number(n) || 0;
   if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
   return String(n);
 }
 
+let viewToday = null;
+let viewTotal = null;
+
+function paintViews() {
+  const a = document.getElementById('statToday');
+  const b = document.getElementById('statTotal');
+  if (a) a.textContent = viewToday == null ? '—' : fmtCount(viewToday);
+  if (b) b.textContent = viewTotal == null ? '—' : fmtCount(viewTotal);
+  renderStatSummary();
+}
+
 function loadViews() {
-  const elToday = document.getElementById('statToday');
-  const elTotal = document.getElementById('statTotal');
-  if (!elToday || !elTotal) return;
+  const dayKey = todayKey();
+  const cachedDay = storeGet('scrap_pv_day');
+  const cachedToday = storeGet('scrap_pv_today');
+  const cachedTotal = storeGet('scrap_pv_total');
+
+  // 今天已经计过一次：直接用本地保存的数字，不再请求（刷新不涨数）
+  if (cachedDay === dayKey && cachedToday !== null) {
+    viewToday = parseInt(cachedToday, 10);
+    viewTotal = cachedTotal !== null ? parseInt(cachedTotal, 10) : null;
+    paintViews();
+    return;
+  }
+
   const cb = 'bszCb' + Math.random().toString(36).slice(2);
-  const pageId = '/feipinbaojia/day/' + todayKey();
+  const pageId = '/feipinbaojia/day/' + dayKey;
   let done = false;
   let sc = null;
 
@@ -1007,12 +1127,17 @@ function loadViews() {
     if (done) return;
     done = true;
     if (data && data.page_pv != null) {
-      elToday.textContent = fmtCount(data.page_pv);
-      elTotal.textContent = fmtCount(data.site_pv);
+      viewToday = Number(data.page_pv);
+      viewTotal = data.site_pv != null ? Number(data.site_pv) : null;
+      // 记下今天已上报，避免当天反复刷新重复累加
+      storeSet('scrap_pv_day', dayKey);
+      storeSet('scrap_pv_today', String(viewToday));
+      if (viewTotal != null) storeSet('scrap_pv_total', String(viewTotal));
     } else {
-      elToday.textContent = '—';
-      elTotal.textContent = '—';
+      viewToday = null;
+      viewTotal = null;
     }
+    paintViews();
     try { delete window[cb]; } catch (e) {}
     if (sc && sc.parentNode) sc.parentNode.removeChild(sc);
   }
@@ -1025,6 +1150,88 @@ function loadViews() {
   setTimeout(function() { finish(null); }, 12000);
 }
 
+// ========== 数据概览：折叠 + 摘要 ==========
+function toggleStats(force) {
+  const panel = document.getElementById('statPanel');
+  if (!panel) return;
+  const open = force != null ? force : !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  const bar = document.getElementById('statBar');
+  if (bar) bar.setAttribute('aria-expanded', open ? 'true' : 'false');
+  storeSet('scrap_stats_open', open ? '1' : '0');
+}
+
+function renderStatSummary() {
+  const el = document.getElementById('sbSum');
+  if (!el) return;
+  const cats = Object.keys(priceData || {}).length;
+  let items = 0;
+  Object.keys(priceData || {}).forEach(function(c) { items += Object.keys(priceData[c]).length; });
+  const today = viewToday == null ? '—' : fmtCount(viewToday);
+  const total = viewTotal == null ? '—' : fmtCount(viewTotal);
+  el.innerHTML = cats + ' 大类 · ' + items + ' 品类 · 今日 <i>' + today + '</i> · 累计 <i>' + total + '</i>';
+}
+
+// ========== 品类总览 ==========
+let ovCat = '';
+
+// 有弹窗打开时锁住背景滚动，避免手机上滑穿
+function syncScrollLock() {
+  const any = document.querySelector('.modal-overlay.show');
+  document.body.style.overflow = any ? 'hidden' : '';
+}
+
+function openOverview(cat) {
+  const cats = Object.keys(priceData || {});
+  if (!cats.length) return;
+  if (cat && priceData[cat]) ovCat = cat;
+  else if (!ovCat || !priceData[ovCat]) ovCat = cats[0];
+  renderOvTabs();
+  renderOvBody();
+  document.getElementById('ovModal').classList.add('show');
+  syncScrollLock();
+}
+
+function closeOverview() {
+  document.getElementById('ovModal').classList.remove('show');
+  syncScrollLock();
+}
+
+function selectOvCat(cat) {
+  if (!priceData[cat] || cat === ovCat) return;
+  ovCat = cat;
+  renderOvTabs();
+  renderOvBody();
+  const body = document.getElementById('ovBody');
+  if (body) body.scrollTop = 0;
+}
+
+function renderOvTabs() {
+  const tabs = document.getElementById('ovTabs');
+  if (!tabs) return;
+  const cats = Object.keys(priceData || {});
+  tabs.innerHTML = cats.map(function(c) {
+    return '<button type="button" class="rec-tab' + (c === ovCat ? ' active' : '') + '" onclick="selectOvCat(\'' + c + '\')">' + c + '</button>';
+  }).join('');
+}
+
+function renderOvBody() {
+  const body = document.getElementById('ovBody');
+  const sub = document.getElementById('ovSub');
+  if (!body) return;
+  const cats = Object.keys(priceData || {});
+  let items = 0;
+  cats.forEach(function(c) { items += Object.keys(priceData[c]).length; });
+  if (sub) sub.textContent = cats.length + ' 个大类 · ' + items + ' 个品类，点品类看介绍与分辨方法';
+  const list = Object.keys(priceData[ovCat] || {});
+  body.innerHTML = list.map(function(item) {
+    return '<button type="button" class="ov-item" onclick="openItemInfo(\'' + ovCat + '\',\'' + item + '\')">' +
+      '<span class="ov-i-name">' + item + '</span>' +
+      '<span class="ov-i-price">' + priceData[ovCat][item] + '<em>元/kg</em></span>' +
+      '<span class="ov-i-go">›</span></button>';
+  }).join('') || '<div style="color:#94a3b8;font-size:.85rem;padding:8px 2px">暂无品类</div>';
+}
+
 function updateStats() {
   const cats = Object.keys(priceData);
   let items = 0;
@@ -1032,6 +1239,7 @@ function updateStats() {
   document.getElementById('statCats').textContent = cats.length;
   document.getElementById('statItems').textContent = items;
   document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + fmtTime(updateTime) : '';
+  renderStatSummary();
 }
 
 // ========== 下拉框 ==========
@@ -1115,8 +1323,11 @@ function renderTable() {
 
 // ========== 品类详情 ==========
 function openItemInfo(cat, item) {
-  const info = ITEM_INFO[cat + '|' + item];
-  if (!info) return;
+  const info = ITEM_INFO[cat + '|' + item] || {
+    intro: '这个品类暂时还没有详细资料，价格以下是当前市场参考价，实际以现场验货为准。',
+    how: ['看外观与色泽：同一种料颜色越纯、杂质越少，价格越高。', '动手掂一掂：手感沉、声音脆的一般更实在。', '不确定时分开堆放，别和低价的混在一起过秤。'],
+    tip: '收货前建议现场称重并拍照留证，量大时先小批量试价。'
+  };
   document.getElementById('infoCat').textContent = cat;
   document.getElementById('infoName').textContent = item;
   document.getElementById('infoPrice').textContent = (priceData[cat] && priceData[cat][item] != null) ? priceData[cat][item] : '-';
@@ -1125,9 +1336,11 @@ function openItemInfo(cat, item) {
   const how = document.getElementById('infoHow');
   how.innerHTML = info.how.map(function(x){ return '<li>' + x + '</li>'; }).join('');
   document.getElementById('infoModal').classList.add('show');
+  syncScrollLock();
 }
 function closeItemInfo() {
   document.getElementById('infoModal').classList.remove('show');
+  syncScrollLock();
 }
 
 // ========== 导出CSV ==========
