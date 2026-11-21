@@ -48,8 +48,8 @@ body{
 .stat-panel{margin-bottom:18px}
 .stat-bar{display:flex;align-items:center;gap:10px;width:100%;padding:11px 15px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);cursor:pointer;font-family:inherit;color:var(--text);text-align:left;transition:border-color .15s,box-shadow .15s}
 .stat-bar:hover{border-color:#c7d2fe}
-.sb-title{font-size:.82rem;font-weight:700;color:var(--text-2);flex-shrink:0;display:flex;align-items:center;gap:6px}
-.sb-sum{flex:1;text-align:right;font-size:.76rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-title{font-size:.82rem;font-weight:700;color:var(--text-2);flex:0 1 auto;min-width:0;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.sb-sum{flex:1 1 0;min-width:0;text-align:right;font-size:.76rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-sum i{font-style:normal;color:var(--primary-dark);font-weight:700}
 .sb-hint{display:none;margin-left:auto;font-size:.72rem;color:var(--text-3);flex-shrink:0}
 .stat-panel.open .sb-hint{display:inline}
