@@ -1,6 +1,6 @@
 /* 废品回收报价助手 - Service Worker v3.0 */
 
-var CACHE_NAME = 'scrap-price-cache-v18';
+var CACHE_NAME = 'scrap-price-cache-v19';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
@@ -8,9 +8,9 @@ const PRECACHE_URLS = [
   'admin.html',
   'manifest.json',
   'icon.png',
-  'xlsx.full.min.js'
+  'xlsx.full.min.js',
+  'quotes.json'
 ];
-
 // 安装事件：预缓存关键静态资源
 self.addEventListener('install', function(event) {
   event.waitUntil(
@@ -45,9 +45,9 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-// 判断是否为 prices.json 请求
+// 判断是否为需要「网络优先」的数据文件
 function isPricesJson(url) {
-  return url.includes('prices.json');
+  return url.includes('prices.json') || url.includes('quotes.json');
 }
 
 // 去掉查询参数（如 ?t=时间戳）得到稳定的缓存 key。
@@ -82,7 +82,10 @@ self.addEventListener('fetch', function(event) {
       }).catch(function() {
         // 网络失败时用缓存兜底（用规范化后的 key 匹配）
         return caches.match(key).then(function(cachedResponse) {
-          return cachedResponse || new Response(JSON.stringify({ "categories": {} }), {
+          if (cachedResponse) return cachedResponse;
+          // 没有缓存时返回空结构：页面会识别为空数据，不会谎报同步成功
+          var empty = event.request.url.indexOf('quotes.json') >= 0 ? {} : { "categories": {} };
+          return new Response(JSON.stringify(empty), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });
