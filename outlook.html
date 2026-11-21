@@ -183,6 +183,18 @@ footer b{color:#6b7280}
     if (net < 1.2) return 'up';
     return 'up-strong';
   }
+  // 方向只有一个真源：forecast.json 的 trend（首页预测卡/预警条同源）。
+  // 七维净分不再单独决定方向，只决定同一方向内的强弱档位——
+  // 否则会出现首页标「·」而本页标「偏弱」的打架（废铝就是这样）。
+  var FC = null;   // forecast.json，render 时注入；dirOf 在本函数外，不能直接用 render 的局部变量
+  function dirOf(c, net){
+    var f = FC && FC.categories ? FC.categories[c.cat] : null;
+    var t = f && f.trend;
+    if (t === 'flat') return 'flat';
+    if (t === 'down') return net <= -1.2 ? 'down-strong' : 'down';
+    if (t === 'up') return net >= 1.2 ? 'up-strong' : 'up';
+    return trendOf(net);
+  }
   function netOf(scores, w){
     var s = 0, tot = 0;
     for (var k in w){ s += (scores[k]||0) * w[k]; tot += w[k]; }
@@ -231,6 +243,7 @@ footer b{color:#6b7280}
   }
 
   function render(d, prices, fc){
+    FC = fc || null;
     var w = d.weights, dims = d.dims;
     var cats = d.categories;
     // 基准价优先取 prices.json 的当日报价（废铜由自动任务工作日早晚各更新，其余人工维护），
@@ -356,7 +369,7 @@ footer b{color:#6b7280}
     // 品类卡
     var cbox = document.getElementById('cats');
     cats.forEach(function(c){
-      var n = netOf(c.scores, w), t = TREND[trendOf(n)];
+      var n = netOf(c.scores, w), t = TREND[dirOf(c, n)];
       var base = baseOf(c);
       var drift = (c.base > 0) ? (base - c.base) / c.base * 100 : 0;
       var f7 = fc7Of(c);
@@ -409,13 +422,14 @@ footer b{color:#6b7280}
       var base = baseOf(c), snap = c.base || base;
       var drift = snap > 0 ? (base - snap) / snap * 100 : 0;
       var net = netOf(c.scores, w);
-      var mine = net > 0.15 ? 'up' : (net < -0.15 ? 'down' : 'flat');
+      var tk = dirOf(c, net);
+      var mine = tk.indexOf('up') === 0 ? 'up' : (tk.indexOf('down') === 0 ? 'down' : 'flat');
       var f = fcCats[c.cat];
       var auto = (f && f.auto && f.auto.trend) ? f.auto : null;
       var agree = auto ? (auto.trend === mine) : null;
       var st = agree === null ? ['人工研判', 's-gray'] : (agree ? ['一致', 's-ok'] : ['分歧', 's-warn']);
       ab += '<tr><td><b>' + c.cat + '</b><br><span class="mini">' + c.sample + '</span></td>'
-        + '<td class="c">' + TREND[trendOf(net)][0] + '<br><span class="mini">' + label(net) + '</span></td>'
+        + '<td class="c">' + TREND[dirOf(c, net)][0] + '<br><span class="mini">' + label(net) + '</span></td>'
         + '<td class="c">' + (auto ? DIRNAME[auto.trend] : '无稳定源') + '<br><span class="mini">' + (auto ? auto.up + ':' + auto.down : '仅人工') + '</span></td>'
         + '<td class="c">' + (Math.abs(drift) >= 0.05 ? (drift > 0 ? '+' : '') + drift.toFixed(1) + '%' : '0.0%') + '</td>'
         + '<td class="c"><span class="st ' + st[1] + '">' + st[0] + '</span></td></tr>';
