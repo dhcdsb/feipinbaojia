@@ -903,22 +903,39 @@ function regionName(id) {
   return '全国均价';
 }
 
-// 当前地区的精确价；没有地区数据时退回全国基准价
+function round2(v) { return Math.round((v + Number.EPSILON) * 100) / 100; }
+
+// 当前地区的精确价 = 当日基准价 × 地区系数。
+// 用系数而不是存死的绝对价：自动任务每天改 prices.json，地区价必须跟着基准价走，
+// 否则几天后地区价就会停留在旧行情上。旧版无 coefs 时退回绝对价快照。
 function regionPrice(cat, item) {
   const base = priceData[cat] ? priceData[cat][item] : null;
   if (base == null) return null;
-  if (regionId === 'all' || !quotes || !quotes.items) return base;
-  const q = quotes.items[cat + '|' + item];
+  if (regionId === 'all' || !quotes) return base;
+  const key = cat + '|' + item;
+  const c = quotes.coefs && quotes.coefs[key] ? quotes.coefs[key][regionId] : null;
+  if (typeof c === 'number') return round2(base * c);
+  const q = quotes.items ? quotes.items[key] : null;
   return q && q[regionId] != null ? q[regionId] : base;
 }
 
-// 参考区间 = 全国基准价与 7 个地区价中的最低/最高
+// 参考区间 = 当日基准价与 7 个地区价中的最低/最高（随基准价实时变化）
 function priceRange(cat, item) {
   const base = priceData[cat] ? priceData[cat][item] : null;
   if (base == null) return null;
-  const q = quotes && quotes.items ? quotes.items[cat + '|' + item] : null;
-  if (!q) return null;
+  const key = cat + '|' + item;
+  const c = quotes && quotes.coefs ? quotes.coefs[key] : null;
   let low = base, high = base;
+  if (c) {
+    for (const r in c) {
+      const v = round2(base * c[r]);
+      if (v < low) low = v;
+      if (v > high) high = v;
+    }
+    return { low: low, high: high };
+  }
+  const q = quotes && quotes.items ? quotes.items[key] : null;
+  if (!q) return null;
   for (const k in q) {
     const v = q[k];
     if (typeof v !== 'number') continue;

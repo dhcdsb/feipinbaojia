@@ -1,6 +1,7 @@
 {
   "updatedAt": "2026-11-21T19:05:00+08:00",
-  "basis": "全国基准价（prices.json）× 区域系数；系数取自 2026-11-20 各省实际报价相对全国均价的偏差",
+  "basisDate": "2026-11-21",
+  "basis": "地区价 = prices.json 当日基准价 × 地区系数，页面实时计算。系数取自 2026-11-20 各省实际报价相对全国均价的偏差，长期稳定；基准价涨跌时各地区价与参考区间自动跟随，不会与基准价脱节。items 为系数制定当日的绝对价快照，仅用于旧版页面与离线兜底。",
   "regions": [
     {
       "id": "huabei",
@@ -560,6 +561,530 @@
       "xinan": 1.45,
       "xibei": 1.42,
       "dongbei": 1.43
+    }
+  },
+  "coefs": {
+    "废铜|1号光亮铜线": {
+      "huabei": 1.0,
+      "huadong": 0.99425,
+      "huannan": 0.99079,
+      "huazhong": 0.98734,
+      "xinan": 0.98849,
+      "xibei": 0.98044,
+      "dongbei": 0.99425
+    },
+    "废铜|紫铜": {
+      "huabei": 1.0,
+      "huadong": 0.99415,
+      "huannan": 0.99064,
+      "huazhong": 0.98713,
+      "xinan": 0.98947,
+      "xibei": 0.98012,
+      "dongbei": 0.99415
+    },
+    "废铜|黄铜": {
+      "huabei": 1.0,
+      "huadong": 0.99453,
+      "huannan": 0.99088,
+      "huazhong": 0.98723,
+      "xinan": 0.98905,
+      "xibei": 0.97993,
+      "dongbei": 0.99453
+    },
+    "废铜|铜管": {
+      "huabei": 1.0,
+      "huadong": 0.99417,
+      "huannan": 0.99068,
+      "huazhong": 0.98718,
+      "xinan": 0.98951,
+      "xibei": 0.98019,
+      "dongbei": 0.99417
+    },
+    "废铜|铜排": {
+      "huabei": 1.0,
+      "huadong": 0.99419,
+      "huannan": 0.9907,
+      "huazhong": 0.98721,
+      "xinan": 0.98953,
+      "xibei": 0.98023,
+      "dongbei": 0.99419
+    },
+    "废铜|铜米": {
+      "huabei": 1.0,
+      "huadong": 0.99415,
+      "huannan": 0.99064,
+      "huazhong": 0.98713,
+      "xinan": 0.98947,
+      "xibei": 0.98012,
+      "dongbei": 0.99415
+    },
+    "废铜|杂铜": {
+      "huabei": 1.0,
+      "huadong": 0.99348,
+      "huannan": 0.9913,
+      "huazhong": 0.98696,
+      "xinan": 0.98913,
+      "xibei": 0.98043,
+      "dongbei": 0.99348
+    },
+    "废铜|铜屑": {
+      "huabei": 1.0,
+      "huadong": 0.99342,
+      "huannan": 0.99079,
+      "huazhong": 0.98684,
+      "xinan": 0.98947,
+      "xibei": 0.98026,
+      "dongbei": 0.99342
+    },
+    "废铝|铝线": {
+      "huabei": 0.9798,
+      "huadong": 0.99495,
+      "huannan": 0.97475,
+      "huazhong": 0.96465,
+      "xinan": 0.9596,
+      "xibei": 0.95455,
+      "dongbei": 0.93939
+    },
+    "废铝|熟铝": {
+      "huabei": 0.97674,
+      "huadong": 0.99419,
+      "huannan": 0.97674,
+      "huazhong": 0.96512,
+      "xinan": 0.9593,
+      "xibei": 0.95349,
+      "dongbei": 0.94186
+    },
+    "废铝|生铝": {
+      "huabei": 0.97661,
+      "huadong": 0.99415,
+      "huannan": 0.97661,
+      "huazhong": 0.96491,
+      "xinan": 0.95906,
+      "xibei": 0.95322,
+      "dongbei": 0.94152
+    },
+    "废铝|铝合金": {
+      "huabei": 0.97727,
+      "huadong": 0.99432,
+      "huannan": 0.97727,
+      "huazhong": 0.96591,
+      "xinan": 0.96023,
+      "xibei": 0.95455,
+      "dongbei": 0.9375
+    },
+    "废铝|铝板": {
+      "huabei": 0.97872,
+      "huadong": 0.99468,
+      "huannan": 0.9734,
+      "huazhong": 0.96809,
+      "xinan": 0.96277,
+      "xibei": 0.95745,
+      "dongbei": 0.94149
+    },
+    "废铝|铝型材": {
+      "huabei": 0.97727,
+      "huadong": 0.99432,
+      "huannan": 0.97727,
+      "huazhong": 0.96591,
+      "xinan": 0.96023,
+      "xibei": 0.95455,
+      "dongbei": 0.9375
+    },
+    "废铝|铝箔": {
+      "huabei": 0.97531,
+      "huadong": 0.99383,
+      "huannan": 0.97531,
+      "huazhong": 0.96914,
+      "xinan": 0.96296,
+      "xibei": 0.95679,
+      "dongbei": 0.93827
+    },
+    "废铝|铝屑": {
+      "huabei": 0.98101,
+      "huadong": 0.99367,
+      "huannan": 0.97468,
+      "huazhong": 0.96835,
+      "xinan": 0.96203,
+      "xibei": 0.9557,
+      "dongbei": 0.94304
+    },
+    "废铁|重废": {
+      "huabei": 0.99091,
+      "huadong": 1.01818,
+      "huannan": 1.09091,
+      "huazhong": 0.98182,
+      "xinan": 0.95909,
+      "xibei": 0.91818,
+      "dongbei": 0.93182
+    },
+    "废铁|中废": {
+      "huabei": 0.99048,
+      "huadong": 1.01905,
+      "huannan": 1.09048,
+      "huazhong": 0.98095,
+      "xinan": 0.9619,
+      "xibei": 0.91905,
+      "dongbei": 0.92857
+    },
+    "废铁|轻废": {
+      "huabei": 0.98919,
+      "huadong": 1.02162,
+      "huannan": 1.09189,
+      "huazhong": 0.97838,
+      "xinan": 0.96216,
+      "xibei": 0.91892,
+      "dongbei": 0.92973
+    },
+    "废铁|钢筋": {
+      "huabei": 0.99184,
+      "huadong": 1.02041,
+      "huannan": 1.0898,
+      "huazhong": 0.97959,
+      "xinan": 0.95918,
+      "xibei": 0.91837,
+      "dongbei": 0.93061
+    },
+    "废铁|铸铁": {
+      "huabei": 0.99111,
+      "huadong": 1.01778,
+      "huannan": 1.08889,
+      "huazhong": 0.98222,
+      "xinan": 0.96,
+      "xibei": 0.92,
+      "dongbei": 0.92889
+    },
+    "废铁|铁皮": {
+      "huabei": 0.98901,
+      "huadong": 1.02198,
+      "huannan": 1.08791,
+      "huazhong": 0.97802,
+      "xinan": 0.96154,
+      "xibei": 0.91758,
+      "dongbei": 0.92857
+    },
+    "废铁|铁屑": {
+      "huabei": 0.98883,
+      "huadong": 1.02235,
+      "huannan": 1.08939,
+      "huazhong": 0.97765,
+      "xinan": 0.96089,
+      "xibei": 0.92179,
+      "dongbei": 0.92737
+    },
+    "废铁|生铁": {
+      "huabei": 0.99024,
+      "huadong": 1.01951,
+      "huannan": 1.0878,
+      "huazhong": 0.98049,
+      "xinan": 0.96098,
+      "xibei": 0.92195,
+      "dongbei": 0.93171
+    },
+    "废不锈钢|316不锈钢": {
+      "huabei": 0.99024,
+      "huadong": 1.01951,
+      "huannan": 1.02927,
+      "huazhong": 0.97073,
+      "xinan": 0.95122,
+      "xibei": 0.93171,
+      "dongbei": 0.94146
+    },
+    "废不锈钢|304不锈钢": {
+      "huabei": 0.9902,
+      "huadong": 1.01961,
+      "huannan": 1.02941,
+      "huazhong": 0.96961,
+      "xinan": 0.95,
+      "xibei": 0.93039,
+      "dongbei": 0.9402
+    },
+    "废不锈钢|201不锈钢": {
+      "huabei": 0.9898,
+      "huadong": 1.02041,
+      "huannan": 1.03061,
+      "huazhong": 0.96939,
+      "xinan": 0.95102,
+      "xibei": 0.93061,
+      "dongbei": 0.94082
+    },
+    "废不锈钢|不锈钢屑": {
+      "huabei": 0.99,
+      "huadong": 1.02,
+      "huannan": 1.03,
+      "huazhong": 0.97,
+      "xinan": 0.95,
+      "xibei": 0.93,
+      "dongbei": 0.94
+    },
+    "废不锈钢|杂不锈钢": {
+      "huabei": 0.9913,
+      "huadong": 1.02029,
+      "huannan": 1.02899,
+      "huazhong": 0.97101,
+      "xinan": 0.95072,
+      "xibei": 0.93043,
+      "dongbei": 0.93913
+    },
+    "废纸|A4纸": {
+      "huabei": 0.98876,
+      "huadong": 1.02247,
+      "huannan": 1.0618,
+      "huazhong": 1.0,
+      "xinan": 0.94944,
+      "xibei": 0.89888,
+      "dongbei": 0.92697
+    },
+    "废纸|报纸": {
+      "huabei": 0.99,
+      "huadong": 1.02,
+      "huannan": 1.06,
+      "huazhong": 1.0,
+      "xinan": 0.95,
+      "xibei": 0.9,
+      "dongbei": 0.925
+    },
+    "废纸|纸箱": {
+      "huabei": 0.98795,
+      "huadong": 1.01807,
+      "huannan": 1.06024,
+      "huazhong": 1.0,
+      "xinan": 0.95181,
+      "xibei": 0.89759,
+      "dongbei": 0.92771
+    },
+    "废纸|书本纸": {
+      "huabei": 0.98765,
+      "huadong": 1.01852,
+      "huannan": 1.06173,
+      "huazhong": 1.0,
+      "xinan": 0.95062,
+      "xibei": 0.90123,
+      "dongbei": 0.92593
+    },
+    "废纸|花纸": {
+      "huabei": 0.9931,
+      "huadong": 1.02069,
+      "huannan": 1.06207,
+      "huazhong": 1.0,
+      "xinan": 0.95172,
+      "xibei": 0.89655,
+      "dongbei": 0.92414
+    },
+    "废纸|杂纸": {
+      "huabei": 0.99231,
+      "huadong": 1.02308,
+      "huannan": 1.06154,
+      "huazhong": 1.0,
+      "xinan": 0.94615,
+      "xibei": 0.9,
+      "dongbei": 0.92308
+    },
+    "废塑料|ABS": {
+      "huabei": 0.97931,
+      "huadong": 1.02931,
+      "huannan": 1.02069,
+      "huazhong": 0.97069,
+      "xinan": 0.95,
+      "xibei": 0.92931,
+      "dongbei": 0.93966
+    },
+    "废塑料|PP": {
+      "huabei": 0.98077,
+      "huadong": 1.03077,
+      "huannan": 1.01923,
+      "huazhong": 0.96923,
+      "xinan": 0.95,
+      "xibei": 0.93077,
+      "dongbei": 0.93846
+    },
+    "废塑料|PE": {
+      "huabei": 0.98,
+      "huadong": 1.03,
+      "huannan": 1.02,
+      "huazhong": 0.97,
+      "xinan": 0.95,
+      "xibei": 0.93,
+      "dongbei": 0.94
+    },
+    "废塑料|PVC": {
+      "huabei": 0.97778,
+      "huadong": 1.02778,
+      "huannan": 1.02222,
+      "huazhong": 0.97222,
+      "xinan": 0.95,
+      "xibei": 0.92778,
+      "dongbei": 0.93889
+    },
+    "废塑料|PET": {
+      "huabei": 0.98056,
+      "huadong": 1.03056,
+      "huannan": 1.01944,
+      "huazhong": 0.96944,
+      "xinan": 0.95,
+      "xibei": 0.93056,
+      "dongbei": 0.93889
+    },
+    "废塑料|杂塑料": {
+      "huabei": 0.98333,
+      "huadong": 1.03333,
+      "huannan": 1.01667,
+      "huazhong": 0.96667,
+      "xinan": 0.95,
+      "xibei": 0.93333,
+      "dongbei": 0.94167
+    },
+    "废玻璃|钢化玻璃": {
+      "huabei": 1.0,
+      "huadong": 1.02222,
+      "huannan": 1.02222,
+      "huazhong": 1.0,
+      "xinan": 0.95556,
+      "xibei": 0.91111,
+      "dongbei": 0.93333
+    },
+    "废玻璃|平板玻璃": {
+      "huabei": 1.0,
+      "huadong": 1.02381,
+      "huannan": 1.02381,
+      "huazhong": 1.0,
+      "xinan": 0.95238,
+      "xibei": 0.90476,
+      "dongbei": 0.92857
+    },
+    "废玻璃|碎玻璃": {
+      "huabei": 1.0,
+      "huadong": 1.03333,
+      "huannan": 1.03333,
+      "huazhong": 1.0,
+      "xinan": 0.93333,
+      "xibei": 0.9,
+      "dongbei": 0.93333
+    },
+    "废玻璃|玻璃瓶": {
+      "huabei": 1.0,
+      "huadong": 1.0,
+      "huannan": 1.04545,
+      "huazhong": 1.0,
+      "xinan": 0.95455,
+      "xibei": 0.90909,
+      "dongbei": 0.90909
+    },
+    "废轮胎|工程胎": {
+      "huabei": 1.0,
+      "huadong": 1.02,
+      "huannan": 1.0,
+      "huazhong": 0.98,
+      "xinan": 0.96,
+      "xibei": 0.92,
+      "dongbei": 0.93333
+    },
+    "废轮胎|钢丝胎": {
+      "huabei": 1.0,
+      "huadong": 1.02,
+      "huannan": 1.0,
+      "huazhong": 0.98,
+      "xinan": 0.96,
+      "xibei": 0.92,
+      "dongbei": 0.93
+    },
+    "废轮胎|尼龙胎": {
+      "huabei": 1.0,
+      "huadong": 1.02667,
+      "huannan": 1.0,
+      "huazhong": 0.97333,
+      "xinan": 0.96,
+      "xibei": 0.92,
+      "dongbei": 0.93333
+    },
+    "废轮胎|自行车胎": {
+      "huabei": 1.0,
+      "huadong": 1.02,
+      "huannan": 1.0,
+      "huazhong": 0.98,
+      "xinan": 0.96,
+      "xibei": 0.92,
+      "dongbei": 0.94
+    },
+    "废电池|镍氢电池": {
+      "huabei": 1.0,
+      "huadong": 1.01111,
+      "huannan": 1.02222,
+      "huazhong": 1.0,
+      "xinan": 0.97778,
+      "xibei": 0.96111,
+      "dongbei": 0.97222
+    },
+    "废电池|锂电池": {
+      "huabei": 1.00232,
+      "huadong": 1.0116,
+      "huannan": 1.02088,
+      "huazhong": 1.00232,
+      "xinan": 0.97912,
+      "xibei": 0.96056,
+      "dongbei": 0.96984
+    },
+    "废电池|铅酸电池": {
+      "huabei": 1.0,
+      "huadong": 1.00978,
+      "huannan": 1.01957,
+      "huazhong": 1.0,
+      "xinan": 0.98043,
+      "xibei": 0.95978,
+      "dongbei": 0.96957
+    },
+    "废电池|干电池": {
+      "huabei": 1.0,
+      "huadong": 1.01,
+      "huannan": 1.02,
+      "huazhong": 1.0,
+      "xinan": 0.98,
+      "xibei": 0.96,
+      "dongbei": 0.97
+    },
+    "其他|废电子板": {
+      "huabei": 0.99474,
+      "huadong": 1.01447,
+      "huannan": 1.01053,
+      "huazhong": 0.98947,
+      "xinan": 0.96447,
+      "xibei": 0.94474,
+      "dongbei": 0.95526
+    },
+    "其他|废电机": {
+      "huabei": 0.99556,
+      "huadong": 1.01556,
+      "huannan": 1.00889,
+      "huazhong": 0.99111,
+      "xinan": 0.96444,
+      "xibei": 0.94444,
+      "dongbei": 0.95556
+    },
+    "其他|废电线": {
+      "huabei": 0.996,
+      "huadong": 1.016,
+      "huannan": 1.008,
+      "huazhong": 0.992,
+      "xinan": 0.964,
+      "xibei": 0.944,
+      "dongbei": 0.956
+    },
+    "其他|废家电": {
+      "huabei": 0.99429,
+      "huadong": 1.01429,
+      "huannan": 1.01143,
+      "huazhong": 0.98857,
+      "xinan": 0.96571,
+      "xibei": 0.94571,
+      "dongbei": 0.95429
+    },
+    "其他|杂料": {
+      "huabei": 0.99333,
+      "huadong": 1.01333,
+      "huannan": 1.01333,
+      "huazhong": 0.98667,
+      "xinan": 0.96667,
+      "xibei": 0.94667,
+      "dongbei": 0.95333
     }
   }
 }
