@@ -112,6 +112,8 @@ label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-
 .rec-tab:hover{border-color:#c7d2fe;color:var(--primary-deep)}
 .rec-tab.active{background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.28)}
 /* ===== 7 天走势预测 ===== */
+.tbl-note{font-size:.73rem;color:#94a3b8;line-height:1.65;margin:10px 2px 0}
+.tbl-note b{color:#64748b;font-weight:700}
 .alert-bar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:12px;margin-bottom:16px;border:1px solid;box-shadow:var(--shadow);font-size:.85rem;line-height:1.5;flex-wrap:wrap}
 .alert-bar.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
 .alert-bar.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
@@ -551,6 +553,7 @@ if ('serviceWorker' in navigator) {
         <tbody id="priceBody"></tbody>
       </table>
     </div>
+    <p class="tbl-note">参考区间＝当日报价在<b>全国 7 个地区</b>里的最低～最高（同品类同口径），用来判断本地报价偏高还是偏低，不是买卖双方的还价空间；涨跌按全国基准价计算，切换地区不会变。</p>
   </div>
 </div>
 
@@ -1139,7 +1142,7 @@ function renderFcTabs() {
     const t = trendMeta(forecast.categories[c]);
     const arrow = t.cls === 'down' ? '<span style="color:#059669;font-weight:800">↓</span>'
       : (t.cls === 'up' ? '<span style="color:#dc2626;font-weight:800">↑</span>'
-      : '<span style="color:#cbd5e1;font-weight:800">·</span>');
+      : '<span style="color:#94a3b8;font-weight:800" title="横盘">－</span>');
     return `<button type="button" class="rec-tab${c === fcCat ? ' active' : ''}" onclick="selectFcCat('${c}')">${c} ${arrow}</button>`;
   }).join('');
 }
