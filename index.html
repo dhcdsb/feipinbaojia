@@ -95,6 +95,12 @@ label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-
 .rec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 0 9px;border-bottom:1px dashed #dbe3ee;margin-bottom:2px}
 .rec-head .rec-cat{font-weight:800;font-size:.96rem;color:var(--primary-deep)}
 .rec-head .rec-count{font-size:.72rem;color:var(--text-3)}
+.ratio-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 11px}
+.ratio-chip{padding:6px 13px;border:1px solid var(--border);background:#fff;border-radius:999px;font-size:.79rem;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+.ratio-chip:hover{border-color:#c7d2fe;color:var(--primary-deep)}
+.ratio-chip.active{background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.26)}
+.stat-card .num.pop{animation:numPop .42s cubic-bezier(.34,1.56,.64,1)}
+@keyframes numPop{0%{transform:scale(1);color:var(--text)}45%{transform:scale(1.28);color:var(--primary-dark)}100%{transform:scale(1);color:var(--text)}}
 .rec-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
 .rec-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #e8eef6}
 .rec-row:last-child{border-bottom:none}
@@ -207,6 +213,8 @@ tr:hover td{background:#f8fafc}
   .rec-tab{padding:8px 15px;font-size:.83rem}
   .rec-card{padding:2px 13px 4px;border-radius:12px}
   .rec-list{grid-template-columns:1fr;column-gap:0}
+  .ratio-chips{gap:5px;margin-bottom:10px}
+  .ratio-chip{padding:7px 11px;font-size:.79rem}
   .rec-head{padding:10px 0 8px}
   .rec-row{padding:11px 0;gap:10px}
   .rec-name .item-link{font-size:.92rem}
@@ -323,7 +331,8 @@ if ('serviceWorker' in navigator) {
       <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#6366f1">
       <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#4f46e5;min-width:45px;text-align:right">85%</span>
     </div>
-    <p style="font-size:.8rem;color:#94a3b8;margin-bottom:12px">拖动调节收货价占市场价的百分比，根据不同品类的利润空间和竞争情况调整</p>
+    <div class="ratio-chips" id="ratioChips"></div>
+    <p style="font-size:.8rem;color:#94a3b8;margin-bottom:12px">点选常用比例，或拖动滑杆自定义（50%–120%）</p>
     <div id="recGrid"></div>
   </div>
 
@@ -770,8 +779,17 @@ let lastPrices = {};    // 上次价格快照
 let updateTime = null;
 let calcCount = 0;
 let calcCountDate = '';
+const RATIO_PRESETS = [70, 75, 80, 85, 90, 95];
 let recRatio = 85;      // 收货比例，默认85%
 let recCat = '';        // 推荐收货价当前显示的大类
+
+// ========== 存储（浏览器禁用/无痕模式下 localStorage 可能抛异常） ==========
+function storeGet(k) {
+  try { return localStorage.getItem(k); } catch (e) { return null; }
+}
+function storeSet(k, v) {
+  try { localStorage.setItem(k, v); return true; } catch (e) { return false; }
+}
 
 // ========== 从 prices.json 拉取远程价格 ==========
 // 统一时间显示：2026-11-20T17:38:25+08:00 → 2026-11-20 17:38
@@ -843,10 +861,10 @@ async function fetchPrices() {
 
 // ========== 初始化 ==========
 async function init() {
-  const saved = localStorage.getItem('scrap_prices');
-  const savedLast = localStorage.getItem('scrap_last_prices');
-  const savedTime = localStorage.getItem('scrap_update_time');
-  const savedCount = localStorage.getItem('scrap_calc_count');
+  const saved = storeGet('scrap_prices');
+  const savedLast = storeGet('scrap_last_prices');
+  const savedTime = storeGet('scrap_update_time');
+  const savedCount = storeGet('scrap_calc_count');
 
   if (saved) {
     priceData = JSON.parse(saved);
@@ -855,18 +873,19 @@ async function init() {
   }
   lastPrices = savedLast ? JSON.parse(savedLast) : {};
   updateTime = savedTime || null;
-  const savedCountDate = localStorage.getItem('scrap_calc_count_date');
-  const today = new Date().toISOString().slice(0, 10);
+  const savedCountDate = storeGet('scrap_calc_count_date');
+  const today = todayKey();
   if (savedCount && savedCountDate === today) {
     calcCount = parseInt(savedCount);
   } else {
     calcCount = 0;
   }
   calcCountDate = today;
-  recRatio = parseInt(localStorage.getItem('scrap_rec_ratio') || '85');
-  recCat = localStorage.getItem('scrap_rec_cat') || '';
+  recRatio = parseInt(storeGet('scrap_rec_ratio') || '85');
+  recCat = storeGet('scrap_rec_cat') || '';
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
+  renderRatioChips();
 
   // 从远程拉取价格（失败时使用本地兜底）
   await fetchPrices();
@@ -905,7 +924,7 @@ function selectRecCat(cat) {
     if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
   renderRecGrid();
-  localStorage.setItem('scrap_rec_cat', cat);
+  storeSet('scrap_rec_cat', cat);
 }
 
 function renderRecGrid() {
@@ -936,24 +955,61 @@ function renderRecGrid() {
   if (recTime) recTime.textContent = updateTime ? '更新于 ' + fmtTime(updateTime) : '';
 }
 
-function onRatioChange() {
-  const slider = document.getElementById('recRatio');
-  const label = document.getElementById('recRatioLabel');
-  recRatio = parseInt(slider.value);
-  label.textContent = recRatio + '%';
-  localStorage.setItem('scrap_rec_ratio', recRatio.toString());
+function renderRatioChips() {
+  const box = document.getElementById('ratioChips');
+  if (!box) return;
+  box.innerHTML = RATIO_PRESETS.map(function(v) {
+    return `<button type="button" class="ratio-chip${v === recRatio ? ' active' : ''}" onclick="setRatio(${v})">${v}%</button>`;
+  }).join('');
+}
+
+function setRatio(v) {
+  v = parseInt(v);
+  if (isNaN(v)) return;
+  recRatio = Math.min(120, Math.max(50, v));
+  document.getElementById('recRatio').value = recRatio;
+  document.getElementById('recRatioLabel').textContent = recRatio + '%';
+  storeSet('scrap_rec_ratio', recRatio.toString());
+  renderRatioChips();
   renderRecGrid();
 }
 
+function onRatioChange() {
+  setRatio(document.getElementById('recRatio').value);
+}
+
 function save() {
-  localStorage.setItem('scrap_prices', JSON.stringify(priceData));
-  localStorage.setItem('scrap_last_prices', JSON.stringify(lastPrices));
-  if (updateTime) localStorage.setItem('scrap_update_time', updateTime);
-  localStorage.setItem('scrap_calc_count', calcCount.toString());
-  localStorage.setItem('scrap_calc_count_date', calcCountDate);
+  storeSet('scrap_prices', JSON.stringify(priceData));
+  storeSet('scrap_last_prices', JSON.stringify(lastPrices));
+  if (updateTime) storeSet('scrap_update_time', updateTime);
+  storeSet('scrap_calc_count', calcCount.toString());
+  storeSet('scrap_calc_count_date', calcCountDate);
 }
 
 // ========== 统计 ==========
+// 用本地日期，避免 UTC 导致北京时间早 8 点前就被判为"新的一天"而清零
+function todayKey() {
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+// 记一次查询：计算价格、查看品类详情都算
+function bumpQuery(n) {
+  const today = todayKey();
+  if (calcCountDate !== today) { calcCountDate = today; calcCount = 0; }
+  calcCount += n;
+  updateStats();
+  save();
+  const el = document.getElementById('statCalc');
+  if (el && el.animate) {
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+  }
+}
+
 function updateStats() {
   const cats = Object.keys(priceData);
   let items = 0;
@@ -1007,9 +1063,7 @@ function calcPrice() {
   document.getElementById('resultDetail').textContent = `${item} × ${weight}kg × ${unitPrice}元/kg`;
   document.getElementById('resultBox').style.display = 'block';
 
-  calcCount++;
-  save();
-  updateStats();
+  bumpQuery(1);
 }
 
 // ========== 表格 ==========
@@ -1059,6 +1113,7 @@ function openItemInfo(cat, item) {
   const how = document.getElementById('infoHow');
   how.innerHTML = info.how.map(function(x){ return '<li>' + x + '</li>'; }).join('');
   document.getElementById('infoModal').classList.add('show');
+  bumpQuery(1);
 }
 function closeItemInfo() {
   document.getElementById('infoModal').classList.remove('show');
