@@ -291,8 +291,8 @@ if ('serviceWorker' in navigator) {
   <div class="stats">
     <div class="stat-card"><div class="stat-icon">📦</div><div><div class="num" id="statCats">0</div><div class="label">大类</div></div></div>
     <div class="stat-card"><div class="stat-icon">🏷️</div><div><div class="num" id="statItems">0</div><div class="label">品类</div></div></div>
+    <div class="stat-card"><div class="stat-icon">👀</div><div><div class="num" id="statToday">—</div><div class="label" id="statTotal">累计浏览 —</div></div></div>
     <div class="stat-card"><div class="stat-icon">🕐</div><div><div class="num" id="statUpdate">-</div><div class="label">最后更新</div></div></div>
-    <div class="stat-card"><div class="stat-icon">📊</div><div><div class="num" id="statCalc">0</div><div class="label">今日查询</div></div></div>
   </div>
 
   <!-- 计算区 -->
@@ -328,8 +328,8 @@ if ('serviceWorker' in navigator) {
     <div class="rec-tabs" id="recTabs"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
       <span style="font-size:.85rem;font-weight:600;white-space:nowrap">收货比例</span>
-      <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#6366f1">
-      <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#4f46e5;min-width:45px;text-align:right">85%</span>
+      <input type="range" id="recRatio" min="50" max="120" value="100" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#6366f1">
+      <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#4f46e5;min-width:45px;text-align:right">100%</span>
     </div>
     <div class="ratio-chips" id="ratioChips"></div>
     <p style="font-size:.8rem;color:#94a3b8;margin-bottom:12px">点选常用比例，或拖动滑杆自定义（50%–120%）</p>
@@ -777,9 +777,7 @@ for (const [cat, items] of Object.entries(REC_PRICES)) {
 let priceData = {};     // { category: { item: price } }
 let lastPrices = {};    // 上次价格快照
 let updateTime = null;
-let calcCount = 0;
-let calcCountDate = '';
-const RATIO_PRESETS = [70, 75, 80, 85, 90, 95];
+const RATIO_PRESETS = [70, 80, 85, 90, 95, 100];
 let recRatio = 85;      // 收货比例，默认85%
 let recCat = '';        // 推荐收货价当前显示的大类
 
@@ -864,7 +862,6 @@ async function init() {
   const saved = storeGet('scrap_prices');
   const savedLast = storeGet('scrap_last_prices');
   const savedTime = storeGet('scrap_update_time');
-  const savedCount = storeGet('scrap_calc_count');
 
   if (saved) {
     priceData = JSON.parse(saved);
@@ -873,15 +870,7 @@ async function init() {
   }
   lastPrices = savedLast ? JSON.parse(savedLast) : {};
   updateTime = savedTime || null;
-  const savedCountDate = storeGet('scrap_calc_count_date');
-  const today = todayKey();
-  if (savedCount && savedCountDate === today) {
-    calcCount = parseInt(savedCount);
-  } else {
-    calcCount = 0;
-  }
-  calcCountDate = today;
-  recRatio = parseInt(storeGet('scrap_rec_ratio') || '85');
+  recRatio = parseInt(storeGet('scrap_rec_ratio_v2') || '100');
   recCat = storeGet('scrap_rec_cat') || '';
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
@@ -895,6 +884,9 @@ async function init() {
   renderRecTabs();
   renderRecGrid();
   updateStats();
+
+  // 浏览量统计（异步，不阻塞页面）
+  loadViews();
 
   // 每5分钟自动刷新价格
   setInterval(fetchPrices, 5 * 60 * 1000);
@@ -969,7 +961,7 @@ function setRatio(v) {
   recRatio = Math.min(120, Math.max(50, v));
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
-  storeSet('scrap_rec_ratio', recRatio.toString());
+  storeSet('scrap_rec_ratio_v2', recRatio.toString());
   renderRatioChips();
   renderRecGrid();
 }
@@ -982,8 +974,6 @@ function save() {
   storeSet('scrap_prices', JSON.stringify(priceData));
   storeSet('scrap_last_prices', JSON.stringify(lastPrices));
   if (updateTime) storeSet('scrap_update_time', updateTime);
-  storeSet('scrap_calc_count', calcCount.toString());
-  storeSet('scrap_calc_count_date', calcCountDate);
 }
 
 // ========== 统计 ==========
@@ -995,19 +985,42 @@ function todayKey() {
   return d.getFullYear() + '-' + m + '-' + day;
 }
 
-// 记一次查询：计算价格、查看品类详情都算
-function bumpQuery(n) {
-  const today = todayKey();
-  if (calcCountDate !== today) { calcCountDate = today; calcCount = 0; }
-  calcCount += n;
-  updateStats();
-  save();
-  const el = document.getElementById('statCalc');
-  if (el && el.animate) {
-    el.classList.remove('pop');
-    void el.offsetWidth;
-    el.classList.add('pop');
+// ========== 浏览量统计（不蒜子，按天分桶） ==========
+// 每次打开页面按「/feipinbaojia/day/YYYY-MM-DD」计数，得到今日浏览；
+// 同一次请求返回的 site_pv 就是累计浏览。全程只发一个跨域脚本请求，失败就显示「—」。
+function fmtCount(n) {
+  n = Number(n) || 0;
+  if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
+  return String(n);
+}
+
+function loadViews() {
+  const elToday = document.getElementById('statToday');
+  const elTotal = document.getElementById('statTotal');
+  if (!elToday || !elTotal) return;
+  const cb = 'bszCb' + Math.random().toString(36).slice(2);
+  const pageId = '/feipinbaojia/day/' + todayKey();
+  let done = false;
+
+  function finish(data) {
+    if (done) return;
+    done = true;
+    if (data && data.page_pv != null) {
+      elToday.textContent = fmtCount(data.page_pv);
+      elTotal.textContent = '累计浏览 ' + fmtCount(data.site_pv);
+    } else {
+      elToday.textContent = '—';
+      elTotal.textContent = '累计浏览 —';
+    }
+    try { delete window[cb]; } catch (e) {}
   }
+
+  window[cb] = finish;
+  const sc = document.createElement('script');
+  sc.src = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=' + cb + '&page_id=' + encodeURIComponent(pageId);
+  sc.onerror = function() { finish(null); };
+  document.head.appendChild(sc);
+  setTimeout(function() { finish(null); }, 8000);
 }
 
 function updateStats() {
@@ -1017,7 +1030,6 @@ function updateStats() {
   document.getElementById('statCats').textContent = cats.length;
   document.getElementById('statItems').textContent = items;
   document.getElementById('statUpdate').textContent = updateTime ? fmtTime(updateTime).slice(5,16) : '未更新';
-  document.getElementById('statCalc').textContent = calcCount;
   document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + fmtTime(updateTime) : '';
 }
 
@@ -1063,7 +1075,6 @@ function calcPrice() {
   document.getElementById('resultDetail').textContent = `${item} × ${weight}kg × ${unitPrice}元/kg`;
   document.getElementById('resultBox').style.display = 'block';
 
-  bumpQuery(1);
 }
 
 // ========== 表格 ==========
@@ -1113,7 +1124,6 @@ function openItemInfo(cat, item) {
   const how = document.getElementById('infoHow');
   how.innerHTML = info.how.map(function(x){ return '<li>' + x + '</li>'; }).join('');
   document.getElementById('infoModal').classList.add('show');
-  bumpQuery(1);
 }
 function closeItemInfo() {
   document.getElementById('infoModal').classList.remove('show');
