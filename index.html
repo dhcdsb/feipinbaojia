@@ -148,7 +148,6 @@ tr:hover td{background:#f8fafc}
   .btn-group{gap:8px}
 }
 </style>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
@@ -923,7 +922,29 @@ function exportCSV() {
 }
 
 // ========== 导出Excel ==========
+let xlsxLoading = null;
+function loadXLSX() {
+  if (typeof XLSX !== 'undefined') return Promise.resolve();
+  if (xlsxLoading) return xlsxLoading;
+  xlsxLoading = new Promise(function(resolve, reject) {
+    var sc = document.createElement('script');
+    sc.src = 'xlsx.full.min.js';
+    sc.onload = function() { resolve(); };
+    sc.onerror = function() { xlsxLoading = null; reject(new Error('xlsx load fail')); };
+    document.head.appendChild(sc);
+  });
+  return xlsxLoading;
+}
+
 function exportExcel() {
+  loadXLSX().then(function() {
+    doExportExcel();
+  }).catch(function() {
+    toast('Excel 库加载失败，请检查网络');
+  });
+}
+
+function doExportExcel() {
   if (typeof XLSX === 'undefined') return toast('Excel 库加载失败，请检查网络');
   const ratio = recRatio;
   const rows = [['大类', '品类', '当前价格(元/kg)', '上次价格', '涨跌幅', '收货价(元/kg)']];

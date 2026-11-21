@@ -1,12 +1,12 @@
 /* 废品回收报价助手 - Service Worker v2.1 */
 
-var CACHE_NAME = 'scrap-price-cache-v4';
+var CACHE_NAME = 'scrap-price-cache-v5';
 
 // 安装时预缓存的关键资源
 const PRECACHE_URLS = [
   'index.html',
   'manifest.json',
-  'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js'
+  'xlsx.full.min.js'
 ];
 
 // 安装事件：预缓存关键静态资源
