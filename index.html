@@ -85,6 +85,26 @@ label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-
 .result-box .price{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#4f46e5,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .result-box .detail{font-size:.85rem;color:var(--text-2);margin-top:6px}
 
+/* 推荐收货价 */
+.rec-tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 9px;margin-bottom:10px;scrollbar-width:none;-ms-overflow-style:none}
+.rec-tabs::-webkit-scrollbar{display:none}
+.rec-tab{flex:0 0 auto;padding:7px 15px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-2);font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+.rec-tab:hover{border-color:#c7d2fe;color:var(--primary-deep)}
+.rec-tab.active{background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.28)}
+.rec-card{background:linear-gradient(180deg,#fbfcff,#f7f9fd);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:12px;padding:4px 16px 6px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.rec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 0 9px;border-bottom:1px dashed #dbe3ee;margin-bottom:2px}
+.rec-head .rec-cat{font-weight:800;font-size:.96rem;color:var(--primary-deep)}
+.rec-head .rec-count{font-size:.72rem;color:var(--text-3)}
+.rec-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+.rec-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #e8eef6}
+.rec-row:last-child{border-bottom:none}
+.rec-name{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rec-name .item-link{font-size:.9rem;border-bottom:none;align-self:flex-start;line-height:1.3}
+.rec-name i{font-style:normal;font-size:.7rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.rec-num{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;line-height:1.2;font-variant-numeric:tabular-nums}
+.rec-num b{font-size:1.08rem;color:var(--primary-dark)}
+.rec-num em{font-style:normal;font-size:.67rem;color:var(--text-3);margin-top:2px}
+
 /* 表格 */
 table{width:100%;border-collapse:collapse;font-size:.86rem}
 th{background:var(--primary-light);padding:12px 10px;text-align:left;font-weight:700;color:var(--primary-deep);position:sticky;top:0;border-bottom:2px solid #c7d2fe}
@@ -182,8 +202,16 @@ tr:hover td{background:#f8fafc}
   .result-box .price{font-size:1.85rem}
   .result-box .detail{font-size:.79rem;line-height:1.5}
 
-  /* 推荐收货价：单列 */
-  #recGrid{grid-template-columns:1fr!important;gap:10px}
+  /* 推荐收货价：大类切换 + 单卡列表 */
+  .rec-tabs{gap:7px;margin:0 -3px 10px;padding:0 3px 8px}
+  .rec-tab{padding:8px 15px;font-size:.83rem}
+  .rec-card{padding:2px 13px 4px;border-radius:12px}
+  .rec-list{grid-template-columns:1fr;column-gap:0}
+  .rec-head{padding:10px 0 8px}
+  .rec-row{padding:11px 0;gap:10px}
+  .rec-name .item-link{font-size:.92rem}
+  .rec-name i{font-size:.68rem}
+  .rec-num b{font-size:1.1rem}
 
   /* ===== 表格转卡片 ===== */
   .table-wrap{max-height:none;border:none;overflow:visible;border-radius:0}
@@ -289,13 +317,14 @@ if ('serviceWorker' in navigator) {
   <!-- 推荐收货价格 -->
   <div class="card">
     <div class="card-title">推荐收货价格 <span class="time" id="recTimeLabel"></span></div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+    <div class="rec-tabs" id="recTabs"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
       <span style="font-size:.85rem;font-weight:600;white-space:nowrap">收货比例</span>
       <input type="range" id="recRatio" min="50" max="120" value="85" step="1" oninput="onRatioChange()" style="flex:1;min-width:150px;accent-color:#6366f1">
       <span id="recRatioLabel" style="font-size:.9rem;font-weight:700;color:#4f46e5;min-width:45px;text-align:right">85%</span>
     </div>
-    <p style="font-size:.8rem;color:#888;margin-bottom:12px">调节收货价占市场价的百分比，根据利润空间和竞争情况调整</p>
-    <div id="recGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
+    <p style="font-size:.8rem;color:#94a3b8;margin-bottom:12px">拖动调节收货价占市场价的百分比，根据不同品类的利润空间和竞争情况调整</p>
+    <div id="recGrid"></div>
   </div>
 
   <!-- 导出 -->
@@ -742,8 +771,16 @@ let updateTime = null;
 let calcCount = 0;
 let calcCountDate = '';
 let recRatio = 85;      // 收货比例，默认85%
+let recCat = '';        // 推荐收货价当前显示的大类
 
 // ========== 从 prices.json 拉取远程价格 ==========
+// 统一时间显示：2026-11-20T17:38:25+08:00 → 2026-11-20 17:38
+function fmtTime(s) {
+  if (!s) return '';
+  const t = String(s).replace('T', ' ');
+  return t.length >= 16 ? t.slice(0, 16) : t;
+}
+
 async function fetchPrices() {
   const toastEl = document.getElementById('toast');
   if (toastEl) {
@@ -780,13 +817,20 @@ async function fetchPrices() {
     }
     // 更新 updateTime 为服务器时间
     updateTime = data.updatedAt || new Date().toLocaleString('zh-CN');
-    document.getElementById('updateTimeLabel').textContent = '更新于 ' + updateTime;
+    document.getElementById('updateTimeLabel').textContent = '更新于 ' + fmtTime(updateTime);
     if (toastEl) {
       toastEl.textContent = '✅ 已同步';
       setTimeout(() => toastEl.classList.remove('show'), 1500);
     }
     // 保存到 localStorage
     save();
+    // 数据已更新，立即重绘界面（否则表格和推荐价要等手动刷新才变）
+    const selCat = document.getElementById('selCat');
+    if (selCat && selCat.options.length !== Object.keys(priceData).length + 1) renderCatSelect();
+    renderRecTabs();
+    renderRecGrid();
+    renderTable();
+    updateStats();
     return true;
   } catch(e) {
     if (toastEl) {
@@ -820,6 +864,7 @@ async function init() {
   }
   calcCountDate = today;
   recRatio = parseInt(localStorage.getItem('scrap_rec_ratio') || '85');
+  recCat = localStorage.getItem('scrap_rec_cat') || '';
   document.getElementById('recRatio').value = recRatio;
   document.getElementById('recRatioLabel').textContent = recRatio + '%';
 
@@ -828,6 +873,7 @@ async function init() {
 
   renderCatSelect();
   renderTable();
+  renderRecTabs();
   renderRecGrid();
   updateStats();
 
@@ -836,33 +882,58 @@ async function init() {
 }
 
 // ========== 推荐收货价 ==========
+// 大类切换标签
+function renderRecTabs() {
+  const tabs = document.getElementById('recTabs');
+  if (!tabs) return;
+  const cats = Object.keys(priceData);
+  if (!recCat || !priceData[recCat]) recCat = cats[0] || '';
+  tabs.innerHTML = cats.map(function(c) {
+    return `<button type="button" class="rec-tab${c === recCat ? ' active' : ''}" onclick="selectRecCat('${c}')">${c}</button>`;
+  }).join('');
+}
+
+function selectRecCat(cat) {
+  if (!priceData[cat] || cat === recCat) return;
+  recCat = cat;
+  const tabs = document.getElementById('recTabs');
+  if (tabs) {
+    tabs.querySelectorAll('.rec-tab').forEach(function(b) {
+      b.classList.toggle('active', b.textContent === cat);
+    });
+    const act = tabs.querySelector('.rec-tab.active');
+    if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }
+  renderRecGrid();
+  localStorage.setItem('scrap_rec_cat', cat);
+}
+
 function renderRecGrid() {
   const grid = document.getElementById('recGrid');
   if (!grid) return;
+  if (!recCat || !priceData[recCat]) recCat = Object.keys(priceData)[0] || '';
+  const items = priceData[recCat] || {};
   const notes = {};
-  // 构建品类备注索引
-  for (const [cat, items] of Object.entries(REC_PRICES)) {
-    for (const [item, info] of Object.entries(items)) {
-      notes[cat + '|' + item] = info.note;
-    }
+  for (const [item, info] of Object.entries(REC_PRICES[recCat] || {})) {
+    notes[item] = info.note;
   }
-  let html = '';
-  for (const [cat, items] of Object.entries(priceData)) {
-    html += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 14px 12px;border-left:4px solid #6366f1;box-shadow:0 1px 3px rgba(15,23,42,.05)">
-      <div style="font-weight:700;margin-bottom:8px;font-size:.92rem;color:#4338ca">${cat}</div>`;
-    for (const [item, price] of Object.entries(items)) {
-      const buyPrice = (price * recRatio / 100).toFixed(2);
-      const note = notes[cat + '|' + item] || '';
-      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.82rem">
-        <span class="item-link" onclick="openItemInfo('${cat}','${item}')">${item}</span>
-        <span><b style="color:#4f46e5">${buyPrice}</b> <span style="color:#aaa;font-size:.65rem">/市场${price}</span></span>
-      </div>`;
-    }
-    html += '</div>';
+  const count = Object.keys(items).length;
+  let rowsHtml = '';
+  let html = `<div class="rec-card">
+    <div class="rec-head"><span class="rec-cat">${recCat}</span><span class="rec-count">${count} 个品类 · 元/公斤</span></div>
+    <div class="rec-list">`;
+  for (const [item, price] of Object.entries(items)) {
+    const buyPrice = (price * recRatio / 100).toFixed(2);
+    const note = notes[item] || '';
+    rowsHtml += `<div class="rec-row">
+      <span class="rec-name"><span class="item-link" onclick="openItemInfo('${recCat}','${item}')">${item}</span>${note ? `<i>${note}</i>` : ''}</span>
+      <span class="rec-num"><b>${buyPrice}</b><em>市场 ${price}</em></span>
+    </div>`;
   }
+  html += rowsHtml + '</div></div>';
   grid.innerHTML = html;
   const recTime = document.getElementById('recTimeLabel');
-  if (recTime) recTime.textContent = updateTime ? '更新于 ' + updateTime : '';
+  if (recTime) recTime.textContent = updateTime ? '更新于 ' + fmtTime(updateTime) : '';
 }
 
 function onRatioChange() {
@@ -889,9 +960,9 @@ function updateStats() {
   cats.forEach(c => items += Object.keys(priceData[c]).length);
   document.getElementById('statCats').textContent = cats.length;
   document.getElementById('statItems').textContent = items;
-  document.getElementById('statUpdate').textContent = updateTime ? updateTime.slice(5,16) : '未更新';
+  document.getElementById('statUpdate').textContent = updateTime ? fmtTime(updateTime).slice(5,16) : '未更新';
   document.getElementById('statCalc').textContent = calcCount;
-  document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + updateTime : '';
+  document.getElementById('updateTimeLabel').textContent = updateTime ? '最后更新: ' + fmtTime(updateTime) : '';
 }
 
 // ========== 下拉框 ==========
@@ -908,6 +979,12 @@ function loadItems() {
   const sel = document.getElementById('selItem');
   sel.innerHTML = '<option value="">选择品类</option>';
   if (!cat || !priceData[cat]) return;
+  // 联动下方推荐收货价，切到同一大类
+  if (cat !== recCat) {
+    recCat = cat;
+    renderRecTabs();
+    renderRecGrid();
+  }
   Object.keys(priceData[cat]).forEach(item => {
     const p = priceData[cat][item];
     sel.innerHTML += `<option value="${item}">${item} - ${p}元/kg</option>`;
