@@ -235,8 +235,11 @@ def main():
 
     html = fetch(TABLE_URL)
     if not html:
-        print("[ERR] 获取页面失败")
-        return 1
+        # 这个源只是补充（主营的光亮铜线已交给 fetch_mysteel.py）。境外 IP 访问
+        # 国内站偶发超时，若在这里直接退出，后面更可靠的抓取步骤会被整段跳过，
+        # 所以这里只告警、照常结束，让流程继续。
+        print("[WARN] 获取页面失败，跳过本步（不影响后续抓取）")
+        return 0
 
     table = extract_table_prices(html)
     print(f"\n[TABLE] 从表格提取到 {len(table)} 个品名:")
