@@ -240,6 +240,13 @@ footer b{color:#6b7280}
       var v = g && g[c.sample];
       return (typeof v === 'number' && v > 0) ? v : c.base;
     }
+    // 7 天幅度与首页预测卡/预警条同源（forecast.json），避免两个页面各存一份、方向打架。
+    // 30 天只有本页有，仍取 outlook.json 的 fc30。
+    function fc7Of(c){
+      var f = fc && fc.categories ? fc.categories[c.cat] : null;
+      if (f && f.changePct && f.changePct.length === 2 && isFinite(f.changePct[0]) && isFinite(f.changePct[1])) return f.changePct;
+      return c.fc7 || [0, 0];
+    }
     var genT = Date.parse(d.generatedAt);
     var ageDays = isNaN(genT) ? 0 : Math.max(0, Math.floor((Date.now() - genT) / 86400000));
     var priceTime = (prices && prices.updatedAt) ? prices.updatedAt.slice(5, 16).replace('T', ' ') : '';
@@ -305,7 +312,8 @@ footer b{color:#6b7280}
       + '<p class="h2sub">人工七维判断 × 新闻词频（每日自动抓取）× 当日报价变动。三者不一致的地方，就是最该盯的地方。</p>'
       + '<div class="tw"><table id="autoTbl"></table></div>'
       + '<p class="note-line">「报价较判断时」= 当日报价相对判断生成时快照的变动，偏离 2% 以上会在品类卡上提示复核；新闻词频来自 forecast.json 的 auto 段，只取「看涨:看跌」条数，不改人工判断。</p>'
-      + '<p class="note-line">' + (d.priceNote || '') + '</p></div>';
+      + '<p class="note-line">' + (d.priceNote || '') + '</p>'
+      + '<p class="note-line">7 天幅度直接取 forecast.json（与首页同一份数据，改一处两边同步）；30 天区间只在本页维护。' + (d.fcRule ? ' ' + d.fcRule : '') + '</p></div>';
 
     // 进阶
     html += '<div class="card"><h2><span class="n">5</span>四项进阶</h2>'
@@ -351,7 +359,8 @@ footer b{color:#6b7280}
       var n = netOf(c.scores, w), t = TREND[trendOf(n)];
       var base = baseOf(c);
       var drift = (c.base > 0) ? (base - c.base) / c.base * 100 : 0;
-      var p7 = [base*(1+c.fc7[0]/100), base*(1+c.fc7[1]/100)];
+      var f7 = fc7Of(c);
+      var p7 = [base*(1+f7[0]/100), base*(1+f7[1]/100)];
       var p30 = [base*(1+c.fc30[0]/100), base*(1+c.fc30[1]/100)];
       var lo = Math.min(base, p7[0], p30[0]), hi = Math.max(base, p7[1], p30[1]);
       var pad = (hi-lo)*0.12, a = lo-pad, b = hi+pad;
@@ -366,7 +375,7 @@ footer b{color:#6b7280}
         + '<div class="px"><b>'+fmt(base)+'</b><span>元/公斤 · 现价</span></div></div>'
         + '<div class="head">'+c.headline+'</div>'
         + (Math.abs(drift) >= 2 ? '<div class="drift">报价较判断时 ' + (drift>0?'+':'') + drift.toFixed(1) + '%，判断待复核</div>' : '')
-        + '<div class="hr"><div class="lab"><span>7 天 '+pct(c.fc7[0])+' ~ '+pct(c.fc7[1])+'</span><b>'+fmt(p7[0])+' – '+fmt(p7[1])+'</b></div>'+band(p7,'d7')+'</div>'
+        + '<div class="hr"><div class="lab"><span>7 天 '+pct(f7[0])+' ~ '+pct(f7[1])+'</span><b>'+fmt(p7[0])+' – '+fmt(p7[1])+'</b></div>'+band(p7,'d7')+'</div>'
         + '<div class="hr"><div class="lab"><span>30 天 '+pct(c.fc30[0])+' ~ '+pct(c.fc30[1])+'</span><b>'+fmt(p30[0])+' – '+fmt(p30[1])+'</b></div>'+band(p30,'d30')+'</div>'
         + '<div class="sum">'+c.summary+'</div>'
         + '<ul>'+c.actions.map(function(x){ return '<li>'+x+'</li>'; }).join('')+'</ul>'
