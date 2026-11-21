@@ -491,7 +491,7 @@ if ('serviceWorker' in navigator) {
       </div>
       <div class="form-group" style="max-width:140px">
         <label>重量 (公斤)</label>
-        <input type="number" id="inputWeight" placeholder="0" min="0" step="0.1">
+        <input type="number" id="inputWeight" placeholder="0" min="0" step="0.1" oninput="recalcIfShown()">
       </div>
       <div class="form-group" style="max-width:100px">
         <label>&nbsp;</label>
@@ -1300,18 +1300,40 @@ function renderInfoFc(cat, item) {
     `<span class="if-conf">置信度 ${Math.round(f.confidence * 100)}%</span>`;
 }
 
+// 重建「品类」下拉，保留当前选择；只更新标注价格，不改动其它状态。
+// loadItems 会把 selItem 清空、还可能改掉推荐卡的大类，刷新场景不能用它。
+function refreshItemOptions() {
+  const sc = document.getElementById('selCat'), si = document.getElementById('selItem');
+  if (!sc || !si || !sc.value || !priceData[sc.value]) return;
+  const cat = sc.value, keep = si.value;
+  let html = '<option value="">选择品类</option>';
+  Object.keys(priceData[cat]).forEach(item => {
+    html += `<option value="${item}">${item} - ${px(regionPrice(cat, item))}元/kg</option>`;
+  });
+  si.innerHTML = html;
+  if (keep && priceData[cat][keep]) si.value = keep;
+}
+
+// 价格/地区/预测变化后统一刷新所有依赖价格的区块。
+// 之前定时刷新只重绘表格和推荐卡，下拉标注价、预测卡、预警条、概览会停在旧值。
+function refreshView() {
+  renderTable();
+  renderRecGrid();
+  renderFcTabs();
+  renderForecast();
+  renderAlertBar();
+  updateStats();
+  refreshItemOptions();
+  const rb = document.getElementById('resultBox');
+  if (rb && rb.style.display !== 'none') calcPrice(true);
+}
+
 function selectRegion(id) {
   if (id === regionId) return;
   regionId = id;
   storeSet('scrap_region', id);
   renderRegionChips();
-  renderRecGrid();
-  renderTable();
-  renderFcTabs();
-  renderForecast();
-  renderAlertBar();
-  const rb = document.getElementById('resultBox');
-  if (rb && rb.style.display !== 'none') calcPrice(true);
+  refreshView();
   toast(id === 'all' ? '已切换：全国均价' : '已切换：' + regionName(id) + '报价');
 }
 
@@ -1452,7 +1474,9 @@ async function init() {
   // 每5分钟自动刷新价格（含地区报价）
   setInterval(function() {
     fetchPrices(true).then(function(ok) {
-      if (ok) loadQuotes().then(function(q) { if (q) { renderRecGrid(); renderTable(); } });
+      if (!ok) return;
+      // 报价或地区系数任一更新，页面上所有依赖价格的区块都要跟着重算
+      loadQuotes().then(function() { refreshView(); });
     });
   }, 5 * 60 * 1000);
 }
@@ -1742,13 +1766,25 @@ function loadItems() {
 }
 
 // ========== 计算 ==========
+// 输入无效时隐藏结果，避免用户把上一次的有效金额当成这次的答案
+function hideCalcResult() {
+  const box = document.getElementById('resultBox');
+  if (box) box.style.display = 'none';
+}
+
+// 改重量时若结果已显示，直接跟着重算，不用再点一次按钮
+function recalcIfShown() {
+  const box = document.getElementById('resultBox');
+  if (box && box.style.display !== 'none') calcPrice(true);
+}
+
 function calcPrice(silent) {
   const cat = document.getElementById('selCat').value;
   const item = document.getElementById('selItem').value;
   const weight = parseFloat(document.getElementById('inputWeight').value);
 
-  if (!cat || !item) { if (!silent) toast('请选择品类'); return; }
-  if (!weight || weight <= 0) { if (!silent) toast('请输入有效重量'); return; }
+  if (!cat || !item) { if (!silent) toast('请选择品类'); hideCalcResult(); return; }
+  if (!weight || weight <= 0) { if (!silent) toast('请输入有效重量'); hideCalcResult(); return; }
 
   const unitPrice = regionPrice(cat, item);
   const total = unitPrice * weight;

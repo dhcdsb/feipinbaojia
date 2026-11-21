@@ -16,6 +16,12 @@ on:
 permissions:
   contents: write
 
+# 同一时间只跑一个：定时任务偶尔会被 GitHub 延迟，两次运行撞在一起时
+# 后一次 push 会因远端已更新而失败（non-fast-forward）。这里串行化。
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
 jobs:
   update-prices:
     runs-on: ubuntu-latest
@@ -55,4 +61,5 @@ jobs:
           git add prices.json forecast.json
           NOW=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M')
           git commit -m "[auto] 价格更新 $NOW"
-          git push
+          # 期间若有手动提交，先 rebase 再推，避免 non-fast-forward 直接失败
+          git push || (git pull --rebase --autostash origin main && git push)

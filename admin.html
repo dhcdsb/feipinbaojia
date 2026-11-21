@@ -684,6 +684,22 @@ function fuzzyMatch(rawName, allItems) {
 }
 
 /* Parse pasted text into lines of {rawName, price} */
+// 千分位：7,200 里的逗号不能被当成「名称/价格」分隔符
+function stripThousands(s) {
+  let out = s;
+  for (let i = 0; i < 4; i++) {
+    const next = out.replace(/(\d)[,，](\d{3})(?!\d)/g, '$1$2');
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
+// 站点单位是元/公斤，而行情原文大概率是元/吨，差 1000 倍。
+// 这里统一按「含吨字即折算」处理，并对折算后的数值做合理区间拦截，
+// 宁可让人确认，也不要把 72000 当成 72000 元/公斤写进报价。
+const PRICE_MIN = 0.02, PRICE_MAX = 400;
+
 function parsePastedText(text) {
   const lines = text.split(/\r?\n/);
   const entries = [];
@@ -691,8 +707,10 @@ function parsePastedText(text) {
   const sepRe = /[\s:：=＝,，\t]+/;
 
   lines.forEach((line, idx) => {
-    const trimmed = line.trim();
+    const raw = stripThousands(line);
+    const trimmed = raw.trim();
     if (!trimmed) return;
+    const perTon = /吨/.test(trimmed);
     // Try to split name and price
     const parts = trimmed.split(sepRe).filter(p => p);
     if (parts.length < 2) return;
@@ -712,7 +730,19 @@ function parsePastedText(text) {
     const nameParts = parts.slice(0, priceIdx);
     const rawName = nameParts.join(' ');
     if (!rawName) return;
-    entries.push({rawName, price, line: idx+1, original: trimmed});
+
+    if (perTon) price = Math.round(price / 1000 * 1000) / 1000;
+    // 没写「吨」但数值明显是吨价（废铜 7 万、废纸 1600 这种），也按吨价折算
+    const looksPerTon = !perTon && price > PRICE_MAX;
+    if (looksPerTon) price = Math.round(price / 1000 * 1000) / 1000;
+
+    const bad = price < PRICE_MIN || price > PRICE_MAX;
+    entries.push({
+      rawName, price, line: idx+1, original: line.trim(),
+      perTon: perTon || looksPerTon,
+      bad: bad,
+      reason: bad ? '价格 ' + price + ' 元/公斤超出合理区间（' + PRICE_MIN + '–' + PRICE_MAX + '）' : ''
+    });
   });
   return entries;
 }
@@ -740,11 +770,21 @@ function smartParse() {
   let matchedCount = 0, pendingCount = 0, unmatchedCount = 0;
 
   entries.forEach(entry => {
+    if (entry.bad) {
+      parsedResults.push({
+        rawName: entry.rawName, price: entry.price, original: entry.original,
+        cat: null, name: null, matched: false, pending: false, candidates: [],
+        reason: entry.reason
+      });
+      unmatchedCount++;
+      return;
+    }
     const match = fuzzyMatch(entry.rawName, allItems);
     const result = {
       rawName: entry.rawName,
       price: entry.price,
       original: entry.original,
+      perTon: entry.perTon,
       cat: null,
       name: null,
       matched: false,
@@ -813,13 +853,14 @@ function renderPasteResult(r, idx) {
     ? `<span class="pr-name">${r.name}</span>`
     : `<span style="color:#666">${r.original || r.rawName}</span>`;
 
+  const tonNote = r.perTon ? '（吨价已÷1000）' : '';
   let detail = '';
   if (r.matched) {
-    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">已更新</span>`;
+    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">已更新${tonNote}</span>`;
   } else if (r.pending) {
-    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">待确认 → <select class="pr-select-${idx}"></select></span>`;
+    detail = `<span class="pr-arrow">→</span> <span class="pr-price">${r.price}</span> <span class="pr-msg">待确认${tonNote} → <select class="pr-select-${idx}"></select></span>`;
   } else {
-    detail = `<span class="pr-msg">无法识别</span>`;
+    detail = `<span class="pr-msg">${r.reason || '无法识别'}</span>`;
   }
 
   return `<div class="pr-item ${cls}">
