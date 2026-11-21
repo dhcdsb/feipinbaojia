@@ -930,7 +930,7 @@ const REC_PRICES = {
     "316不锈钢": { price: 20.5, note: "耐酸钢" },
     "304不锈钢": { price: 10.2, note: "最常见不锈钢" },
     "201不锈钢": { price: 4.9, note: "低镍不锈钢" },
-    "不锈钢屑": { price: 5.0, note: "不锈钢加工屑" },
+    "不锈钢屑": { price: 4.6, note: "不锈钢加工屑" },
     "杂不锈钢": { price: 3.45, note: "混合不锈钢" }
   },
   "废纸": {
@@ -1013,6 +1013,15 @@ function round2(v) { return Math.round((v + Number.EPSILON) * 100) / 100; }
 // 当前地区的精确价 = 当日基准价 × 地区系数。
 // 用系数而不是存死的绝对价：自动任务每天改 prices.json，地区价必须跟着基准价走，
 // 否则几天后地区价就会停留在旧行情上。旧版无 coefs 时退回绝对价快照。
+// 当前地区的折算系数；全国均价 = 1。表格/导出里凡是要和「单价」并列显示的历史价，
+// 都必须乘这个系数，否则会出现「华东 87.2，上次 86.9，涨跌却是 -」这种自相矛盾。
+function regionCoef(cat, item) {
+  if (regionId === 'all' || !quotes) return 1;
+  const key = cat + '|' + item;
+  const c = quotes.coefs && quotes.coefs[key] ? quotes.coefs[key][regionId] : null;
+  return typeof c === 'number' ? c : 1;
+}
+
 function regionPrice(cat, item) {
   const base = priceData[cat] ? priceData[cat][item] : null;
   if (base == null) return null;
@@ -1520,13 +1529,18 @@ function renderRecGrid() {
   const count = Object.keys(items).length;
   let rowsHtml = '';
   let html = `<div class="rec-card">
-    <div class="rec-head"><span class="rec-cat">${recCat}</span><span class="rec-count">${count} 个品类 · ${regionName(regionId)} · 元/公斤</span></div>
+    <div class="rec-head"><span class="rec-cat">${recCat}</span><span class="rec-count">${count} 个品类 · ${regionName(regionId)} · 元/公斤${recRatio === 100 ? '' : ' · 按市场价 ' + recRatio + '% 收货'}</span></div>
     <div class="rec-list">`;
   for (const item of Object.keys(items)) {
     const price = regionPrice(recCat, item);
     const buyPrice = (price * recRatio / 100).toFixed(2);
     const note = notes[item] || '';
-    const rng = rangeText(recCat, item);
+    // 区间必须和左边那个数字同口径：左边是收货价，区间也折成收货价，
+    // 否则调到 92% 时会显示「80.0 元，区间 86.0–87.7」——数字在区间外，自相矛盾。
+    const rr = priceRange(recCat, item);
+    const rng = rr
+      ? px(rr.low * recRatio / 100) + '–' + px(rr.high * recRatio / 100)
+      : '';
     rowsHtml += `<div class="rec-row">
       <span class="rec-name"><span class="item-link" onclick="openItemInfo('${recCat}','${item}')">${item}</span>${note ? `<i>${note}</i>` : ''}</span>
       <span class="rec-num"><b>${buyPrice}</b>${rng ? `<em>区间 ${rng}</em>` : ''}</span>
@@ -1792,8 +1806,12 @@ function calcPrice(silent) {
   const rng = rangeText(cat, item);
 
   document.getElementById('resultPrice').textContent = '¥' + total.toFixed(2);
+  // 计算器按市场价算；若设了收货比例，把实际要付的金额一并给出，
+  // 否则同一屏会出现「推荐收货价 80.0/kg」和「计算 ¥8690（按 86.9/kg）」两个答案。
+  const buyTotal = total * recRatio / 100;
+  const buyTxt = recRatio === 100 ? '' : ` · 按 ${recRatio}% 收货 ¥${buyTotal.toFixed(2)}`;
   document.getElementById('resultDetail').textContent =
-    `${item} × ${weight}kg × ${px(unitPrice)}元/kg${area}` + (rng ? ` · 参考区间 ${rng}` : '');
+    `${item} × ${weight}kg × ${px(unitPrice)}元/kg${area}` + (rng ? ` · 参考区间 ${rng}` : '') + buyTxt;
   document.getElementById('resultBox').style.display = 'block';
 
 }
@@ -1811,6 +1829,9 @@ function renderTable() {
       const base = priceData[cat][item];       // 全国基准价（涨跌按基准算，切地区不影响涨跌）
       const rng = rangeText(cat, item);
       const last = lastPrices[cat] ? lastPrices[cat][item] : null;
+      // 上次价格展示时也换成当前地区口径，和「单价」列可直接比；
+      // 涨跌仍按全国基准算（系数是常数，涨跌幅不受地区影响，切地区不会冒出假涨跌）。
+      const lastShown = (last !== null && last !== undefined) ? round2(last * regionCoef(cat, item)) : null;
       let changeHtml = '<span class="flat">-</span>';
       let tagHtml = '';
       if (last !== null && last !== undefined && last !== base) {
@@ -1826,7 +1847,7 @@ function renderTable() {
       html += `<tr>
         <td data-label="大类">${cat}</td><td data-label="品类"><span class="item-link" onclick="openItemInfo('${cat}','${item}')">${item}</span><span class="info-badge" onclick="openItemInfo('${cat}','${item}')" title="查看介绍与分辨方法">i</span></td><td data-label="单价(元/kg)"><b>${px(cur)}</b></td>
         <td data-label="参考区间"><span class="range-txt">${rng || '-'}</span></td>
-        <td data-label="上次价格">${last !== null && last !== undefined ? last : '-'}</td>
+        <td data-label="上次价格">${lastShown !== null ? px(lastShown) : '-'}</td>
         <td data-label="涨跌">${changeHtml} ${tagHtml}</td>
         <td data-label="详情"><button class="btn btn-info btn-sm" onclick="openItemInfo('${cat}','${item}')">详情</button></td>
       </tr>`;
@@ -1866,17 +1887,18 @@ function closeItemInfo() {
 
 // ========== 导出CSV ==========
 function exportCSV() {
-  let csv = '\uFEFF大类,品类,当前价格(元/kg),参考最低,参考最高,报价地区,上次价格,涨跌幅\n';
+  let csv = '\uFEFF大类,品类,当前价格(元/kg),参考最低(市场价),参考最高(市场价),报价地区,上次价格,涨跌幅\n';
   Object.keys(priceData).forEach(cat => {
     Object.keys(priceData[cat]).forEach(item => {
       const cur = regionPrice(cat, item);
       const r = priceRange(cat, item);
       const last = lastPrices[cat] ? lastPrices[cat][item] : null;
+      const lastShown = (last !== null && last !== undefined) ? round2(last * regionCoef(cat, item)) : null;
       let pct = '-';
       if (last !== null && last !== undefined && last !== priceData[cat][item]) {
         pct = ((priceData[cat][item] - last) / last * 100).toFixed(1) + '%';
       }
-      csv += `${cat},${item},${cur},${r ? px(r.low) : '-'},${r ? px(r.high) : '-'},${regionName(regionId)},${last !== null && last !== undefined ? last : '-'},${pct}\n`;
+      csv += `${cat},${item},${cur},${r ? px(r.low) : '-'},${r ? px(r.high) : '-'},${regionName(regionId)},${lastShown !== null ? px(lastShown) : '-'},${pct}\n`;
     });
   });
 
@@ -1916,7 +1938,7 @@ function exportExcel() {
 function doExportExcel() {
   if (typeof XLSX === 'undefined') return toast('Excel 库加载失败，请检查网络');
   const ratio = recRatio;
-  const rows = [['大类', '品类', '当前价格(元/kg)', '参考最低', '参考最高', '报价地区', '上次价格', '涨跌幅', '收货价(元/kg)']];
+  const rows = [['大类', '品类', '当前价格(元/kg)', '参考最低(市场价)', '参考最高(市场价)', '报价地区', '上次价格', '涨跌幅', '收货价(元/kg)', '收货区间最低', '收货区间最高']];
   Object.keys(priceData).forEach(cat => {
     Object.keys(priceData[cat]).forEach(item => {
       const cur = regionPrice(cat, item);
@@ -1927,8 +1949,10 @@ function doExportExcel() {
         pct = ((priceData[cat][item] - last) / last * 100).toFixed(1) + '%';
       }
       const buyPrice = (cur * ratio / 100).toFixed(2);
+      const lastShown = (last !== null && last !== undefined) ? round2(last * regionCoef(cat, item)) : null;
       rows.push([cat, item, cur, r ? parseFloat(px(r.low)) : '-', r ? parseFloat(px(r.high)) : '-',
-        regionName(regionId), last !== null && last !== undefined ? last : '-', pct, parseFloat(buyPrice)]);
+        regionName(regionId), lastShown !== null ? parseFloat(px(lastShown)) : '-', pct, parseFloat(buyPrice),
+        r ? parseFloat(px(r.low * ratio / 100)) : '-', r ? parseFloat(px(r.high * ratio / 100)) : '-']);
     });
   });
   const ws = XLSX.utils.aoa_to_sheet(rows);
