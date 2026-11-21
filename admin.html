@@ -288,6 +288,8 @@ function lsSet(k, v) {
 // ========== State ==========
 let prices = {};
 let prevPrices = {};
+let remotePrev = {};      // 服务端 prices.json 里已有的 prev（上次变动前的价）
+let remotePrevNote = '';
 let updateTime = '';
 let isDark = false;
 
@@ -320,8 +322,11 @@ async function fetchPrices() {
     const resp = await fetch('prices.json?t=' + Date.now());
     const data = await resp.json();
     if (data && data.categories) {
-      // snapshot current as prev before overwriting
-      snapshotPrev();
+      // 服务端已经带 prev，本地旧快照没有再比对的意义（还会把缓存里的旧值
+      // 误当成"上次价格"造成假涨跌）。本次改动前的值由 onPriceChange 现记。
+      remotePrev = (data && data.prev) || {};
+      remotePrevNote = (data && data.prevNote) || '';
+      prevPrices = {};
       prices = data.categories;
       updateTime = data.updatedAt || formatTime(new Date());
       lsSet('fpba_admin_time', updateTime);
@@ -372,10 +377,6 @@ function getDefaultPrices() {
       "废电子板":7.6,"废电机":4.5,"废电线":25,"废家电":3.5,"杂料":1.5
     }
   };
-}
-
-function snapshotPrev() {
-  prevPrices = JSON.parse(JSON.stringify(prices));
 }
 
 // 把 prices.json 里的 ISO 时间显示成 2026-11-20 17:38
@@ -535,6 +536,28 @@ function saveState() {
 }
 
 // ========== Copy JSON ==========
+// 导出时带上 prev：服务端原有记录 + 本次改动的"改前价"。
+// 少了它，用户粘到 GitHub 之后 prev 会被整段丢掉，前台涨跌就退回「待记录」。
+function buildPrev() {
+  const out = {};
+  Object.keys(remotePrev || {}).forEach(cat => {
+    const items = remotePrev[cat];
+    if (!items || typeof items !== 'object') return;
+    out[cat] = Object.assign({}, items);
+  });
+  Object.keys(prices).forEach(cat => {
+    Object.keys(prices[cat]).forEach(item => {
+      const before = prevPrices[cat] ? prevPrices[cat][item] : undefined;
+      const now = prices[cat][item];
+      if (before === undefined) return;
+      if (Math.abs(Number(before) - Number(now)) < 1e-9) return;
+      if (!out[cat]) out[cat] = {};
+      out[cat][item] = Number(before);
+    });
+  });
+  return out;
+}
+
 function copyJSON() {
   const now = new Date();
   const pad = n => n.toString().padStart(2,'0');
@@ -545,8 +568,10 @@ function copyJSON() {
 
   const payload = {
     updatedAt: updatedAt,
-    categories: prices
+    categories: prices,
+    prev: buildPrev()
   };
+  if (remotePrevNote) payload.prevNote = remotePrevNote;
 
   const jsonStr = JSON.stringify(payload, null, 2);
 
@@ -586,7 +611,6 @@ function fallbackCopy(text) {
 // ========== Refresh ==========
 async function refreshPrices() {
   toast('🔄 重新加载价格...', '');
-  snapshotPrev();
   const ok = await fetchPrices();
   render();
   toast(ok ? '✅ 价格已刷新' : '✅ 已加载本地数据', ok ? 'success' : '');

@@ -176,7 +176,30 @@ def load_prices():
 
 def save_prices(data):
     tz = timezone(timedelta(hours=8))
+    # 写盘前对比旧文件，把"变动前的价"记进 prev，页面才有涨跌可看。
+    # 没变的项沿用原来的 prev（不能覆盖成当前价，否则涨跌会被抹平）。
+    old = load_prices()
+    old_cats = old.get("categories") or {}
+    prev = dict(old.get("prev") or {})
+    changed = 0
+    for cat, items in (data.get("categories") or {}).items():
+        for item, price in items.items():
+            o = (old_cats.get(cat) or {}).get(item)
+            try:
+                o = float(o); p = float(price)
+            except (TypeError, ValueError):
+                continue
+            if abs(o - p) < 1e-9:
+                continue
+            prev.setdefault(cat, {})[item] = round(o, 2)
+            changed += 1
+    if prev:
+        data["prev"] = prev
+    if old.get("prevNote"):
+        data["prevNote"] = old["prevNote"]
     data["updatedAt"] = datetime.now(tz).strftime("%Y-%m-%dT%H:%M:%S+08:00")
+    if changed:
+        print(f"[PREV] {changed} 项变动前的价已记入 prev")
     with open(PRICES_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"[OK] 已保存 {PRICES_PATH}")

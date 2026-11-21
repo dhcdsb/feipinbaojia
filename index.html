@@ -573,11 +573,11 @@ if ('serviceWorker' in navigator) {
       <input type="text" class="search-box" id="searchBox" placeholder="搜索品类名称..." oninput="renderTable()">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>参考区间</th><th>上次价格</th><th>涨跌</th><th>详情</th></tr></thead>
+          <thead><tr><th>大类</th><th>品类</th><th>单价(元/kg)</th><th>参考区间</th><th title="本站上一次不同报价，不是期货或市场均价">上次价格</th><th title="相对上次报价的变化；刚上线还没有历史时显示待记录">涨跌</th><th>详情</th></tr></thead>
           <tbody id="priceBody"></tbody>
         </table>
       </div>
-      <p class="tbl-note">参考区间＝当日报价在<b>全国 7 个地区</b>里的最低～最高（同品类同口径），用来判断本地报价偏高还是偏低，不是买卖双方的还价空间；涨跌按全国基准价计算，切换地区不会变。首次打开还没有昨天的记录，<b>涨跌显示「-」</b>，隔天再来就能对比。</p>
+      <p class="tbl-note">参考区间＝当日报价在<b>全国 7 个地区</b>里的最低～最高（同品类同口径），用来判断本地报价偏高还是偏低，不是买卖双方的还价空间；涨跌按全国基准价计算，切换地区不会变。<b>涨跌</b>比的是本站上一次不同的报价：标「持平」是与上次同价，标「待记录」是还没有历史可比——价格每变一次，系统就把变动前的价记下来。</p>
     </div>
   </div>
 </div>
@@ -1465,6 +1465,21 @@ async function fetchPrices(silent) {
     }
     priceData = fresh;
 
+    // 远端 prev = 上一次变动前的价，由服务端统一记录。有了它，新设备、新访客
+    // 也能直接看到涨跌，不必等自己在本机攒满两次记录。优先级高于本地推断。
+    const remotePrev = (data && data.prev) || null;
+    if (remotePrev && typeof remotePrev === 'object') {
+      for (const [cat, items] of Object.entries(remotePrev)) {
+        if (!items || typeof items !== 'object') continue;
+        if (!lastPrices[cat]) lastPrices[cat] = {};
+        for (const [item, p] of Object.entries(items)) {
+          if (typeof p === 'number' && fresh[cat] && fresh[cat][item] !== undefined) {
+            lastPrices[cat][item] = p;
+          }
+        }
+      }
+    }
+
     updateTime = data.updatedAt || updateTime;
     document.getElementById('updateTimeLabel').textContent = updateTime ? '更新于 ' + fmtTime(updateTime) : '';
     if (toastEl) {
@@ -1919,16 +1934,21 @@ function renderTable() {
       // 上次价格展示时也换成当前地区口径，和「单价」列可直接比；
       // 涨跌仍按全国基准算（系数是常数，涨跌幅不受地区影响，切地区不会冒出假涨跌）。
       const lastShown = (last !== null && last !== undefined) ? round2(last * regionCoef(cat, item)) : null;
-      let changeHtml = '<span class="flat">-</span>';
+      let changeHtml = '<span class="flat" title="还没有历史报价可比，明日起自动积累">待记录</span>';
       let tagHtml = '';
-      if (last !== null && last !== undefined && last !== base) {
-        const pct = ((base - last) / last * 100).toFixed(1);
-        if (base > last) {
-          changeHtml = `<span class="up">↑ ${pct}%</span>`;
-          tagHtml = '<span class="tag tag-up">涨</span>';
+      if (last !== null && last !== undefined) {
+        const diff = base - last;
+        if (Math.abs(diff) < 0.005) {
+          changeHtml = '<span class="flat">持平</span>';
         } else {
-          changeHtml = `<span class="down">↓ ${Math.abs(pct)}%</span>`;
-          tagHtml = '<span class="tag tag-down">跌</span>';
+          const pct = (diff / last * 100).toFixed(1);
+          if (diff > 0) {
+            changeHtml = `<span class="up">↑ ${pct}%</span>`;
+            tagHtml = '<span class="tag tag-up">涨</span>';
+          } else {
+            changeHtml = `<span class="down">↓ ${Math.abs(pct)}%</span>`;
+            tagHtml = '<span class="tag tag-down">跌</span>';
+          }
         }
       }
       html += `<tr>
