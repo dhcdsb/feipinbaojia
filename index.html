@@ -986,6 +986,13 @@ async function init() {
   // 浏览量统计（异步，不阻塞页面）
   loadViews();
 
+  // 每小时重新拉一次浏览量（loadViews 内部按 1 小时窗口自行节流，刷新不会重复计数）
+  setInterval(loadViews, 60 * 60 * 1000);
+  // 页面从后台切回前台时也检查一次，避免手机挂后台定时器被暂停
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') loadViews();
+  });
+
   // 每5分钟自动刷新价格
   setInterval(fetchPrices, 5 * 60 * 1000);
 }
@@ -1086,9 +1093,9 @@ function todayKey() {
 // ========== 浏览量统计（不蒜子，按天分桶 + 本地去重） ==========
 // 每次打开页面按「/feipinbaojia/day/YYYY-MM-DD」计数，得到今日浏览；
 // 同一次请求返回的 site_pv 就是累计浏览。
-// 去重：同一浏览器 10 分钟内只上报一次，连续刷新不会一次涨一个数；
-// 过了这个窗口再打开就会重新拉一次，别人这段时间的访问也能看到。
-var PV_THROTTLE_MS = 10 * 60 * 1000;
+// 去重：同一浏览器 1 小时内只上报一次，连续刷新不会一次涨一个数；
+// 过了这个窗口再打开就会重新拉一次，别人这一小时的访问也能看到。
+var PV_THROTTLE_MS = 60 * 60 * 1000;
 function fmtCount(n) {
   n = Number(n) || 0;
   if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '万';
@@ -1113,7 +1120,7 @@ function loadViews() {
   const cachedTotal = storeGet('scrap_pv_total');
   const lastAt = parseInt(storeGet('scrap_pv_at') || '0', 10);
 
-  // 10 分钟窗口内已经上报过：直接用刚才拉到的数字，不再请求（连续刷新不涨数）
+  // 1 小时窗口内已经上报过：直接用刚才拉到的数字，不再请求（连续刷新不涨数）
   if (cachedDay === dayKey && cachedToday !== null && (Date.now() - lastAt) < PV_THROTTLE_MS) {
     viewToday = parseInt(cachedToday, 10);
     viewTotal = cachedTotal !== null ? parseInt(cachedTotal, 10) : null;
@@ -1132,7 +1139,7 @@ function loadViews() {
     if (data && data.page_pv != null) {
       viewToday = Number(data.page_pv);
       viewTotal = data.site_pv != null ? Number(data.site_pv) : null;
-      // 记下这次上报的时间，10 分钟内不再重复累加
+      // 记下这次上报的时间，1 小时内不再重复累加
       storeSet('scrap_pv_at', String(Date.now()));
       storeSet('scrap_pv_day', dayKey);
       storeSet('scrap_pv_today', String(viewToday));
