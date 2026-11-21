@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<title>废品价格 · 七维研判 | 回收报价助手</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+:root{
+  --primary:#6366f1;--primary-dark:#4f46e5;--primary-deep:#4338ca;--primary-light:#eef2ff;
+  --up:#ef4444;--down:#10b981;--warn:#f59e0b;
+  --bg:#f1f5f9;--card:#fff;--text:#0f172a;--t2:#475569;--t3:#94a3b8;--bd:#e2e8f0;
+  --sh:0 1px 2px rgba(15,23,42,.04),0 4px 16px rgba(15,23,42,.06);
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 56px}
+
+/* 头部 */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#4f46e5 0%,#6366f1 55%,#7c3aed 100%);border-radius:18px;padding:24px 26px;color:#fff;box-shadow:0 8px 24px rgba(79,70,229,.26);margin-bottom:16px}
+.hero::after{content:'';position:absolute;right:-40px;top:-80px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.09)}
+.hero::before{content:'';position:absolute;right:120px;bottom:-110px;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero .kick{font-size:.72rem;letter-spacing:.16em;opacity:.8;font-weight:700;position:relative;z-index:1}
+.hero h1{font-size:1.65rem;font-weight:800;letter-spacing:.5px;margin:6px 0 6px;position:relative;z-index:1}
+.hero .sub{font-size:.83rem;opacity:.88;position:relative;z-index:1}
+.hero .back{position:absolute;right:22px;top:22px;z-index:2;font-size:.76rem;color:#fff;text-decoration:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);padding:5px 11px;border-radius:8px;backdrop-filter:blur(4px)}
+.hero .back:hover{background:rgba(255,255,255,.28)}
+
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:14px;box-shadow:var(--sh)}
+.card>h2{font-size:1.02rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.card>h2 .n{display:inline-flex;width:21px;height:21px;border-radius:6px;background:#111827;color:#fff;font-size:.72rem;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto}
+.h2sub{font-size:.78rem;color:var(--t3);margin:0 0 14px}
+
+/* 结论 */
+.verdict{border:1px solid #dfe4ec;border-left:4px solid var(--primary-dark);background:linear-gradient(180deg,#fbfbff,#fff);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.verdict .big{font-size:.98rem;font-weight:600;line-height:1.75;color:#111827}
+.verdict .big em{font-style:normal;background:#eef2ff;color:#3730a3;padding:0 4px;border-radius:3px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.kpi{background:#fafbfc;border:1px solid #eceff3;border-radius:10px;padding:10px 12px}
+.kpi .t{font-size:.7rem;color:var(--t3);margin-bottom:2px}
+.kpi .v{font-size:1.22rem;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:.7rem;color:var(--t3);margin-top:1px}
+
+/* 雷达 */
+.radar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid var(--bd);background:#fff;color:var(--t2);font-size:.78rem;font-weight:600;padding:5px 11px;border-radius:8px;cursor:pointer;font-family:inherit;transition:.15s}
+.tab:hover{border-color:#c7d2fe;color:var(--primary-dark)}
+.tab.on{background:var(--primary-light);border-color:#c7d2fe;color:var(--primary-deep)}
+.radar-wrap{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:18px;align-items:center}
+#radar{width:100%;height:auto;display:block}
+.dimlist{list-style:none;display:flex;flex-direction:column;gap:2px}
+.dimlist li{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-bottom:1px dashed #eef0f3;font-size:.8rem}
+.dimlist li:last-child{border-bottom:none}
+.dimlist .nm{flex:0 0 76px;font-weight:700;color:#111827}
+.dimlist .sc{flex:0 0 52px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;font-size:.8rem}
+.dimlist .ds{flex:1 1 0;min-width:0;color:var(--t2);font-size:.76rem}
+.pos{color:var(--up)}.neg{color:var(--down)}.zer{color:var(--t3)}
+
+/* 品类卡 */
+.cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cc{border:1px solid #e8eaee;border-radius:12px;padding:15px;background:#fcfcfd;min-width:0}
+.cc .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
+.cc .nm{font-size:.98rem;font-weight:800}
+.cc .nm small{display:block;font-size:.7rem;color:var(--t3);font-weight:500;margin-top:1px}
+.cc .px{text-align:right;flex:0 0 auto}
+.cc .px b{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.cc .px span{display:block;font-size:.68rem;color:var(--t3)}
+.cc .head{font-size:.8rem;font-weight:700;color:#3730a3;background:#f5f6ff;border-radius:7px;padding:7px 9px;margin:9px 0 10px;line-height:1.5}
+.hr{margin-bottom:9px}
+.hr .lab{display:flex;justify-content:space-between;font-size:.72rem;color:var(--t2);margin-bottom:3px}
+.hr .lab b{font-variant-numeric:tabular-nums;color:#111827}
+.track{position:relative;height:12px;border-radius:6px;background:#eef1f5;overflow:hidden}
+.track .band{position:absolute;top:0;bottom:0;border-radius:6px}
+.track .band.d7{background:linear-gradient(90deg,#a5b4fc,#6366f1)}
+.track .band.d30{background:#dbe1ea}
+.track .cur{position:absolute;top:-2px;bottom:-2px;width:2px;background:#0f172a;border-radius:1px}
+.cc .sum{font-size:.78rem;color:var(--t2);line-height:1.7;margin:2px 0 8px}
+.cc ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.cc li{font-size:.76rem;color:#334155;padding-left:12px;position:relative;line-height:1.6}
+.cc li::before{content:'';position:absolute;left:2px;top:7px;width:5px;height:5px;border-radius:50%;background:#c7d2fe}
+
+/* 表格 */
+.tw{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw::-webkit-scrollbar{height:6px}
+.tw::-webkit-scrollbar-thumb{background:#d5dae1;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.79rem;min-width:520px}
+th,td{padding:7px 8px;border-bottom:1px solid #eef0f3;text-align:left}
+th{font-size:.7rem;color:var(--t3);font-weight:600;background:#fafbfc;white-space:nowrap}
+td.c,th.c{text-align:center}
+tr:last-child td{border-bottom:none}
+.chip{display:inline-block;min-width:30px;padding:1px 6px;border-radius:5px;font-weight:700;font-variant-numeric:tabular-nums;font-size:.75rem}
+.chip.p{background:#fdecec;color:#b91c1c}
+.chip.n{background:#e8f5ee;color:#14663f}
+.chip.z{background:#f1f2f4;color:#4b5563}
+.tot{font-weight:800;background:#fafbfc}
+
+/* 进阶 */
+.adv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ac{border:1px solid #e8eaee;border-left:3px solid #cbd5e1;border-radius:11px;padding:14px;background:#fcfcfd}
+.ac.neg{border-left-color:#94a3b8}.ac.pos{border-left-color:#6366f1}.ac.warn{border-left-color:#f59e0b}.ac.mix{border-left-color:#8b5cf6}
+.ac .h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.ac .h b{font-size:.88rem}
+.ac .tag{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:5px;flex:0 0 auto;background:#f1f5f9;color:#475569;border:1px solid #e6ebf2}
+.t-neg{background:#e8f5ee;color:#14663f}.t-pos{background:#fdecec;color:#b91c1c}.t-warn{background:#fff5e5;color:#b45309}.t-mix{background:#eef2ff;color:#3730a3}
+.ac p{font-size:.78rem;color:#334155;line-height:1.72}
+
+/* 日历 */
+.cal{list-style:none}
+.cal li{display:flex;gap:11px;padding:8px 0;border-bottom:1px dashed #eceff3;font-size:.8rem;align-items:baseline}
+.cal li:last-child{border-bottom:none}
+.cal .d{flex:0 0 66px;font-weight:700;color:var(--primary-deep);font-variant-numeric:tabular-nums;font-size:.78rem}
+.cal .e{flex:1 1 0;min-width:0;color:#334155}
+.cal .i{flex:0 0 auto;font-size:.68rem;color:var(--t3);background:#f5f7fa;border-radius:5px;padding:1px 6px}
+
+footer{font-size:.75rem;color:#8b95a3;line-height:1.8;padding:6px 4px}
+footer b{color:#6b7280}
+.dis{background:#fbfbfc;border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:.78rem;color:#4b5563;line-height:1.8}
+.loading{text-align:center;color:var(--t3);font-size:.85rem;padding:30px 0}
+
+@media(max-width:820px){
+  .wrap{padding:14px 12px 44px}
+  .hero{padding:20px 18px}
+  .hero h1{font-size:1.35rem}
+  .hero .back{position:static;display:inline-block;margin-top:10px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .radar-wrap{grid-template-columns:1fr;gap:6px}
+  #radar{max-width:320px;margin:0 auto}
+  .cats,.adv{grid-template-columns:1fr}
+  .card{padding:16px 14px}
+  table{font-size:.75rem;min-width:0}
+  #scoreTbl{min-width:320px}
+  #scoreTbl th,#scoreTbl td{padding:6px 4px}
+  #scoreTbl th{white-space:normal}
+  .verdict .big{font-size:.92rem;line-height:1.72}
+  .verdict{padding:14px 14px}
+  .radar-wrap{gap:2px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <a class="back" href="index.html">← 返回报价</a>
+    <div class="kick">SCRAP PRICE OUTLOOK · 七维框架</div>
+    <h1>废品价格 · 七维研判</h1>
+    <div class="sub">用股票研判的方法看废品：地缘 / 宏观 / 景气 / 利润 / 技术 / 库存 / 情绪，外加供需、预期差、流动性窗口、制度变动<br>
+    <span id="stamp">数据截至 2026-11-21</span> · 研判周期 7 天与 30 天</div>
+  </div>
+
+  <div id="app"><div class="loading">研判数据加载中…</div></div>
+
+  <footer id="foot" style="display:none"></footer>
+</div>
+
+<script>
+(function(){
+  var fmt = function(n){ return (Math.round(n*100)/100).toFixed(2); };
+  var pct = function(n){ return (n>0?'+':'') + n.toFixed(1) + '%'; };
+  var TREND = {
+    'down-strong': ['弱势下行','neg'],
+    'down': ['偏弱','neg'],
+    'flat': ['震荡','zer'],
+    'up': ['偏强','pos'],
+    'up-strong': ['强势上行','pos']
+  };
+  function trendOf(net){
+    if (net <= -1.2) return 'down-strong';
+    if (net < -0.4) return 'down';
+    if (net <= 0.4) return 'flat';
+    if (net < 1.2) return 'up';
+    return 'up-strong';
+  }
+  function netOf(scores, w){
+    var s = 0, tot = 0;
+    for (var k in w){ s += (scores[k]||0) * w[k]; tot += w[k]; }
+    return s / tot;
+  }
+  function label(n){ return (n>0?'+':'') + n.toFixed(2); }
+  function cls(n){ return n > 0.15 ? 'pos' : (n < -0.15 ? 'neg' : 'zer'); }
+
+  function radar(dims, scores, color){
+    var cx=170,cy=156,R=104,n=dims.length;
+    var pt=function(i,r){ var a=-Math.PI/2 + i*2*Math.PI/n; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
+    var poly=function(r){ var d=''; for(var i=0;i<n;i++){ var p=pt(i,r); d += (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); } return d+'Z'; };
+    // 四个品种的分值都集中在负区间，若按 -2~+2 绝对刻度画会全部挤在圆心。
+    // 因此按当前视图的极值做相对拉伸，并在右侧保留绝对分值，图上虚线标出中性位。
+    var vals = dims.map(function(d){ return scores[d.key]||0; });
+    var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    if (mx - mn < 0.6){ var mid=(mx+mn)/2; mn = mid-0.3; mx = mid+0.3; }
+    var pad = (mx-mn)*0.16; mn -= pad; mx += pad;
+    var rOf = function(v){ return (0.24 + 0.76*(v-mn)/(mx-mn)) * R; };
+    var s='';
+    for (var g=1; g<=4; g++){
+      s += '<path d="'+poly(R*g/4)+'" fill="'+(g===4?'#fbfcfe':'none')+'" stroke="#e8ecf3" stroke-width="1"/>';
+    }
+    // 中性线（0 分）位置
+    var hasZero = false;
+    if (mn < 0 && mx > 0){
+      hasZero = true;
+      s += '<path d="'+poly(rOf(0))+'" fill="none" stroke="#c3cad6" stroke-width="1" stroke-dasharray="3 3"/>';
+    }
+    for (var i=0;i<n;i++){
+      var p=pt(i,R), l=pt(i,R+20);
+      s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#e8ecf3" stroke-width="1"/>';
+      var anchor = Math.abs(l[0]-cx) < 8 ? 'middle' : (l[0] > cx ? 'start' : 'end');
+      var dy = l[1] < cy-20 ? -2 : (l[1] > cy+26 ? 9 : 3);
+      s += '<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+dy).toFixed(1)+'" font-size="10.5" fill="#64748b" text-anchor="'+anchor+'" font-weight="600">'+dims[i].name+'</text>';
+    }
+    var d2='';
+    for (var i=0;i<n;i++){ var p=pt(i, rOf(vals[i])); d2 += (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); }
+    s += '<path d="'+d2+'Z" fill="'+color+'1f" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>';
+    for (var i=0;i<n;i++){
+      var p=pt(i, rOf(vals[i]));
+      s += '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8" fill="#fff" stroke="'+color+'" stroke-width="1.9"/>';
+    }
+    s += '<text x="170" y="306" font-size="9" fill="#a3aebd" text-anchor="middle">'+(hasZero ? '形状为相对强弱，虚线为中性位，绝对分值见右栏' : '形状为相对强弱（七维全在负值区），绝对分值见右栏')+'</text>';
+    return '<svg id="radar" viewBox="0 0 340 316" role="img" aria-label="七维雷达图">'+s+'</svg>';
+  }
+
+  function render(d){
+    var w = d.weights, dims = d.dims;
+    var cats = d.categories;
+    // 综合
+    var comp = {};
+    dims.forEach(function(dm){
+      var s = 0;
+      cats.forEach(function(c){ s += (c.scores[dm.key]||0); });
+      comp[dm.key] = s/cats.length;
+    });
+    var compNet = netOf(comp, w);
+    var nets = cats.map(function(c){ return netOf(c.scores, w); });
+    var avgNet = nets.reduce(function(a,b){return a+b;},0)/nets.length;
+    var weakest = dims.slice().sort(function(a,b){ return comp[a.key]-comp[b.key]; })[0];
+    var topIdx = 0;
+    nets.forEach(function(n,i){ if (n > nets[topIdx]) topIdx = i; });
+    var topCat = cats[topIdx];
+
+    var strongDown = nets.filter(function(n){ return n <= -1.2; }).length;
+    var dirTxt = strongDown >= 2 ? (strongDown + ' 类弱势下行，其余震荡偏弱') : '未出现集体下行';
+
+    var html = '';
+
+    // 结论
+    html += '<div class="card" style="padding:18px 18px 16px">'
+      + '<div class="verdict"><div class="big">'
+      + '一句话：未来 7 天 <em>四类废品没有一类能涨</em>。废铜的跌是宏观给的（伦铜破位、加息定价），废铁的跌是钢厂给的（库存年内新高、电炉亏损），废纸的跌是纸厂给的（一边发涨价函一边降收购价），只有废铝靠票源和低库存横着。<br>策略也只有一句：<b>降库存、快周转、别赌反弹</b>。'
+      + '</div>'
+      + '<div class="kpis">'
+      + '<div class="kpi"><div class="t">综合净分</div><div class="v '+cls(compNet)+'">'+label(compNet)+'</div><div class="d">区间 -2 ~ +2</div></div>'
+      + '<div class="kpi"><div class="t">研判方向</div><div class="v neg" style="font-size:1.05rem">'+TREND[trendOf(compNet)][0]+'</div><div class="d">'+dirTxt+'</div></div>'
+      + '<div class="kpi"><div class="t">最弱维度</div><div class="v" style="font-size:1.05rem">'+weakest.name+'</div><div class="d">'+label(comp[weakest.key])+'（权重 '+w[weakest.key]+'%）</div></div>'
+      + '<div class="kpi"><div class="t">最抗跌品种</div><div class="v" style="font-size:1.05rem">'+topCat.cat+'</div><div class="d">净分 '+label(nets[topIdx])+'，区间可横盘</div></div>'
+      + '</div></div></div>';
+
+    // 雷达
+    html += '<div class="card"><h2><span class="n">1</span>七维打分</h2>'
+      + '<p class="h2sub">每维按 -2（强利空）到 +2（强利多）打分，按权重加权得净分。点标签切换品种。</p>'
+      + '<div class="radar-head"><div class="tabs" id="radarTabs"></div></div>'
+      + '<div class="radar-wrap"><div id="radarBox"></div><ul class="dimlist" id="dimList"></ul></div></div>';
+
+    // 品类卡
+    html += '<div class="card"><h2><span class="n">2</span>四大类目标区间</h2>'
+      + '<p class="h2sub">区间 = 当日基准价 ×（1 + 判断幅度）。当前价取本站报价，收货时按品级、含杂、扣重再打折。</p>'
+      + '<div class="cats" id="cats"></div></div>';
+
+    // 评分总表
+    html += '<div class="card"><h2><span class="n">3</span>逐项对照</h2>'
+      + '<p class="h2sub">同一件事对四个品种的方向并不一样，比如「低库存」对废铝是支撑，对废钢却是利空。</p>'
+      + '<div class="tw"><table id="scoreTbl"></table></div></div>';
+
+    // 进阶
+    html += '<div class="card"><h2><span class="n">4</span>四项进阶</h2>'
+      + '<p class="h2sub">只看七维容易漏掉结构性变量，这四项决定幅度而不决定方向。</p>'
+      + '<div class="adv">' + d.advanced.map(function(a){
+          return '<div class="ac '+a.tone+'"><div class="h"><b>'+a.title+'</b><span class="tag">'+a.tag+'</span></div><p>'+a.text+'</p></div>';
+        }).join('') + '</div></div>';
+
+    // 日历
+    html += '<div class="card"><h2><span class="n">5</span>未来三周看什么</h2>'
+      + '<p class="h2sub">价格不是每天都有信息，只有这些节点会真正改方向。</p>'
+      + '<ul class="cal">' + d.calendar.map(function(c){
+          return '<li><span class="d">'+c.date+'</span><span class="e">'+c.event+'</span><span class="i">'+c.impact+'</span></li>';
+        }).join('') + '</ul></div>';
+
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('stamp').textContent = '数据截至 ' + d.dataAsOf + ' · 生成于 ' + d.generatedAt.slice(5,16).replace('T',' ');
+
+    // 雷达交互
+    var views = [{key:'__all',name:'综合',scores:comp,color:'#4f46e5'}].concat(cats.map(function(c){
+      return {key:c.cat,name:c.cat,scores:c.scores,color:'#4f46e5'};
+    }));
+    var box = document.getElementById('radarBox'), tabs = document.getElementById('radarTabs'), dl = document.getElementById('dimList');
+    function paint(v){
+      box.innerHTML = radar(dims, v.scores, v.color);
+      dl.innerHTML = dims.map(function(dm){
+        var s = v.scores[dm.key]||0;
+        return '<li><span class="nm">'+dm.name+'</span><span class="sc '+cls(s)+'">'+label(s)+'</span><span class="ds">'+dm.desc+'</span></li>';
+      }).join('');
+      Array.prototype.forEach.call(tabs.children, function(b){ b.classList.toggle('on', b.dataset.k === v.key); });
+    }
+    tabs.innerHTML = views.map(function(v){
+      return '<button class="tab" data-k="'+v.key+'">'+v.name+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(tabs.children, function(b){
+      b.onclick = function(){ paint(views.filter(function(v){ return v.key === b.dataset.k; })[0]); };
+    });
+    paint(views[0]);
+
+    // 品类卡
+    var cbox = document.getElementById('cats');
+    cats.forEach(function(c){
+      var n = netOf(c.scores, w), t = TREND[trendOf(n)];
+      var p7 = [c.base*(1+c.fc7[0]/100), c.base*(1+c.fc7[1]/100)];
+      var p30 = [c.base*(1+c.fc30[0]/100), c.base*(1+c.fc30[1]/100)];
+      var lo = Math.min(c.base, p7[0], p30[0]), hi = Math.max(c.base, p7[1], p30[1]);
+      var pad = (hi-lo)*0.12, a = lo-pad, b = hi+pad;
+      var pos = function(v){ return (v-a)/(b-a)*100; };
+      var band = function(r, cl){
+        var l = pos(Math.min(r[0],r[1])), wd = pos(Math.max(r[0],r[1])) - l;
+        return '<div class="track"><div class="band '+cl+'" style="left:'+l.toFixed(1)+'%;width:'+Math.max(wd,1.5).toFixed(1)+'%"></div><div class="cur" style="left:'+pos(c.base).toFixed(1)+'%"></div></div>';
+      };
+      cbox.insertAdjacentHTML('beforeend',
+        '<div class="cc">'
+        + '<div class="top"><div class="nm">'+c.cat+'<small>样本：'+c.sample+'</small></div>'
+        + '<div class="px"><b>'+fmt(c.base)+'</b><span>元/公斤 · 现价</span></div></div>'
+        + '<div class="head">'+c.headline+'</div>'
+        + '<div class="hr"><div class="lab"><span>7 天 '+pct(c.fc7[0])+' ~ '+pct(c.fc7[1])+'</span><b>'+fmt(p7[0])+' – '+fmt(p7[1])+'</b></div>'+band(p7,'d7')+'</div>'
+        + '<div class="hr"><div class="lab"><span>30 天 '+pct(c.fc30[0])+' ~ '+pct(c.fc30[1])+'</span><b>'+fmt(p30[0])+' – '+fmt(p30[1])+'</b></div>'+band(p30,'d30')+'</div>'
+        + '<div class="sum">'+c.summary+'</div>'
+        + '<ul>'+c.actions.map(function(x){ return '<li>'+x+'</li>'; }).join('')+'</ul>'
+        + '</div>');
+    });
+
+    // 评分表
+    var tb = '<thead><tr><th>维度（权重）</th>' + cats.map(function(c){
+        var n = netOf(c.scores, w);
+        return '<th class="c">'+c.cat+'<br><span style="font-weight:700" class="'+cls(n)+'">'+label(n)+'</span></th>';
+      }).join('') + '</tr></thead><tbody>';
+    dims.forEach(function(dm){
+      tb += '<tr><td>'+dm.name+' <span style="color:#94a3b8">'+w[dm.key]+'%</span></td>' + cats.map(function(c){
+        var s = c.scores[dm.key]||0;
+        return '<td class="c"><span class="chip '+(s>0?'p':(s<0?'n':'z'))+'">'+label(s)+'</span></td>';
+      }).join('') + '</tr>';
+    });
+    tb += '<tr class="tot"><td>加权净分</td>' + nets.map(function(n){
+      return '<td class="c '+cls(n)+'">'+label(n)+'</td>';
+    }).join('') + '</tr>';
+    tb += '<tr><td style="color:#94a3b8">置信度</td>' + cats.map(function(c){
+      return '<td class="c" style="color:#475569">'+Math.round(c.confidence*100)+'%</td>';
+    }).join('') + '</tr></tbody>';
+    document.getElementById('scoreTbl').innerHTML = tb;
+
+    // 页脚
+    var f = document.getElementById('foot');
+    f.innerHTML = '<div class="dis">'+d.disclaimer+'</div>'
+      + '<div style="margin-top:10px"><b>数据来源：</b>' + d.sources.join('；') + '。</div>'
+      + '<div style="margin-top:6px"><b>说明：</b>本站基准价为大宗口径、干净一级料到厂价；地区价请回<a href="index.html" style="color:#4f46e5">报价首页</a>按地区查看。</div>';
+    f.style.display = 'block';
+  }
+
+  fetch('outlook.json?t=' + Date.now())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){
+      if (!d || !d.categories || !d.categories.length) throw new Error('empty');
+      render(d);
+    })
+    .catch(function(e){
+      document.getElementById('app').innerHTML = '<div class="card"><div class="loading">研判数据加载失败（'+e.message+'）。<br><a href="outlook.html" style="color:#4f46e5">点此刷新</a></div></div>';
+    });
+})();
+</script>
+</body>
+</html>

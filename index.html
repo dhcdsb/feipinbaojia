@@ -170,6 +170,12 @@ label{font-size:.82rem;color:var(--text-2);margin-bottom:6px;display:block;font-
 .fc-drivers .fd-src{margin-left:auto;flex-shrink:0;font-size:.71rem;color:var(--text-3);white-space:nowrap;padding-left:8px}
 .fc-note{font-size:.72rem;color:var(--text-3);margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);line-height:1.6}
 .fc-empty{font-size:.84rem;color:var(--text-3);padding:14px 0;text-align:center}
+.fc-deep{display:flex;align-items:center;gap:10px;text-decoration:none;margin-top:12px;padding:11px 14px;border-radius:11px;background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #dbe0fe;color:var(--primary-deep);transition:border-color .15s,transform .15s}
+.fc-deep:hover{border-color:#c7d2fe;transform:translateY(-1px)}
+.fc-deep .fd-t{flex:1 1 0;min-width:0}
+.fc-deep b{display:block;font-size:.86rem;font-weight:800;color:#3730a3}
+.fc-deep span{display:block;font-size:.71rem;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-deep i{flex:0 0 auto;font-style:normal;font-size:1rem;color:#818cf8}
 .info-fc{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:.78rem;background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:12px}
 .info-fc .if-tag{font-weight:800;padding:2px 8px;border-radius:999px;font-size:.72rem}
 .info-fc .if-tag.down{background:#ecfdf5;color:#047857}
@@ -519,6 +525,10 @@ if ('serviceWorker' in navigator) {
     <div class="rec-tabs" id="fcTabs"></div>
     <div id="fcBody"><div class="fc-empty">预测数据加载中…</div></div>
     <p class="fc-note" id="fcNote"></p>
+    <a class="fc-deep" href="outlook.html">
+      <div class="fd-t"><b>七维深度研判 →</b><span>地缘 · 宏观 · 景气 · 利润 · 技术 · 库存 · 情绪</span></div>
+      <i>›</i>
+    </a>
   </div>
 
   <!-- 导出 -->
