@@ -140,19 +140,78 @@ body.dark{background:#0b1120;color:#e2e8f0}
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 .dark ::-webkit-scrollbar-thumb{background:#334155}
 
-@media(max-width:640px){
-  .container{padding:10px}
-  .header{padding:16px}
-  .header-left h1{font-size:1.1rem}
-  .header-right .btn{font-size:.75rem;padding:6px 10px}
-  .item-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-  .item-card{padding:8px}
-  .item-input{width:72px;font-size:.84rem}
-  .info-bar{font-size:.75rem;padding:10px 12px;flex-direction:column;align-items:flex-start}
-  .category-header{padding:6px 10px}
+/* ===================== 手机端专门适配 ===================== */
+@media(max-width:720px){
+  .container{padding:calc(10px + env(safe-area-inset-top)) 10px calc(18px + env(safe-area-inset-bottom))}
+
+  /* 头部：竖排，按钮撑满一行 */
+  .header{
+    display:flex;flex-direction:column;align-items:stretch;gap:12px;
+    padding:16px 15px;border-radius:14px;margin-bottom:12px;
+  }
+  .header-left h1{font-size:1.12rem;gap:8px}
+  .header-left h1 .hlogo{width:30px;height:30px;font-size:1rem;border-radius:9px}
+  .header-left .sub{font-size:.72rem;margin-top:5px;line-height:1.5}
+  .header-right{display:flex;align-items:center;gap:8px;width:100%}
+  .toggle-wrap{font-size:.76rem;min-height:44px;flex-shrink:0}
+  .header-right .btn{flex:1;justify-content:center;min-height:44px;font-size:.85rem;padding:10px 12px}
+
+  /* 通用触控尺寸 */
+  .btn{min-height:44px;padding:11px 15px;font-size:.88rem}
+  .btn-sm{min-height:40px;padding:10px 13px;font-size:.82rem}
+
+  /* 智能识别粘贴 */
+  .paste-section{padding:14px 13px;border-radius:13px;margin-bottom:12px}
+  .paste-section h3{font-size:.95rem;margin-bottom:9px}
+  .paste-section textarea{font-size:16px;min-height:120px;padding:12px}
+  .paste-section .paste-actions{gap:8px;margin-top:10px}
+  .paste-section .paste-actions .btn{flex:1}
+  .paste-section .paste-actions .hint{width:100%;font-size:.7rem!important;line-height:1.5}
+  .paste-results{font-size:.82rem;max-height:none}
+  .paste-results .pr-item{flex-wrap:wrap;gap:6px;padding:7px 9px;margin-bottom:6px}
+  .paste-results .pr-name{flex:1 1 auto;min-width:0;word-break:break-all}
+  .paste-results select{max-width:100%;flex:1 1 100%;min-height:40px;font-size:16px;padding:8px 10px}
+
+  /* 提示条 */
+  .info-bar{font-size:.76rem;padding:11px 13px;flex-direction:column;align-items:flex-start;gap:7px;line-height:1.6}
+  .info-bar code{font-size:.72rem;overflow-wrap:anywhere;word-break:normal}
+
+  /* 分类 */
+  .category-section{margin-bottom:18px}
+  .category-header{padding:8px 11px;margin-bottom:9px;gap:8px}
   .category-title{font-size:.95rem}
+  .category-actions{gap:6px}
+  .category-actions .adjust-btn{min-height:36px;padding:7px 13px;font-size:.78rem}
+
+  /* 价格卡片：自适应列数 */
+  .item-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .item-card{padding:10px 8px;border-radius:11px}
+  .item-name{font-size:.76rem;margin-bottom:7px;white-space:normal;line-height:1.35;max-height:2.7em;overflow:hidden}
+  .item-input{
+    width:100%!important;max-width:none;min-height:42px;
+    font-size:16px;padding:9px 6px;border-radius:9px;
+  }
+
+  /* 弹窗：底部抽屉 */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{width:100%;max-width:100%;max-height:88vh;border-radius:18px 18px 0 0;padding:20px 16px calc(16px + env(safe-area-inset-bottom))}
+  .modal h3{font-size:1.05rem}
+  .modal p{font-size:.82rem;line-height:1.6}
+  .modal textarea{height:160px;font-size:16px}
+  .modal .btn-group{margin-top:14px}
+  .modal .btn-group .btn{flex:1}
+
+  /* toast 顶部通栏 */
+  .toast{top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;text-align:center;font-size:.86rem;padding:12px 16px}
 }
-@media(max-width:400px){.item-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* 超小屏微调 */
+@media(max-width:400px){
+  .item-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .item-name{font-size:.72rem}
+  .header-right .btn{font-size:.8rem;padding:9px 8px}
+  .toggle-wrap{font-size:.72rem}
+}
 </style>
 </head>
 <body>

@@ -139,13 +139,104 @@ tr:hover td{background:#f8fafc}
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
 ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
-@media(max-width:600px){
-  body{padding:12px}
-  .header{padding:22px}
-  .header h1{font-size:1.4rem}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .form-row{flex-direction:column}
+/* ===================== 手机端专门适配 ===================== */
+@media(max-width:720px){
+  body{padding:calc(10px + env(safe-area-inset-top)) 10px calc(18px + env(safe-area-inset-bottom))}
+  .container{max-width:100%}
+
+  /* 头部 */
+  .header{border-radius:14px;padding:17px 16px;margin-bottom:13px}
+  .header h1{font-size:1.14rem;gap:9px;line-height:1.35}
+  .header .logo{width:34px;height:34px;border-radius:9px;font-size:1.12rem}
+  .header .sub{font-size:.73rem;margin-top:5px;line-height:1.5}
+
+  /* 统计卡：固定两列，数字不换行 */
+  .stats{grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+  .stat-card{padding:11px 10px;gap:8px;border-radius:12px}
+  .stat-card:hover{transform:none;box-shadow:var(--shadow)}
+  .stat-icon{width:34px;height:34px;font-size:.98rem;border-radius:9px}
+  .stat-card .num{font-size:1.02rem;white-space:nowrap}
+  .stat-card .label{font-size:.66rem;margin-top:1px}
+
+  /* 卡片 */
+  .card{padding:14px 13px;border-radius:13px;margin-bottom:12px}
+  .card-title{font-size:.98rem;margin-bottom:12px;padding-bottom:9px;flex-wrap:wrap;gap:3px}
+  .card-title .time{font-size:.67rem;width:100%}
+
+  /* 按钮：触控≥44px */
+  .btn{min-height:44px;padding:11px 15px;font-size:.9rem;justify-content:center}
+  .btn-sm{min-height:38px;padding:9px 13px;font-size:.8rem}
   .btn-group{gap:8px}
+  .btn-group .btn{flex:1 1 auto}
+
+  /* 表单：全宽 + 16px 防 iOS 聚焦缩放 */
+  .form-row{flex-direction:column;gap:10px;align-items:stretch;margin-bottom:10px}
+  .form-group{min-width:0;width:100%!important;max-width:none!important}
+  select,input[type=number],input[type=text],.search-box,.modal textarea{font-size:16px;padding:12px 13px;width:100%}
+  .search-box{margin-bottom:10px}
+  .form-group .btn{width:100%}
+  label{font-size:.8rem;margin-bottom:5px}
+
+  /* 结果框 */
+  .result-box{padding:15px;margin-top:12px}
+  .result-box .price{font-size:1.85rem}
+  .result-box .detail{font-size:.79rem;line-height:1.5}
+
+  /* 推荐收货价：单列 */
+  #recGrid{grid-template-columns:1fr!important;gap:10px}
+
+  /* ===== 表格转卡片 ===== */
+  .table-wrap{max-height:none;border:none;overflow:visible;border-radius:0}
+  table{font-size:.9rem}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:9px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  tbody tr:hover td{background:transparent}
+  tbody td{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed #eef2f7;font-size:.9rem;text-align:right;color:var(--text)}
+  tbody td:last-child{border-bottom:none;padding-top:9px}
+  tbody td::before{content:attr(data-label);color:var(--text-3);font-size:.76rem;font-weight:600;flex-shrink:0;text-align:left}
+  /* 品类作标题行 */
+  tbody td[data-label="品类"]{font-size:1.02rem;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:9px;margin-bottom:2px;justify-content:space-between}
+  tbody td[data-label="品类"] .item-link{font-size:1.02rem;border-bottom:none}
+  /* 单价突出 */
+  tbody td[data-label="单价(元/kg)"] b{font-size:1.1rem;color:var(--primary-deep)}
+  /* 详情按钮整行 */
+  tbody td[data-label="详情"]::before{display:none}
+  tbody td[data-label="详情"] .btn{width:100%;justify-content:center}
+  /* 空状态 */
+  tbody tr.empty-row td{justify-content:center;text-align:center;border:none;color:var(--text-3)}
+  tbody tr.empty-row td::before{display:none}
+
+  /* ===== 弹窗改底部抽屉 ===== */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{width:100%;max-width:100%;max-height:88vh;border-radius:18px 18px 0 0;padding:20px 16px calc(16px + env(safe-area-inset-bottom));animation:slideUp .26s ease-out}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+  .info-modal{max-width:100%}
+  .info-head{gap:10px;padding-bottom:12px;margin-bottom:14px}
+  .info-head .ih-icon{width:40px;height:40px;font-size:1.12rem;border-radius:10px}
+  .info-head .ih-cat{font-size:.73rem}
+  .info-head .ih-name{font-size:1.08rem;line-height:1.35}
+  .info-head .ih-price b{font-size:1.22rem}
+  .info-sec{margin-bottom:14px}
+  .info-sec .sec-t{font-size:.85rem;margin-bottom:7px}
+  .info-sec.intro p{font-size:.85rem;padding:10px 12px;line-height:1.65}
+  .how-list li{font-size:.85rem}
+  .info-tip{font-size:.82rem;padding:10px 12px}
+  .modal h3{font-size:1.05rem}
+  .modal .btn-group{margin-top:14px}
+  .modal .btn-group .btn{flex:1}
+
+  /* toast 顶部通栏 */
+  .toast{top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;padding:12px 16px;text-align:center;font-size:.87rem;transform:translateY(-14px)}
+  .toast.show{transform:none}
+}
+
+/* 超小屏微调 */
+@media(max-width:360px){
+  .header h1{font-size:1.02rem}
+  .stat-card .num{font-size:.92rem}
+  .stat-icon{display:none}
+  .stat-card{justify-content:center}
 }
 </style>
 <script>
@@ -158,7 +249,7 @@ if ('serviceWorker' in navigator) {
 <div class="container">
   <div class="header">
     <h1><span class="logo">♻</span>废品回收报价助手</h1>
-    <div class="sub">快速查询 · 批量更新 · 本地存储 · 实时掌握废料行情</div>
+    <div class="sub">快速查询 · 实时行情 · 品类详情 · 价格估算</div>
   </div>
 
   <div class="stats">
@@ -868,15 +959,15 @@ function renderTable() {
         }
       }
       html += `<tr>
-        <td>${cat}</td><td><span class="item-link" onclick="openItemInfo('${cat}','${item}')">${item}</span><span class="info-badge" onclick="openItemInfo('${cat}','${item}')" title="查看介绍与分辨方法">i</span></td><td><b>${cur}</b></td>
-        <td>${last !== null && last !== undefined ? last : '-'}</td>
-        <td>${changeHtml} ${tagHtml}</td>
-        <td><button class="btn btn-info btn-sm" onclick="openItemInfo('${cat}','${item}')">详情</button></td>
+        <td data-label="大类">${cat}</td><td data-label="品类"><span class="item-link" onclick="openItemInfo('${cat}','${item}')">${item}</span><span class="info-badge" onclick="openItemInfo('${cat}','${item}')" title="查看介绍与分辨方法">i</span></td><td data-label="单价(元/kg)"><b>${cur}</b></td>
+        <td data-label="上次价格">${last !== null && last !== undefined ? last : '-'}</td>
+        <td data-label="涨跌">${changeHtml} ${tagHtml}</td>
+        <td data-label="详情"><button class="btn btn-info btn-sm" onclick="openItemInfo('${cat}','${item}')">详情</button></td>
       </tr>`;
     });
   });
 
-  tbody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">无匹配结果</td></tr>';
+  tbody.innerHTML = html || '<tr class="empty-row"><td colspan="6">无匹配结果</td></tr>';
 }
 
 // ========== 品类详情 ==========
