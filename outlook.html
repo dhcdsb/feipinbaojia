@@ -29,6 +29,14 @@ body{font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-s
 .hero .back{position:absolute;right:22px;top:22px;z-index:2;font-size:.76rem;color:#fff;text-decoration:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);padding:5px 11px;border-radius:8px;backdrop-filter:blur(4px)}
 .hero .back:hover{background:rgba(255,255,255,.28)}
 
+.fresh{display:block;background:#f0f7f3;border:1px solid #cfe8db;color:#14663f;border-radius:11px;padding:10px 14px;font-size:.78rem;line-height:1.65;margin-bottom:12px}
+.fresh b{font-weight:700}
+.fresh.warn{background:#fff8ed;border-color:#fbd9a5;color:#a35a06}
+.mini{font-size:.68rem;color:#94a3b8;font-weight:500}
+.st{display:inline-block;padding:1px 7px;border-radius:5px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.s-ok{background:#e8f5ee;color:#14663f}.s-warn{background:#fff5e5;color:#b45309}.s-gray{background:#f1f2f4;color:#4b5563}
+.drift{display:inline-block;font-size:.68rem;color:#a35a06;background:#fff8ed;border:1px solid #fbd9a5;padding:1px 7px;border-radius:5px;margin-top:7px}
+.note-line{font-size:.71rem;color:var(--t3);margin-top:9px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:14px;box-shadow:var(--sh)}
 .card>h2{font-size:1.02rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .card>h2 .n{display:inline-flex;width:21px;height:21px;border-radius:6px;background:#111827;color:#fff;font-size:.72rem;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto}
@@ -222,9 +230,19 @@ footer b{color:#6b7280}
     return '<svg id="radar" viewBox="0 0 340 316" role="img" aria-label="七维雷达图">'+s+'</svg>';
   }
 
-  function render(d){
+  function render(d, prices, fc){
     var w = d.weights, dims = d.dims;
     var cats = d.categories;
+    // 基准价优先取 prices.json 的当日报价（自动任务工作日早晚各更新一次），
+    // 取不到才退回 outlook.json 里判断生成时的快照，避免区间与首页报价脱节。
+    function baseOf(c){
+      var g = prices && prices.categories && prices.categories[c.cat];
+      var v = g && g[c.sample];
+      return (typeof v === 'number' && v > 0) ? v : c.base;
+    }
+    var genT = Date.parse(d.generatedAt);
+    var ageDays = isNaN(genT) ? 0 : Math.max(0, Math.floor((Date.now() - genT) / 86400000));
+    var priceTime = (prices && prices.updatedAt) ? prices.updatedAt.slice(5, 16).replace('T', ' ') : '';
     // 综合
     var comp = {};
     dims.forEach(function(dm){
@@ -244,6 +262,15 @@ footer b{color:#6b7280}
     var dirTxt = strongDown >= 2 ? (strongDown + ' 类弱势下行，其余震荡偏弱') : '未出现集体下行';
 
     var html = '';
+
+    // 时效与基准价说明
+    html += '<div class="fresh' + (ageDays >= 7 ? ' warn' : '') + '">'
+      + '<b>' + (priceTime ? '基准价已同步至 ' + priceTime : '当前报价读取失败，按判断时的快照计算') + '</b>'
+      + '：目标区间 = 当日报价 ×（1 + 判断幅度），报价一变就重算，不会停在旧行情。'
+      + (ageDays >= 7
+          ? ' 方向判断生成于 ' + ageDays + ' 天前，<b>已超过 7 天，建议重新研判后再用</b>。'
+          : ' 方向判断生成于 ' + ageDays + ' 天前。')
+      + '</div>';
 
     // 结论
     html += '<div class="card" style="padding:18px 18px 16px">'
@@ -273,15 +300,22 @@ footer b{color:#6b7280}
       + '<p class="h2sub">同一件事对四个品种的方向并不一样，比如「低库存」对废铝是支撑，对废钢却是利空。</p>'
       + '<div class="tw"><table id="scoreTbl"></table></div></div>';
 
+    // 交叉核对
+    html += '<div class="card"><h2><span class="n">4</span>三源交叉核对</h2>'
+      + '<p class="h2sub">人工七维判断 × 新闻词频（每日自动抓取）× 当日报价变动。三者不一致的地方，就是最该盯的地方。</p>'
+      + '<div class="tw"><table id="autoTbl"></table></div>'
+      + '<p class="note-line">「报价较判断时」= 当日报价相对判断生成时快照的变动，偏离 2% 以上会在品类卡上提示复核；新闻词频来自 forecast.json 的 auto 段，只取「看涨:看跌」条数，不改人工判断。</p>'
+      + '<p class="note-line">' + (d.priceNote || '') + '</p></div>';
+
     // 进阶
-    html += '<div class="card"><h2><span class="n">4</span>四项进阶</h2>'
+    html += '<div class="card"><h2><span class="n">5</span>四项进阶</h2>'
       + '<p class="h2sub">只看七维容易漏掉结构性变量，这四项决定幅度而不决定方向。</p>'
       + '<div class="adv">' + d.advanced.map(function(a){
           return '<div class="ac '+a.tone+'"><div class="h"><b>'+a.title+'</b><span class="tag">'+a.tag+'</span></div><p>'+a.text+'</p></div>';
         }).join('') + '</div></div>';
 
     // 日历
-    html += '<div class="card"><h2><span class="n">5</span>未来三周看什么</h2>'
+    html += '<div class="card"><h2><span class="n">6</span>未来三周看什么</h2>'
       + '<p class="h2sub">价格不是每天都有信息，只有这些节点会真正改方向。</p>'
       + '<ul class="cal">' + d.calendar.map(function(c){
           return '<li><span class="d">'+c.date+'</span><span class="e">'+c.event+'</span><span class="i">'+c.impact+'</span></li>';
@@ -315,20 +349,23 @@ footer b{color:#6b7280}
     var cbox = document.getElementById('cats');
     cats.forEach(function(c){
       var n = netOf(c.scores, w), t = TREND[trendOf(n)];
-      var p7 = [c.base*(1+c.fc7[0]/100), c.base*(1+c.fc7[1]/100)];
-      var p30 = [c.base*(1+c.fc30[0]/100), c.base*(1+c.fc30[1]/100)];
-      var lo = Math.min(c.base, p7[0], p30[0]), hi = Math.max(c.base, p7[1], p30[1]);
+      var base = baseOf(c);
+      var drift = (c.base > 0) ? (base - c.base) / c.base * 100 : 0;
+      var p7 = [base*(1+c.fc7[0]/100), base*(1+c.fc7[1]/100)];
+      var p30 = [base*(1+c.fc30[0]/100), base*(1+c.fc30[1]/100)];
+      var lo = Math.min(base, p7[0], p30[0]), hi = Math.max(base, p7[1], p30[1]);
       var pad = (hi-lo)*0.12, a = lo-pad, b = hi+pad;
       var pos = function(v){ return (v-a)/(b-a)*100; };
       var band = function(r, cl){
         var l = pos(Math.min(r[0],r[1])), wd = pos(Math.max(r[0],r[1])) - l;
-        return '<div class="track"><div class="band '+cl+'" style="left:'+l.toFixed(1)+'%;width:'+Math.max(wd,1.5).toFixed(1)+'%"></div><div class="cur" style="left:'+pos(c.base).toFixed(1)+'%"></div></div>';
+        return '<div class="track"><div class="band '+cl+'" style="left:'+l.toFixed(1)+'%;width:'+Math.max(wd,1.5).toFixed(1)+'%"></div><div class="cur" style="left:'+pos(base).toFixed(1)+'%"></div></div>';
       };
       cbox.insertAdjacentHTML('beforeend',
         '<div class="cc">'
         + '<div class="top"><div class="nm">'+c.cat+'<small>样本：'+c.sample+'</small></div>'
-        + '<div class="px"><b>'+fmt(c.base)+'</b><span>元/公斤 · 现价</span></div></div>'
+        + '<div class="px"><b>'+fmt(base)+'</b><span>元/公斤 · 现价</span></div></div>'
         + '<div class="head">'+c.headline+'</div>'
+        + (Math.abs(drift) >= 2 ? '<div class="drift">报价较判断时 ' + (drift>0?'+':'') + drift.toFixed(1) + '%，判断待复核</div>' : '')
         + '<div class="hr"><div class="lab"><span>7 天 '+pct(c.fc7[0])+' ~ '+pct(c.fc7[1])+'</span><b>'+fmt(p7[0])+' – '+fmt(p7[1])+'</b></div>'+band(p7,'d7')+'</div>'
         + '<div class="hr"><div class="lab"><span>30 天 '+pct(c.fc30[0])+' ~ '+pct(c.fc30[1])+'</span><b>'+fmt(p30[0])+' – '+fmt(p30[1])+'</b></div>'+band(p30,'d30')+'</div>'
         + '<div class="sum">'+c.summary+'</div>'
@@ -355,6 +392,28 @@ footer b{color:#6b7280}
     }).join('') + '</tr></tbody>';
     document.getElementById('scoreTbl').innerHTML = tb;
 
+    // 交叉核对：人工判断 vs 新闻词频 vs 报价漂移
+    var fcCats = (fc && fc.categories) || {};
+    var DIRNAME = { up: '偏多', down: '偏空', flat: '多空平衡' };
+    var ab = '<thead><tr><th>品种</th><th class="c">人工判断</th><th class="c">新闻核对</th><th class="c">报价较判断时</th><th class="c">状态</th></tr></thead><tbody>';
+    cats.forEach(function(c){
+      var base = baseOf(c), snap = c.base || base;
+      var drift = snap > 0 ? (base - snap) / snap * 100 : 0;
+      var net = netOf(c.scores, w);
+      var mine = net > 0.15 ? 'up' : (net < -0.15 ? 'down' : 'flat');
+      var f = fcCats[c.cat];
+      var auto = (f && f.auto && f.auto.trend) ? f.auto : null;
+      var agree = auto ? (auto.trend === mine) : null;
+      var st = agree === null ? ['人工研判', 's-gray'] : (agree ? ['一致', 's-ok'] : ['分歧', 's-warn']);
+      ab += '<tr><td><b>' + c.cat + '</b><br><span class="mini">' + c.sample + '</span></td>'
+        + '<td class="c">' + TREND[trendOf(net)][0] + '<br><span class="mini">' + label(net) + '</span></td>'
+        + '<td class="c">' + (auto ? DIRNAME[auto.trend] : '无稳定源') + '<br><span class="mini">' + (auto ? auto.up + ':' + auto.down : '仅人工') + '</span></td>'
+        + '<td class="c">' + (Math.abs(drift) >= 0.05 ? (drift > 0 ? '+' : '') + drift.toFixed(1) + '%' : '0.0%') + '</td>'
+        + '<td class="c"><span class="st ' + st[1] + '">' + st[0] + '</span></td></tr>';
+    });
+    ab += '</tbody>';
+    document.getElementById('autoTbl').innerHTML = ab;
+
     // 页脚
     var f = document.getElementById('foot');
     f.innerHTML = '<div class="dis">'+d.disclaimer+'</div>'
@@ -363,11 +422,19 @@ footer b{color:#6b7280}
     f.style.display = 'block';
   }
 
-  fetch('outlook.json?t=' + Date.now())
-    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(function(d){
+  var bust = '?t=' + Date.now();
+  var getJSON = function(u){
+    return fetch(u + bust).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+  };
+  Promise.all([
+    getJSON('outlook.json'),
+    getJSON('prices.json').catch(function(){ return null; }),
+    getJSON('forecast.json').catch(function(){ return null; })
+  ])
+    .then(function(res){
+      var d = res[0];
       if (!d || !d.categories || !d.categories.length) throw new Error('empty');
-      render(d);
+      render(d, res[1], res[2]);
     })
     .catch(function(e){
       document.getElementById('app').innerHTML = '<div class="card"><div class="loading">研判数据加载失败（'+e.message+'）。<br><a href="outlook.html" style="color:#4f46e5">点此刷新</a></div></div>';
