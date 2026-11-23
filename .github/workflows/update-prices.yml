@@ -2,21 +2,27 @@ name: 自动更新废品报价
 
 # 定时抓取行情并更新 prices.json。
 # 时区说明：GitHub Actions 的 cron 一律按 UTC 计算。
-#   UTC 01:30 = 北京时间 09:30（上午报价）
-#   UTC 07:30 = 北京时间 15:30（下午报价）
-# 周一至周五运行（1-5），周末行情不更新，跳过。
+#   UTC 01:30 / 01:50 / 02:10 = 北京 09:30 / 09:50 / 10:10（上午报价）
+#   UTC 07:30 / 07:50        = 北京 15:30 / 15:50（下午报价）
+# GitHub 的定时任务会在高峰期延迟甚至丢弃，所以每个时段排 3 个 / 2 个触发点，
+# 由下面的「判断是否已有新数据」做幂等：最近 2 小时内更新过就跳过，
+# 不会重复抓、也不会午后再被上午的结果挡住。
+# 周一至周五运行（1-5），周末行情不更新。
 on:
   schedule:
     - cron: '30 1 * * 1-5'
+    - cron: '50 1 * * 1-5'
+    - cron: '10 2 * * 1-5'
     - cron: '30 7 * * 1-5'
-  # 允许在 Actions 页面手动触发，方便随时更新或排错
+    - cron: '50 7 * * 1-5'
+  # 允许在 Actions 页面手动触发，方便随时更新或排错（手动触发不走幂等）
   workflow_dispatch:
 
 # 需要写权限才能把更新后的 prices.json 推回仓库
 permissions:
   contents: write
 
-# 同一时间只跑一个：定时任务偶尔会被 GitHub 延迟，两次运行撞在一起时
+# 同一时间只跑一个：定时触发偶尔会排队，两次运行撞在一起时
 # 后一次 push 会因远端已更新而失败（non-fast-forward）。这里串行化。
 concurrency:
   group: update-prices
@@ -35,12 +41,32 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: 判断是否已有新数据
+        id: fresh
+        run: |
+          SKIP=$(python3 - <<'PY'
+          import json, datetime
+          try:
+              d = json.load(open('prices.json', encoding='utf-8'))
+              t = datetime.datetime.fromisoformat(d['updatedAt'])
+              n = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+              gap = (n - t).total_seconds()
+              print('yes' if 0 <= gap < 7200 else 'no')
+          except Exception:
+              print('no')
+          PY
+          )
+          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+          echo "最近 2 小时内已更新: $SKIP"
+
       - name: 检查语法
+        if: github.event_name != 'schedule' || steps.fresh.outputs.skip != 'yes'
         run: python -m py_compile search_and_update.py update_prices.py forecast.py fetch_mysteel.py
 
       - name: 抓取并更新价格
         # 跳过脚本自带的 git push，由下面的步骤统一提交
         # 这一步的源是单点补充，境外 IP 偶发超时；失败不阻断后面更可靠的子站抓取
+        if: github.event_name != 'schedule' || steps.fresh.outputs.skip != 'yes'
         continue-on-error: true
         env:
           SKIP_GIT_PUSH: '1'
@@ -50,16 +76,19 @@ jobs:
         # Mysteel 子站首页的「今日价格」表：多地区报价，且自带涨跌。
         # 放在上一步之后，铜铝的主价格以这里的中位数为准（更稳，也带涨跌依据）。
         # 抓不到就跳过，不影响前面已更新的结果。
+        if: github.event_name != 'schedule' || steps.fresh.outputs.skip != 'yes'
         continue-on-error: true
         run: python fetch_mysteel.py
 
       - name: 核对走势预测信号
         # 抓取公开行情文本，与 forecast.json 里的判断做交叉验证；
         # 抓取失败会保留原判断，不会把预测改成中性。
+        if: github.event_name != 'schedule' || steps.fresh.outputs.skip != 'yes'
         continue-on-error: true
         run: python forecast.py
 
       - name: 有变化才提交
+        if: github.event_name != 'schedule' || steps.fresh.outputs.skip != 'yes'
         run: |
           if git diff --quiet -- prices.json forecast.json; then
             echo "价格与预测均无变化，跳过提交"
