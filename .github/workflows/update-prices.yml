@@ -98,15 +98,36 @@ jobs:
 
       - name: 有变化才提交
         if: inputs.force == true || steps.fresh.outputs.skip != 'yes'
+        env:
+          FORCE: ${{ inputs.force }}
         run: |
           if git diff --quiet -- prices.json forecast.json; then
             echo "价格与预测均无变化，跳过提交"
             exit 0
           fi
+
+          # 竞态补偿：两次触发相隔几十秒时，开头幂等都判断为「旧」，会各自抓一遍。
+          # 提交前先看远端是不是已经被别的运行更新过；是的话丢弃本地价格改动，
+          # 以远端为准。价格快照不该被 rebase 合并，那只会制造冲突。
+          git fetch origin main --quiet
+          REMOTE_FRESH=$(git show origin/main:prices.json \
+            | python3 -c "import sys,json,datetime;d=json.load(sys.stdin);t=datetime.datetime.fromisoformat(d['updatedAt']);n=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)));print('yes' if 0 <= (n-t).total_seconds() < 7200 else 'no')" \
+            || echo no)
+          if [ "$REMOTE_FRESH" = "yes" ] && [ "$FORCE" != "true" ]; then
+            echo "远端 prices.json 已在 2 小时内更新，本次结果丢弃，避免重复提交"
+            git checkout -- prices.json forecast.json
+            exit 0
+          fi
+
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add prices.json forecast.json
           NOW=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M')
           git commit -m "[auto] 价格更新 $NOW"
-          # 期间若有手动提交，先 rebase 再推，避免 non-fast-forward 直接失败
-          git push || (git pull --rebase --autostash origin main && git push)
+
+          # 仍被拒说明期间有别人推送（如人工改代码）。价格文件以远端为准，
+          # 本地这份自动提交直接丢弃，不当成失败；下次运行会重新抓。
+          if ! git push; then
+            echo "push 被拒，存在并发提交；丢弃本次自动提交，以远端为准"
+            git reset --hard origin/main
+          fi
