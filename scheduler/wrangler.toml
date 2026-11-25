@@ -1,0 +1,21 @@
+# Cloudflare Worker 配置
+# 用法：在本目录执行 `npx wrangler deploy`
+
+name = "feipinbaojia-scheduler"
+main = "trigger.js"
+compatibility_date = "2024-11-01"
+
+# Cron 一律按 UTC 计算，下面是北京时间 09:35 / 15:35（工作日）。
+# 刻意比 GitHub 内置 cron 的 09:30 / 15:30 晚 5 分钟：
+#   - 若 GitHub 自己跑了，这边到点会因 2 小时幂等自动跳过；
+#   - 若 GitHub 没跑或延迟到凌晨，这边按点补上。
+# 周末不跑（1-5 = 周一到周五）。
+[triggers]
+crons = ["35 1 * * 1-5", "35 7 * * 1-5"]
+
+# 下面的变量用 `npx wrangler secret put <名称>` 设置，不要写在这里提交到仓库：
+#   GH_TOKEN   - GitHub Token（需要 Actions:write 权限）
+#   GH_REPO    - 仓库路径，如 dhcdsb/feipinbaojia
+#   WORKFLOW   - 可选，默认 update-prices.yml
+#   ADMIN_KEY  - 手动验证用的口令，随便设一串随机字符串
+#   FORCE      - 不要设置！日常定时必须走幂等
